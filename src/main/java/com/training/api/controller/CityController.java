@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.persistence.EntityNotFoundException;
-
 @RestController
 public class CityController {
 
@@ -28,7 +26,7 @@ public class CityController {
     private CityService cityService;
 
     /**
-     * Function request processing when call url mapping
+     * Request processing when call url mapping search address by prefecture code
      *
      * @param prefectureCode prefecture code
      *
@@ -53,39 +51,46 @@ public class CityController {
      *
      * @return ResponseEntity
      */
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(value = "/city/", method = RequestMethod.GET)
     public ResponseEntity getAll() {
         List<TblCity> newList = cityService.findAll();
+
         return new ResponseEntity(new RestData(newList), HttpStatus.OK);
     }
 
     /**
      * Delete record when id mapping
      *
-     * @param id city id
+     * @param cityId city id
      * @return ResponseEntity
      */
-    @RequestMapping(value = "/post_offices/city/delete/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteCity(@PathVariable("id") int id){
-        Optional<TblCity> tblCity = cityService.findCityById(id);
-        if (tblCity.isPresent() == false) {
-            return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
-        }
+    @RequestMapping(value = "/city/delete/{cityId}", method = RequestMethod.DELETE)
+    public ResponseEntity deleteCity(@PathVariable("cityId") int cityId){
+        try {
+            Optional<TblCity> tblCity = cityService.findCityById(cityId);
 
-        cityService.deleteCity(tblCity.get());
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            if (tblCity.isPresent() == false) {
+                return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
+            }
+            cityService.deleteCity(tblCity.get());
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT, HttpStatus.OK);
+        } catch (IllegalArgumentException ex){
+            return new ResponseEntity<>(ApiMessage.error500(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
      * Find city by city id
      *
-     * @param id city id
+     * @param cityId city id
      *
      * @return ResponseEntity
      */
-    @RequestMapping(value = "/post_offices/city/find/{id}", method = RequestMethod.GET)
-    public ResponseEntity findCityById(@PathVariable("id") int id){
-        Optional<TblCity> tblCity = cityService.findCityById(id);
+    @RequestMapping(value = "/city/find/{cityId}", method = RequestMethod.GET)
+    public ResponseEntity findCityById(@PathVariable("cityId") int cityId){
+
+        Optional<TblCity> tblCity = cityService.findCityById(cityId);
 
         if (tblCity.isPresent() == false) {
             return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
@@ -97,19 +102,39 @@ public class CityController {
     /**
      * Create record into table city
      *
-     * @param tblCity
+     * @param tblCity object TblCity
      *
      * @return ResponseEntity
      */
-    @RequestMapping(value = "/post_offices/city/create", method = RequestMethod.PUT)
+    @RequestMapping(value = "/city/create", method = RequestMethod.PUT)
     public ResponseEntity createCity(@RequestBody TblCity tblCity){
         try {
-            cityService.create(tblCity);
+            cityService.save(tblCity);
         } catch (Exception e) {
             return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT, HttpStatus.OK);
+    }
+
+    /**
+     * Update city in table city
+     *
+     * @param tblCityDetails object TblCity
+     * @param id city id
+     * @return
+     */
+    @RequestMapping(value = "/city/update/{id}", method = RequestMethod.PUT)
+    public ResponseEntity updateCity(@RequestBody TblCity tblCityDetails, @PathVariable("id") int id){
+        Optional<TblCity> tblCity = cityService.findCityById(id);
+        if (tblCity.isPresent() == false) {
+            return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
+        }
+        tblCity.get().setCity(tblCityDetails.getCity());
+        tblCity.get().setCityKana(tblCityDetails.getCityKana());
+        TblCity updateCity = cityService.save(tblCity.get());
+
+        return new ResponseEntity<>(updateCity, HttpStatus.OK);
     }
 
     /**

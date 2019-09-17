@@ -1,24 +1,40 @@
 package com.training.api.service;
 
-import com.training.api.entity.TblArea;
+import com.training.api.entity.TblPost;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PostService {
-    /**
-     * Get information by postcode
-     *
-     * @param  postCode postcode;
-     *
-     * @return TblArea
-     */
-    List<TblArea> searchAreaByPostCode(String postCode);
 
     /**
-     * Search address by post code 2
+     * Get all records of table tbl_post
      *
-     * @param postCode post code
-     * @return List of {@link TblArea}
+     * @return List of {@link TblPost}
      */
-    List<TblArea> findByTblPostPostcode(String postCode);
+    List<TblPost> findAllPost();
+
+    /**
+     * Find record mapping by id
+     *
+     * @param postId post id
+     *
+     * @return Optional of{@link TblPost}
+     */
+    Optional<TblPost> findPostById(int postId);
+
+    /**
+     * Save record in table tbl_post
+     *
+     * @param tblPost object {@link TblPost}
+     */
+    TblPost savePost (TblPost tblPost);
+
+    /**
+     * Delete record in table tbl_post
+     *
+     * @param tblPost Object {@link TblPost}
+     */
+    void deletePost(TblPost tblPost);
+
 }

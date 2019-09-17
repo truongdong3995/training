@@ -34,7 +34,6 @@ public class TblCity implements Serializable {
 	
 	@ManyToOne
 	@JoinColumn(name = "prefecture_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
 	private TblPrefecture tblPrefecture;
 
     public TblCity() {

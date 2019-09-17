@@ -19,7 +19,6 @@ public class ApiMessage {
         this.errorDescription = errorDescription;
     }
 
-
     public static ApiMessage error400() {
         return new ApiMessage("400",
                 "Thiếu thông số bắt buộc, giá trị không hợp lệ hoặc request không đúng định dạng" );
@@ -32,22 +31,4 @@ public class ApiMessage {
     public static ApiMessage error500() {
         return new ApiMessage("500", "Một lỗi xảy ra ở phía máy chủ" );
     }
-
-    public String getError() {
-        return error;
-    }
-
-    public void setError(String error) {
-        this.error = error;
-    }
-
-    public String getErrorDescription() {
-        return errorDescription;
-    }
-
-    public void setErrorDescription(String errorDescription) {
-        this.errorDescription = errorDescription;
-    }
-
-
 }

@@ -1,14 +1,11 @@
 package com.training.api.controller;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
-import com.training.api.entity.TblArea;
-import com.training.api.entity.TblCity;
-import com.training.api.model.PostCodeResponse;
+import com.training.api.entity.TblPost;
 import com.training.api.service.PostService;
 import com.training.api.utils.ApiMessage;
-import com.training.api.utils.Common;
 import com.training.api.utils.RestData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,51 +23,88 @@ public class PostController {
     private PostService postService;
 
     /**
-     * Function request processing when call url mapping
+     * Get all records in table tbl_post
      *
-     * @param postcode post code
-     *
-     * @return ResponseEntity
      */
-    @RequestMapping(value = "/post_offices/post/{postcode}", method = RequestMethod.GET)
-    public ResponseEntity searchByPostCode(@PathVariable("postcode") String postcode) {
-        if (Common.checkValidNumber(Common.replaceData(postcode)) == false) {
-            return new ResponseEntity<>(ApiMessage.error400(), HttpStatus.BAD_REQUEST);
-        }
+    @RequestMapping(value = "/post/", method = RequestMethod.GET)
+    public ResponseEntity getAll() {
+        List<TblPost> tblPostList = postService.findAllPost();
 
-        List<TblArea> areaList = postService.searchAreaByPostCode(postcode);
-        if (areaList.size() == 0) {
-            return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
-        }
-
-        return new ResponseEntity<>(new RestData(getListResponseFromArea(areaList)), HttpStatus.OK);
+        return new ResponseEntity(new RestData(tblPostList), HttpStatus.OK);
     }
+    /**
+     * Create record into table post
+     *
+     * @param tblPost object {@link TblPost}
+     *
+     */
+    @RequestMapping(value = "/post/create/", method = RequestMethod.PUT)
+    public ResponseEntity createCity(@RequestBody TblPost tblPost){
+        try {
+            TblPost createPost = postService.savePost(tblPost);
 
-    @RequestMapping(value = "/post_offices/post/v2/{postcode}")
-    public ResponseEntity searchByPostcode2(@PathVariable("postcode") String postcode){
-        if (Common.checkValidNumber(Common.replaceData(postcode)) == false) {
-            return new ResponseEntity<>(ApiMessage.error400(), HttpStatus.BAD_REQUEST);
-        }
-
-        List<TblArea> areaList = postService.findByTblPostPostcode(postcode);
-        if (areaList.size() == 0) {
+            return new ResponseEntity<>(new RestData(createPost), HttpStatus.OK);
+        } catch (Exception e) {
             return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
         }
-
-        return new ResponseEntity(new RestData(getListResponseFromArea(areaList)), HttpStatus.OK);
     }
 
     /**
-     * Get list response from area
+     * Update city in table post by post id
      *
-     * @param areaList List of {@link TblArea}
+     * @param tblPostDetail object {@link TblPost}
+     * @param postId post id
      *
-     * @return List of{@link PostCodeResponse}
      */
-    private List<PostCodeResponse> getListResponseFromArea(List<TblArea> areaList) {
-        List<PostCodeResponse> searchByPostCodeResponseList = areaList.stream().map(tblArea->
-                new PostCodeResponse(tblArea)).collect(Collectors.toList());
+    @RequestMapping(value = "/post/update/{postId}", method = RequestMethod.PUT)
+    public ResponseEntity updateCity(@RequestBody TblPost tblPostDetail, @PathVariable("postId") int postId){
+        Optional<TblPost> tblPost = postService.findPostById(postId);
+        if (tblPost.isPresent() == false) {
+            return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
+        }
+        tblPost.get().setPostCode(tblPostDetail.getPostCode());
+        tblPost.get().setMultiArea(tblPostDetail.getMultiArea());
+        TblPost updatePost = postService.savePost(tblPost.get());
 
-        return searchByPostCodeResponseList;
+        return new ResponseEntity<>(new RestData(updatePost), HttpStatus.OK);
+    }
+
+    /**
+     * Delete record when id mapping
+     *
+     * @param postId post id
+     *
+     */
+    @RequestMapping(value = "/post/delete/{postId}", method = RequestMethod.DELETE)
+    public ResponseEntity deleteCity(@PathVariable("postId") int postId){
+        try {
+            Optional<TblPost> tblPost = postService.findPostById(postId);
+            if (tblPost.isPresent() == false) {
+                return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
+            }
+            postService.deletePost(tblPost.get());
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT, HttpStatus.OK);
+        } catch (IllegalArgumentException ex){
+            return new ResponseEntity<>(ApiMessage.error500(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Find city by city id
+     *
+     * @param id city id
+     *
+     * @return ResponseEntity
+     */
+    @RequestMapping(value = "/post/find/{postId}", method = RequestMethod.GET)
+    public ResponseEntity findCityById(@PathVariable("postId") int postId){
+        Optional<TblPost> tblPost = postService.findPostById(postId);
+
+        if (tblPost.isPresent() == false) {
+            return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(tblPost.get(), HttpStatus.OK);
     }
 }

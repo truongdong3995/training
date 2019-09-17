@@ -1,16 +1,18 @@
-package com.training.api.repository;
+package com.training.api.service;
 
 import com.training.api.entity.TblArea;
 
 import java.util.List;
 
-public interface PostRepositoryCustom {
+public interface AreaService {
     /**
-     * Search area information by post code
+     * Get information by post code
      *
      * @param  postCode post code;
      *
-     * @return Object {@link TblArea}
+     * @return TblArea
      */
     List<TblArea> searchAreaByPostCode(String postCode);
+
+
 }

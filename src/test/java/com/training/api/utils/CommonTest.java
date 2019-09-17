@@ -24,7 +24,6 @@ public class CommonTest {
 
     @Test
     public void checkValidNumberTest() {
-        Mockito.when(Common.replaceData("aa_bb")).thenReturn("aabb");
         String dataActucal = "aa_bb";
         Assert.assertEquals(false,Common.checkValidNumber(dataActucal));
 
