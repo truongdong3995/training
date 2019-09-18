@@ -18,7 +18,7 @@ public class AreaServiceImpl implements AreaService {
      *
      * @param  postCode postcode;
      *
-     * @return TblArea
+     * @return List of {@link TblArea}
      */
     @Override
     public List<TblArea> searchAreaByPostCode(String postCode) {

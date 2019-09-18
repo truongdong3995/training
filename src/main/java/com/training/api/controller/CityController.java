@@ -70,7 +70,7 @@ public class CityController {
             Optional<TblCity> tblCity = cityService.findCityById(cityId);
 
             if (tblCity.isPresent() == false) {
-                return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.BAD_REQUEST);
             }
             cityService.deleteCity(tblCity.get());
 
@@ -109,12 +109,15 @@ public class CityController {
     @RequestMapping(value = "/city/create", method = RequestMethod.PUT)
     public ResponseEntity createCity(@RequestBody TblCity tblCity){
         try {
-            cityService.save(tblCity);
+            if (cityService.findCityById(tblCity.getCityId()).isPresent()){
+                return new ResponseEntity<>(ApiMessage.error400(), HttpStatus.NOT_FOUND);
+            }
+            TblCity createCity = cityService.save(tblCity);
+
+            return new ResponseEntity<>(createCity, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
         }
-
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT, HttpStatus.OK);
     }
 
     /**

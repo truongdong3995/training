@@ -32,6 +32,7 @@ public class PostController {
 
         return new ResponseEntity(new RestData(tblPostList), HttpStatus.OK);
     }
+
     /**
      * Create record into table post
      *
@@ -41,6 +42,9 @@ public class PostController {
     @RequestMapping(value = "/post/create/", method = RequestMethod.PUT)
     public ResponseEntity createCity(@RequestBody TblPost tblPost){
         try {
+            if (postService.findPostById(tblPost.getPostId()).isPresent()) {
+                return new ResponseEntity<>(ApiMessage.error400(), HttpStatus.BAD_REQUEST);
+            }
             TblPost createPost = postService.savePost(tblPost);
 
             return new ResponseEntity<>(new RestData(createPost), HttpStatus.OK);
@@ -93,7 +97,7 @@ public class PostController {
     /**
      * Find city by city id
      *
-     * @param id city id
+     * @param postId city id
      *
      * @return ResponseEntity
      */

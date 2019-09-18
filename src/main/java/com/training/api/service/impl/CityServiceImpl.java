@@ -26,10 +26,11 @@ public class CityServiceImpl implements CityService {
      *
      * @param prefectureCode prefecture code
      *
-     * @return TblCity
+     * @return PrefectureCodeResponse
      */
     @Override
     public List<TblCity> searchCityByPrefectureCode(String prefectureCode) {
+
         return cityRepository.findByTblPrefecture_PrefectureCode(prefectureCode);
     }
 

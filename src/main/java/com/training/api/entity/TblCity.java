@@ -39,7 +39,8 @@ public class TblCity implements Serializable {
     public TblCity() {
     }
 
-    public TblCity(String code, String cityKana, String city, TblPrefecture tblPrefecture) {
+    public TblCity(int cityId, String code, String cityKana, String city, TblPrefecture tblPrefecture) {
+        this.cityId = cityId;
         this.code = code;
         this.cityKana = cityKana;
         this.city = city;

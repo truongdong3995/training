@@ -1,6 +1,5 @@
 package com.training.api.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.training.api.entity.TblArea;
 import com.training.api.model.PostCodeResponse;
 import com.training.api.service.AreaService;
@@ -41,7 +40,7 @@ public class AreaController {
             return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<>(areaList, HttpStatus.OK);
+        return new ResponseEntity<>(new RestData(getListResponseFromArea(areaList)), HttpStatus.OK);
     }
 
     /**

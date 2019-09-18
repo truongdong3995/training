@@ -13,6 +13,4 @@ public interface AreaService {
      * @return TblArea
      */
     List<TblArea> searchAreaByPostCode(String postCode);
-
-
 }
