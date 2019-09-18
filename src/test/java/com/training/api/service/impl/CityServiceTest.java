@@ -2,12 +2,14 @@ package com.training.api.service.impl;
 
 import com.training.api.entity.TblCity;
 import com.training.api.entity.TblPrefecture;
+import com.training.api.repository.AreaRepository;
 import com.training.api.repository.CityRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 
 @RunWith(SpringRunner.class)
 public class CityServiceTest {
@@ -27,6 +28,9 @@ public class CityServiceTest {
 
     @MockBean
     CityRepository cityRepository;
+
+    @Mock
+    AreaRepository areaRepository;
 
     @Before
     public void setUp() {
@@ -50,8 +54,8 @@ public class CityServiceTest {
                 new TblPrefecture(263,"ﾄﾁｷﾞｹﾝ","栃木県","09"));
         Optional<TblCity> acutalCity = Optional.of(tblCity);
 
-        Mockito.when(cityRepository.findById(8652)).thenReturn(acutalCity);
-        Assert.assertEquals(acutalCity,cityService.searchCityByPrefectureCode("09"));
+        Mockito.when(cityRepository.findById(any())).thenReturn(acutalCity);
+        Assert.assertEquals(acutalCity,cityService.findCityById(8652));
     }
 
     @Test
@@ -62,5 +66,4 @@ public class CityServiceTest {
         Mockito.when(cityRepository.save(tblCity)).thenReturn(tblCity);
         Assert.assertEquals(tblCity, cityRepository.save(tblCity));
     }
-    
 }
