@@ -1,4 +1,4 @@
-package com.training.api.entity;
+package com.training.api.entitys;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;

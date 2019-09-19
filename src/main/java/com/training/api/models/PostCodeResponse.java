@@ -1,7 +1,7 @@
-package com.training.api.model;
+package com.training.api.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.training.api.entity.TblArea;
+import com.training.api.entitys.TblArea;
 
 public class PostCodeResponse {
 

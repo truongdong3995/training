@@ -1,6 +1,6 @@
-package com.training.api.service;
+package com.training.api.services;
 
-import com.training.api.entity.TblCity;
+import com.training.api.entitys.TblCity;
 
 import java.util.List;
 import java.util.Optional;

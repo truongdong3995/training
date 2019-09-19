@@ -1,12 +1,12 @@
-package com.training.api.controller;
+package com.training.api.controllers;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.training.api.entity.TblCity;
-import com.training.api.model.PrefectureCodeResponse;
-import com.training.api.service.CityService;
+import com.training.api.entitys.TblCity;
+import com.training.api.models.PrefectureCodeResponse;
+import com.training.api.services.CityService;
 import com.training.api.utils.ApiMessage;
 import com.training.api.utils.Common;
 import com.training.api.utils.RestData;
@@ -64,7 +64,7 @@ public class CityController {
      * @param cityId city id
      * @return ResponseEntity
      */
-    @RequestMapping(value = "/city/delete/{cityId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/city/{cityId}", method = RequestMethod.DELETE)
     public ResponseEntity deleteCity(@PathVariable("cityId") int cityId){
         try {
             Optional<TblCity> tblCity = cityService.findCityById(cityId);
@@ -106,11 +106,11 @@ public class CityController {
      *
      * @return ResponseEntity
      */
-    @RequestMapping(value = "/city/create", method = RequestMethod.PUT)
-    public ResponseEntity createCity(@RequestBody TblCity tblCity){
+    @RequestMapping(value = "/city/", method = RequestMethod.PUT)
+    public ResponseEntity registerCity(@RequestBody TblCity tblCity){
         try {
             if (cityService.findCityById(tblCity.getCityId()).isPresent()){
-                return new ResponseEntity<>(ApiMessage.error400(), HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(ApiMessage.error400(), HttpStatus.BAD_REQUEST);
             }
             TblCity createCity = cityService.save(tblCity);
 
@@ -127,7 +127,7 @@ public class CityController {
      * @param id city id
      * @return
      */
-    @RequestMapping(value = "/city/update/{id}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/city/{id}", method = RequestMethod.PUT)
     public ResponseEntity updateCity(@RequestBody TblCity tblCityDetails, @PathVariable("id") int id){
         Optional<TblCity> tblCity = cityService.findCityById(id);
         if (tblCity.isPresent() == false) {

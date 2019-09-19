@@ -1,8 +1,8 @@
-package com.training.api.controller;
+package com.training.api.controllers;
 
-import com.training.api.entity.TblArea;
-import com.training.api.model.PostCodeResponse;
-import com.training.api.service.AreaService;
+import com.training.api.entitys.TblArea;
+import com.training.api.models.PostCodeResponse;
+import com.training.api.services.AreaService;
 import com.training.api.utils.ApiMessage;
 import com.training.api.utils.Common;
 import com.training.api.utils.RestData;
@@ -35,13 +35,14 @@ public class AreaController {
             return new ResponseEntity<>(ApiMessage.error400(), HttpStatus.BAD_REQUEST);
         }
 
-        List<TblArea> areaList = areaService.searchAreaByPostCode(postcode);
-        if (areaList.size() == 0) {
+        List<TblArea> tblAreaList = areaService.searchAreaByPostCode(postcode);
+        if (tblAreaList.size() == 0) {
             return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<>(new RestData(getListResponseFromArea(areaList)), HttpStatus.OK);
+        return new ResponseEntity<>(new RestData(getListResponseFromArea(tblAreaList)), HttpStatus.OK);
     }
+
 
     /**
      * Get list response from area

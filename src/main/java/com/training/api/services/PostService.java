@@ -1,6 +1,6 @@
-package com.training.api.service;
+package com.training.api.services;
 
-import com.training.api.entity.TblPost;
+import com.training.api.entitys.TblPost;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,5 +36,4 @@ public interface PostService {
      * @param tblPost Object {@link TblPost}
      */
     void deletePost(TblPost tblPost);
-
 }

@@ -1,10 +1,10 @@
-package com.training.api.service.impl;
+package com.training.api.services.impls;
 
-import com.training.api.entity.TblArea;
-import com.training.api.entity.TblCity;
-import com.training.api.repository.AreaRepository;
-import com.training.api.repository.CityRepository;
-import com.training.api.service.CityService;
+import com.training.api.entitys.TblArea;
+import com.training.api.entitys.TblCity;
+import com.training.api.repositorys.AreaRepository;
+import com.training.api.repositorys.CityRepository;
+import com.training.api.services.CityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

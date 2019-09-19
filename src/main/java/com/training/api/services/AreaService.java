@@ -1,6 +1,6 @@
-package com.training.api.service;
+package com.training.api.services;
 
-import com.training.api.entity.TblArea;
+import com.training.api.entitys.TblArea;
 
 import java.util.List;
 

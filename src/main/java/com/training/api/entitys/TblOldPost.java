@@ -1,4 +1,4 @@
-package com.training.api.entity;
+package com.training.api.entitys;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

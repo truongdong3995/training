@@ -1,7 +1,4 @@
-package com.training.api.entity;
-
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+package com.training.api.entitys;
 
 import java.io.Serializable;
 

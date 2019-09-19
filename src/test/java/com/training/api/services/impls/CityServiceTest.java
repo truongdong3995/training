@@ -1,15 +1,14 @@
-package com.training.api.service.impl;
+package com.training.api.services.impls;
 
-import com.training.api.entity.TblCity;
-import com.training.api.entity.TblPrefecture;
-import com.training.api.repository.AreaRepository;
-import com.training.api.repository.CityRepository;
+import com.training.api.entitys.TblCity;
+import com.training.api.entitys.TblPrefecture;
+import com.training.api.repositorys.AreaRepository;
+import com.training.api.repositorys.CityRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -19,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 
 @RunWith(SpringRunner.class)
@@ -29,12 +29,23 @@ public class CityServiceTest {
     @MockBean
     CityRepository cityRepository;
 
-    @Mock
+    @MockBean
     AreaRepository areaRepository;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void testFindAll(){
+        TblCity tblCity = new TblCity(8652,"09201","ｳﾂﾉﾐﾔｼ","宇都宮市",
+                new TblPrefecture(263,"ﾄﾁｷﾞｹﾝ","栃木県","09"));
+        List<TblCity> tblCityList = new ArrayList<>();
+        tblCityList.add(tblCity);
+
+        Mockito.when(cityService.findAll()).thenReturn(tblCityList);
+        Assert.assertThat(tblCityList, is(cityService.findAll()));
     }
 
     @Test
@@ -45,7 +56,7 @@ public class CityServiceTest {
         actualList.add(tblCity);
 
         Mockito.when(cityRepository.findByTblPrefecture_PrefectureCode("09")).thenReturn(actualList);
-        Assert.assertEquals(actualList,cityService.searchCityByPrefectureCode("09"));
+        Assert.assertThat(actualList,is(cityService.searchCityByPrefectureCode("09")));
     }
 
     @Test
@@ -55,7 +66,7 @@ public class CityServiceTest {
         Optional<TblCity> acutalCity = Optional.of(tblCity);
 
         Mockito.when(cityRepository.findById(any())).thenReturn(acutalCity);
-        Assert.assertEquals(acutalCity,cityService.findCityById(8652));
+        Assert.assertThat(acutalCity,is(cityService.findCityById(8652)));
     }
 
     @Test
@@ -64,6 +75,6 @@ public class CityServiceTest {
                 new TblPrefecture(263,"ﾄﾁｷﾞｹﾝ","栃木県","09"));
 
         Mockito.when(cityRepository.save(tblCity)).thenReturn(tblCity);
-        Assert.assertEquals(tblCity, cityRepository.save(tblCity));
+        Assert.assertThat(tblCity, is(cityRepository.save(tblCity)));
     }
 }

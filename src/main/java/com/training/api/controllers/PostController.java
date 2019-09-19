@@ -1,10 +1,10 @@
-package com.training.api.controller;
+package com.training.api.controllers;
 
 import java.util.List;
 import java.util.Optional;
 
-import com.training.api.entity.TblPost;
-import com.training.api.service.PostService;
+import com.training.api.entitys.TblPost;
+import com.training.api.services.PostService;
 import com.training.api.utils.ApiMessage;
 import com.training.api.utils.RestData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,15 +39,15 @@ public class PostController {
      * @param tblPost object {@link TblPost}
      *
      */
-    @RequestMapping(value = "/post/create/", method = RequestMethod.PUT)
-    public ResponseEntity createCity(@RequestBody TblPost tblPost){
+    @RequestMapping(value = "/post/", method = RequestMethod.PUT)
+    public ResponseEntity registerPost(@RequestBody TblPost tblPost){
         try {
             if (postService.findPostById(tblPost.getPostId()).isPresent()) {
                 return new ResponseEntity<>(ApiMessage.error400(), HttpStatus.BAD_REQUEST);
             }
             TblPost createPost = postService.savePost(tblPost);
 
-            return new ResponseEntity<>(new RestData(createPost), HttpStatus.OK);
+            return new ResponseEntity<>(createPost, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
         }
@@ -60,8 +60,8 @@ public class PostController {
      * @param postId post id
      *
      */
-    @RequestMapping(value = "/post/update/{postId}", method = RequestMethod.PUT)
-    public ResponseEntity updateCity(@RequestBody TblPost tblPostDetail, @PathVariable("postId") int postId){
+    @RequestMapping(value = "/post/{postId}", method = RequestMethod.PUT)
+    public ResponseEntity updatePost(@RequestBody TblPost tblPostDetail, @PathVariable("postId") int postId){
         Optional<TblPost> tblPost = postService.findPostById(postId);
         if (tblPost.isPresent() == false) {
             return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
@@ -70,7 +70,7 @@ public class PostController {
         tblPost.get().setMultiArea(tblPostDetail.getMultiArea());
         TblPost updatePost = postService.savePost(tblPost.get());
 
-        return new ResponseEntity<>(new RestData(updatePost), HttpStatus.OK);
+        return new ResponseEntity<>(updatePost, HttpStatus.OK);
     }
 
     /**
@@ -79,8 +79,8 @@ public class PostController {
      * @param postId post id
      *
      */
-    @RequestMapping(value = "/post/delete/{postId}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteCity(@PathVariable("postId") int postId){
+    @RequestMapping(value = "/post/{postId}", method = RequestMethod.DELETE)
+    public ResponseEntity deletePost(@PathVariable("postId") int postId){
         try {
             Optional<TblPost> tblPost = postService.findPostById(postId);
             if (tblPost.isPresent() == false) {
@@ -102,7 +102,7 @@ public class PostController {
      * @return ResponseEntity
      */
     @RequestMapping(value = "/post/find/{postId}", method = RequestMethod.GET)
-    public ResponseEntity findCityById(@PathVariable("postId") int postId){
+    public ResponseEntity findPostById(@PathVariable("postId") int postId){
         Optional<TblPost> tblPost = postService.findPostById(postId);
 
         if (tblPost.isPresent() == false) {

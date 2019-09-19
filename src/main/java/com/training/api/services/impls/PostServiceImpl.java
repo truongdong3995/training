@@ -1,10 +1,10 @@
-package com.training.api.service.impl;
+package com.training.api.services.impls;
 
-import com.training.api.entity.TblArea;
-import com.training.api.entity.TblPost;
-import com.training.api.repository.AreaRepository;
-import com.training.api.repository.PostRepository;
-import com.training.api.service.PostService;
+import com.training.api.entitys.TblArea;
+import com.training.api.entitys.TblPost;
+import com.training.api.repositorys.AreaRepository;
+import com.training.api.repositorys.PostRepository;
+import com.training.api.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

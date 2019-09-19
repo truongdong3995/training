@@ -1,8 +1,8 @@
-package com.training.api.service.impl;
+package com.training.api.services.impls;
 
-import com.training.api.entity.TblArea;
-import com.training.api.repository.AreaRepository;
-import com.training.api.service.AreaService;
+import com.training.api.entitys.TblArea;
+import com.training.api.repositorys.AreaRepository;
+import com.training.api.services.AreaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +22,7 @@ public class AreaServiceImpl implements AreaService {
      */
     @Override
     public List<TblArea> searchAreaByPostCode(String postCode) {
+
         return areaRepository.findByTblPost_PostCode(postCode);
     }
 }

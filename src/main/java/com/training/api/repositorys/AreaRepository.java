@@ -1,6 +1,6 @@
-package com.training.api.repository;
+package com.training.api.repositorys;
 
-import com.training.api.entity.TblArea;
+import com.training.api.entitys.TblArea;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

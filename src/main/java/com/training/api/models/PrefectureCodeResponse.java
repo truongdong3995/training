@@ -1,7 +1,7 @@
-package com.training.api.model;
+package com.training.api.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.training.api.entity.TblCity;
+import com.training.api.entitys.TblCity;
 
 public class PrefectureCodeResponse {
 

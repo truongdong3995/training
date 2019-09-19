@@ -1,9 +1,7 @@
-package com.training.api.service.impl;
+package com.training.api.services.impls;
 
-import com.training.api.entity.TblCity;
-import com.training.api.entity.TblPost;
-import com.training.api.repository.PostRepository;
-import com.training.api.service.PostService;
+import com.training.api.entitys.TblPost;
+import com.training.api.repositorys.PostRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.anyInt;
 
 @RunWith(SpringRunner.class)
 public class PostServiceTest {
@@ -40,7 +39,7 @@ public class PostServiceTest {
         tblPostList.add(tblPost);
 
         Mockito.when(postRepository.findAll()).thenReturn(tblPostList);
-        Assert.assertEquals(tblPostList,postService.findAllPost());
+        Assert.assertThat(tblPostList, is(postService.findAllPost()));
     }
 
     @Test
@@ -48,8 +47,8 @@ public class PostServiceTest {
         TblPost tblPost = new TblPost(382013,"9998227",0,0,0);
         Optional<TblPost> acutalPost = Optional.of(tblPost);
 
-        Mockito.when(postRepository.findById(any())).thenReturn(acutalPost);
-        Assert.assertEquals(acutalPost,postService.findPostById(8652));
+        Mockito.when(postRepository.findById(anyInt())).thenReturn(acutalPost);
+        Assert.assertThat(acutalPost, is(postService.findPostById(8652)));
     }
 
     @Test
@@ -57,6 +56,6 @@ public class PostServiceTest {
         TblPost tblPost = new TblPost(382013,"9998227",0,0,0);
 
         Mockito.when(postService.savePost(tblPost)).thenReturn(tblPost);
-        Assert.assertEquals(tblPost, postService.savePost(tblPost));
+        Assert.assertThat(tblPost, is(postService.savePost(tblPost)));
     }
 }
