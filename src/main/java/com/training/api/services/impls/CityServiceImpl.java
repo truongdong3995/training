@@ -2,9 +2,13 @@ package com.training.api.services.impls;
 
 import com.training.api.entitys.TblArea;
 import com.training.api.entitys.TblCity;
+import com.training.api.utils.exceptions.ConflicException;
+import com.training.api.utils.exceptions.InvalidInputException;
+import com.training.api.utils.exceptions.NoExistResourcesException;
 import com.training.api.repositorys.AreaRepository;
 import com.training.api.repositorys.CityRepository;
 import com.training.api.services.CityService;
+import com.training.api.utils.Common;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,8 +34,16 @@ public class CityServiceImpl implements CityService {
      */
     @Override
     public List<TblCity> searchCityByPrefectureCode(String prefectureCode) {
+        if (Common.checkValidNumber(Common.replaceData(prefectureCode)) == false) {
+            throw new InvalidInputException();
+        }
 
-        return cityRepository.findByTblPrefecture_PrefectureCode(prefectureCode);
+        List<TblCity> tblCityList = cityRepository.findByTblPrefecture_PrefectureCode(prefectureCode);
+        if (tblCityList.size() == 0) {
+            throw new NoExistResourcesException();
+        }
+
+        return tblCityList;
     }
 
     /**
@@ -47,14 +59,18 @@ public class CityServiceImpl implements CityService {
     /**
      * Delete record in table city
      *
-     * @param tblCity
+     * @param cityId city id
+     * @return tblCity
      */
     @Override
     @Transactional(rollbackOn = Exception.class)
-    public void deleteCity(TblCity tblCity) throws IllegalArgumentException {
-            List<TblArea> tblAreaList= areaRepository.findByTblCity_CityId(tblCity.getCityId());
-            areaRepository.deleteAll(tblAreaList);
-            cityRepository.delete(tblCity);
+    public TblCity deleteCity(int cityId) {
+        TblCity tblCity = findCityById(cityId);
+        List<TblArea> tblAreaList= areaRepository.findByTblCity_CityId(cityId);
+        areaRepository.deleteAll(tblAreaList);
+        cityRepository.delete(tblCity);
+
+        return tblCity;
     }
 
     /**
@@ -65,18 +81,46 @@ public class CityServiceImpl implements CityService {
      * @return Optional of{@link TblCity}
      */
     @Override
-    public Optional<TblCity> findCityById(int id) {
+    public TblCity findCityById(int id) throws  IllegalArgumentException{
+        Optional<TblCity> tblCity = cityRepository.findById(id);
 
-        return cityRepository.findById(id);
+        if (tblCity.isPresent() == false) {
+            throw new NoExistResourcesException();
+        }
+
+        return tblCity.get();
     }
 
     /**
-     * Save record in table city
+     * Create record in table city
      *
      * @param tblCity object city
      */
     @Override
-    public TblCity save(TblCity tblCity){
-        return cityRepository.save(tblCity);
+    public TblCity create(TblCity tblCity){
+        if (cityRepository.findById(tblCity.getCityId()).isPresent()){
+            throw  new ConflicException();
+        }
+        TblCity createCity = cityRepository.save(tblCity);
+
+        return createCity;
+    }
+
+    /**
+     * Create record in table city
+     *
+     * @param cityId city id
+     * @param request
+     *
+     * @return {@link TblCity}
+     */
+    @Override
+    public TblCity update(int cityId, TblCity request) {
+        TblCity tblCity = findCityById(cityId);
+        tblCity.setCity(request.getCity());
+        tblCity.setCityKana(request.getCityKana());
+        TblCity updateCity = cityRepository.save(tblCity);
+
+        return updateCity;
     }
 }

@@ -3,7 +3,6 @@ package com.training.api.services;
 import com.training.api.entitys.TblPost;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface PostService {
 
@@ -21,19 +20,27 @@ public interface PostService {
      *
      * @return Optional of{@link TblPost}
      */
-    Optional<TblPost> findPostById(int postId);
+    TblPost findPostById(int postId);
 
     /**
      * Save record in table tbl_post
      *
      * @param tblPost object {@link TblPost}
      */
-    TblPost savePost (TblPost tblPost);
+    TblPost create (TblPost tblPost);
+
+    /**
+     * Save record in table tbl_post
+     *
+     * @param postId post id
+     * @param tblPost object {@link TblPost}
+     */
+    TblPost update (int postId, TblPost tblPost);
 
     /**
      * Delete record in table tbl_post
      *
-     * @param tblPost Object {@link TblPost}
+     * @param postId post id
      */
-    void deletePost(TblPost tblPost);
+    TblPost deletePost(int postId);
 }

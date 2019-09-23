@@ -1,9 +1,10 @@
 package com.training.api.controllers;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.training.api.entitys.TblPost;
+import com.training.api.utils.exceptions.ConflicException;
+import com.training.api.utils.exceptions.NoExistResourcesException;
 import com.training.api.services.PostService;
 import com.training.api.utils.ApiMessage;
 import com.training.api.utils.RestData;
@@ -42,35 +43,30 @@ public class PostController {
     @RequestMapping(value = "/post/", method = RequestMethod.PUT)
     public ResponseEntity registerPost(@RequestBody TblPost tblPost){
         try {
-            if (postService.findPostById(tblPost.getPostId()).isPresent()) {
-                return new ResponseEntity<>(ApiMessage.error400(), HttpStatus.BAD_REQUEST);
-            }
-            TblPost createPost = postService.savePost(tblPost);
+            TblPost tblPostCreate = postService.create(tblPost);
 
-            return new ResponseEntity<>(createPost, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(tblPostCreate, HttpStatus.OK);
+        } catch (ConflicException e) {
+            return new ResponseEntity<>(ApiMessage.error400(), HttpStatus.BAD_REQUEST);
         }
     }
 
     /**
      * Update city in table post by post id
      *
-     * @param tblPostDetail object {@link TblPost}
+     * @param request object {@link TblPost}
      * @param postId post id
      *
      */
     @RequestMapping(value = "/post/{postId}", method = RequestMethod.PUT)
-    public ResponseEntity updatePost(@RequestBody TblPost tblPostDetail, @PathVariable("postId") int postId){
-        Optional<TblPost> tblPost = postService.findPostById(postId);
-        if (tblPost.isPresent() == false) {
+    public ResponseEntity updatePost(@RequestBody TblPost request, @PathVariable("postId") int postId){
+        try {
+            TblPost updateTblPost = postService.update(postId, request);
+
+            return new ResponseEntity<>(updateTblPost, HttpStatus.OK);
+        } catch (NoExistResourcesException ex) {
             return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
         }
-        tblPost.get().setPostCode(tblPostDetail.getPostCode());
-        tblPost.get().setMultiArea(tblPostDetail.getMultiArea());
-        TblPost updatePost = postService.savePost(tblPost.get());
-
-        return new ResponseEntity<>(updatePost, HttpStatus.OK);
     }
 
     /**
@@ -82,15 +78,13 @@ public class PostController {
     @RequestMapping(value = "/post/{postId}", method = RequestMethod.DELETE)
     public ResponseEntity deletePost(@PathVariable("postId") int postId){
         try {
-            Optional<TblPost> tblPost = postService.findPostById(postId);
-            if (tblPost.isPresent() == false) {
-                return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
-            }
-            postService.deletePost(tblPost.get());
+            TblPost deletePost = postService.deletePost(postId);
 
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT, HttpStatus.OK);
+            return new ResponseEntity<>(deletePost, HttpStatus.OK);
         } catch (IllegalArgumentException ex){
             return new ResponseEntity<>(ApiMessage.error500(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NoExistResourcesException ex) {
+            return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -101,14 +95,16 @@ public class PostController {
      *
      * @return ResponseEntity
      */
-    @RequestMapping(value = "/post/find/{postId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/post/{postId}", method = RequestMethod.GET)
     public ResponseEntity findPostById(@PathVariable("postId") int postId){
-        Optional<TblPost> tblPost = postService.findPostById(postId);
+        try {
+            TblPost tblPost = postService.findPostById(postId);
 
-        if (tblPost.isPresent() == false) {
+            return new ResponseEntity<>(tblPost, HttpStatus.OK);
+        } catch (IllegalArgumentException ex){
+            return new ResponseEntity<>(ApiMessage.error500(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NoExistResourcesException ex) {
             return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
         }
-
-        return new ResponseEntity<>(tblPost.get(), HttpStatus.OK);
     }
 }

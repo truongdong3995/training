@@ -1,14 +1,15 @@
 package com.training.api.controllers;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.training.api.entitys.TblCity;
+import com.training.api.utils.exceptions.ConflicException;
+import com.training.api.utils.exceptions.InvalidInputException;
+import com.training.api.utils.exceptions.NoExistResourcesException;
 import com.training.api.models.PrefectureCodeResponse;
 import com.training.api.services.CityService;
 import com.training.api.utils.ApiMessage;
-import com.training.api.utils.Common;
 import com.training.api.utils.RestData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,16 +35,17 @@ public class CityController {
      */
     @RequestMapping(value = "/post_offices/prefectures/{prefectureCode}", method = RequestMethod.GET)
     public ResponseEntity searchByPrefectureCode(@PathVariable("prefectureCode") String prefectureCode) {
-        if (Common.checkValidNumber(prefectureCode) == false) {
-            return new ResponseEntity<>(ApiMessage.error400(), HttpStatus.BAD_REQUEST);
-        }
-        List<TblCity> cityList = cityService.searchCityByPrefectureCode(prefectureCode);
+        try {
+            List<PrefectureCodeResponse> prefectureCodeResponseList =
+                    cityService.searchCityByPrefectureCode(prefectureCode).stream()
+                            .map(PrefectureCodeResponse::new).collect(Collectors.toList());
 
-        if (cityList.size() == 0) {
+            return new ResponseEntity<>(new RestData(prefectureCodeResponseList), HttpStatus.OK);
+        } catch (InvalidInputException ex) {
+            return new ResponseEntity<>(ApiMessage.error400(), HttpStatus.BAD_REQUEST);
+        } catch (NoExistResourcesException ex) {
             return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
         }
-
-        return new ResponseEntity<>(new RestData(getListResponseFromCity(cityList)), HttpStatus.OK);
     }
 
     /**
@@ -67,16 +69,13 @@ public class CityController {
     @RequestMapping(value = "/city/{cityId}", method = RequestMethod.DELETE)
     public ResponseEntity deleteCity(@PathVariable("cityId") int cityId){
         try {
-            Optional<TblCity> tblCity = cityService.findCityById(cityId);
+            TblCity deleteCity = cityService.deleteCity(cityId);
 
-            if (tblCity.isPresent() == false) {
-                return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.BAD_REQUEST);
-            }
-            cityService.deleteCity(tblCity.get());
-
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT, HttpStatus.OK);
+            return new ResponseEntity<>(deleteCity, HttpStatus.OK);
         } catch (IllegalArgumentException ex){
             return new ResponseEntity<>(ApiMessage.error500(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NoExistResourcesException ex) {
+            return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -87,16 +86,17 @@ public class CityController {
      *
      * @return ResponseEntity
      */
-    @RequestMapping(value = "/city/find/{cityId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/city/{cityId}", method = RequestMethod.GET)
     public ResponseEntity findCityById(@PathVariable("cityId") int cityId){
+        try {
+            TblCity tblCity = cityService.findCityById(cityId);
 
-        Optional<TblCity> tblCity = cityService.findCityById(cityId);
-
-        if (tblCity.isPresent() == false) {
+            return new ResponseEntity<>(tblCity, HttpStatus.OK);
+        } catch (IllegalArgumentException ex){
+            return new ResponseEntity<>(ApiMessage.error500(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NoExistResourcesException ex) {
             return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
         }
-
-        return new ResponseEntity<>(tblCity.get(), HttpStatus.OK);
     }
 
     /**
@@ -109,48 +109,29 @@ public class CityController {
     @RequestMapping(value = "/city/", method = RequestMethod.PUT)
     public ResponseEntity registerCity(@RequestBody TblCity tblCity){
         try {
-            if (cityService.findCityById(tblCity.getCityId()).isPresent()){
-                return new ResponseEntity<>(ApiMessage.error400(), HttpStatus.BAD_REQUEST);
-            }
-            TblCity createCity = cityService.save(tblCity);
+            TblCity tblCityCreate = cityService.create(tblCity);
 
-            return new ResponseEntity<>(createCity, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(tblCityCreate, HttpStatus.OK);
+        } catch (ConflicException e) {
+            return new ResponseEntity<>(ApiMessage.error400(), HttpStatus.BAD_REQUEST);
         }
     }
 
     /**
      * Update city in table city
      *
-     * @param tblCityDetails object TblCity
+     * @param request TblCity
      * @param id city id
      * @return
      */
     @RequestMapping(value = "/city/{id}", method = RequestMethod.PUT)
-    public ResponseEntity updateCity(@RequestBody TblCity tblCityDetails, @PathVariable("id") int id){
-        Optional<TblCity> tblCity = cityService.findCityById(id);
-        if (tblCity.isPresent() == false) {
+    public ResponseEntity updateCity(@RequestBody TblCity request, @PathVariable("id") int id){
+        try {
+            TblCity updateTblCity = cityService.update(id, request);
+
+            return new ResponseEntity<>(updateTblCity, HttpStatus.OK);
+        } catch (NoExistResourcesException ex) {
             return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
         }
-        tblCity.get().setCity(tblCityDetails.getCity());
-        tblCity.get().setCityKana(tblCityDetails.getCityKana());
-        TblCity updateCity = cityService.save(tblCity.get());
-
-        return new ResponseEntity<>(updateCity, HttpStatus.OK);
-    }
-
-    /**
-     * Get list response from city
-     *
-     * @param cityList List of {@link TblCity}
-     *
-     * @return List of{@link PrefectureCodeResponse}
-     */
-    private List<PrefectureCodeResponse> getListResponseFromCity(List<TblCity> cityList) {
-        List<PrefectureCodeResponse> searchByPrefectureCodeResponseList = cityList.stream().map(tblCity->
-                new PrefectureCodeResponse(tblCity)).collect(Collectors.toList());
-
-        return searchByPrefectureCodeResponseList;
     }
 }

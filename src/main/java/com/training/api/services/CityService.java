@@ -3,7 +3,6 @@ package com.training.api.services;
 import com.training.api.entitys.TblCity;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface CityService {
     /**
@@ -27,21 +26,29 @@ public interface CityService {
      *
      * @param id city id
      *
-     * @return Optional of{@link TblCity}
+     * @return {@link TblCity}
      */
-    Optional<TblCity> findCityById(int id);
+    TblCity findCityById(int id);
 
     /**
-     * Save record in table tbl_city
+     * Create record in table tbl_city
      *
      * @param tblCity object {@link TblCity}
      */
-    TblCity save(TblCity tblCity);
+    TblCity create(TblCity tblCity);
+
+    /**
+     * Update record in table tbl_city
+     *
+     * @param tblCity object {@link TblCity}
+     */
+    TblCity update(int cityId, TblCity tblCity);
 
     /**
      * Delete record in table tbl_city
      *
-     * @param tblCity Object {@link TblCity}
+     * @param cityId Object {@link TblCity}
+     * @return
      */
-    void deleteCity(TblCity tblCity);
+    TblCity deleteCity(int cityId);
 }

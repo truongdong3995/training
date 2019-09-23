@@ -1,10 +1,10 @@
 package com.training.api.controllers;
 
-import com.training.api.entitys.TblArea;
+import com.training.api.utils.exceptions.InvalidInputException;
+import com.training.api.utils.exceptions.NoExistResourcesException;
 import com.training.api.models.PostCodeResponse;
 import com.training.api.services.AreaService;
 import com.training.api.utils.ApiMessage;
-import com.training.api.utils.Common;
 import com.training.api.utils.RestData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,30 +31,14 @@ public class AreaController {
      */
     @RequestMapping(value = "/post_offices/post/{postcode}", method = RequestMethod.GET)
     public ResponseEntity searchByPostCode(@PathVariable("postcode") String postcode) {
-        if (Common.checkValidNumber(Common.replaceData(postcode)) == false) {
+        try {
+            List<PostCodeResponse> postCodeResponseList = areaService.searchAreaByPostCode(postcode).stream()
+                    .map(PostCodeResponse::new).collect(Collectors.toList());
+            return new ResponseEntity<>(new RestData(postCodeResponseList), HttpStatus.OK);
+        } catch (InvalidInputException ex) {
             return new ResponseEntity<>(ApiMessage.error400(), HttpStatus.BAD_REQUEST);
-        }
-
-        List<TblArea> tblAreaList = areaService.searchAreaByPostCode(postcode);
-        if (tblAreaList.size() == 0) {
+        } catch (NoExistResourcesException ex) {
             return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
         }
-
-        return new ResponseEntity<>(new RestData(getListResponseFromArea(tblAreaList)), HttpStatus.OK);
-    }
-
-
-    /**
-     * Get list response from area
-     *
-     * @param areaList List of {@link TblArea}
-     *
-     * @return List of{@link PostCodeResponse}
-     */
-    private List<PostCodeResponse> getListResponseFromArea(List<TblArea> areaList) {
-        List<PostCodeResponse> searchByPostCodeResponseList = areaList.stream().map(tblArea->
-                new PostCodeResponse(tblArea)).collect(Collectors.toList());
-
-        return searchByPostCodeResponseList;
     }
 }
