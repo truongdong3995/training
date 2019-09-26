@@ -8,7 +8,7 @@ import java.util.List;
 public interface AreaRepository extends JpaRepository<TblArea, Integer> {
 
     /**
-     * Get area by city id
+     * Get list Area by city id
      *
      * @param cityId city id
      *
@@ -16,8 +16,9 @@ public interface AreaRepository extends JpaRepository<TblArea, Integer> {
      */
     List<TblArea> findByTblCity_CityId(int cityId);
 
+
     /**
-     * Search address by post code
+     * Get list Area by post code
      *
      * @param postCode post code
      *
@@ -26,7 +27,7 @@ public interface AreaRepository extends JpaRepository<TblArea, Integer> {
     List<TblArea> findByTblPost_PostCode(String postCode);
 
     /**
-     * Search record in tbl_area with post id
+     * Get list Area by post id
      *
      * @param postId post_id
      *

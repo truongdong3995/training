@@ -1,20 +1,25 @@
 package com.training.api.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.training.api.entitys.TblArea;
 import com.training.api.entitys.TblCity;
 import com.training.api.entitys.TblPrefecture;
+import com.training.api.entitys.fixtures.TblAreaFixtures;
+import com.training.api.entitys.fixtures.TblCityFixtures;
+import com.training.api.models.RegisterCityRequest;
+import com.training.api.models.SearchPrefectureCodeResponse;
+import com.training.api.models.UpdateCityRequest;
+import com.training.api.models.fixtures.RegisterCityRequestFixtures;
+import com.training.api.models.fixtures.UpdateCityRequestFixtures;
 import com.training.api.services.CityService;
 import com.training.api.utils.ApiMessage;
 import com.training.api.utils.exceptions.ConflicException;
 import com.training.api.utils.exceptions.InvalidInputException;
-import com.training.api.utils.exceptions.NoExistResourcesException;
+import javassist.NotFoundException;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -29,13 +34,19 @@ import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Test for {@link CityController}
+ *
+ */
 @RunWith(SpringRunner.class)
 @WebMvcTest(CityController.class)
 public class CityControllerTest {
@@ -46,24 +57,23 @@ public class CityControllerTest {
     @MockBean
     private CityService cityService;
 
-    private TblCity tblCity;
-
-    @Before
-    public void setUp(){
-        tblCity = new TblCity(8190,"09201","ｳﾂﾉﾐﾔｼ","宇都宮市",
-                new TblPrefecture(263,"ﾄﾁｷﾞｹﾝ","栃木県","09"));
-    }
-
+    /**
+     * Test GET "/post_offices/prefectures/{prefecturesCode}"
+     *
+     *
+     */
     @Test
-    public void searchByPrefectureCode() throws Exception {
+    public void testSearchAddressByPrefectureCode() throws Exception {
         // setup
-        List<TblCity> tblCityList = new ArrayList<>();
-        tblCityList.add(tblCity);
+        TblCity tblCity = TblCityFixtures.createCity();
+        SearchPrefectureCodeResponse searchPrefectureCodeResponse = new SearchPrefectureCodeResponse(tblCity);
+        List<SearchPrefectureCodeResponse> searchPrefectureCodeResponseList = new ArrayList<>();
+        searchPrefectureCodeResponseList.add(searchPrefectureCodeResponse);
 
-        when(cityService.searchCityByPrefectureCode(any())).thenReturn(tblCityList);
+        when(cityService.searchAddressByPrefectureCode(anyString())).thenReturn(searchPrefectureCodeResponseList);
 
         // exercise
-        mvc.perform(MockMvcRequestBuilders.get("/post_offices/prefectures/{prefecturesCode}",
+        mvc.perform(get("/post_offices/prefectures/{prefecturesCode}",
                 tblCity.getTblPrefecture().getPrefectureCode())
                 .contentType(MediaType.APPLICATION_JSON))
                 // verify
@@ -71,118 +81,164 @@ public class CityControllerTest {
                 .andExpect(jsonPath("$.data[0].code", is(tblCity.getCode())))
                 .andExpect(jsonPath("$.data[0].city", is(tblCity.getCity())))
                 .andExpect(jsonPath("$.data[0].city_kana", is(tblCity.getCityKana())))
-                .andExpect(jsonPath("$.data[0].prefecture_code", is(tblCity.getTblPrefecture().getPrefectureCode())))
-        ;
+                .andExpect(jsonPath("$.data[0].prefecture_code", is(tblCity.getTblPrefecture().getPrefectureCode())));
     }
 
+    /**
+     * Test GET "/post_offices/prefectures/{prefecturesCode}"
+     *
+     * @throws IllegalArgumentException exceptions
+     */
     @Test
-    public void searchByPrefectureCodeError400() throws Exception {
+    public void testSearchAddressByPrefectureCodeThrowIAE() throws Exception {
         // setup
-        doThrow(InvalidInputException.class).when(cityService).searchCityByPrefectureCode(anyString());
+        TblCity tblCity = TblCityFixtures.createCity();
+        doThrow(IllegalArgumentException.class).when(cityService).searchAddressByPrefectureCode(anyString());
 
         // exercise
-        mvc.perform(MockMvcRequestBuilders.get("/post_offices/prefectures/{prefectures_code}",
+        mvc.perform(get("/post_offices/prefectures/{prefectures_code}",
                 tblCity.getTblPrefecture().getPrefectureCode()).
                 contentType(MediaType.APPLICATION_JSON))
                 // verify
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error", CoreMatchers.is(ApiMessage.error400().getError())))
-                .andExpect(jsonPath("$.error_description", is(ApiMessage.error400().getErrorDescription())))
-        ;
+                .andExpect(jsonPath("$.error_description", is(ApiMessage.error400().getErrorDescription())));
     }
 
+    /**
+     * Test GET "/post_offices/prefectures/{prefecturesCode}"
+     *
+     * @throws NotFoundException exceptions
+     */
     @Test
-    public void searchByPrefectureCodeError404() throws Exception {
+    public void searchByPrefectureCodeThrowNFE() throws Exception {
         // setup
-        doThrow(NoExistResourcesException.class).when(cityService).searchCityByPrefectureCode(anyString());
+        TblCity tblCity = TblCityFixtures.createCity();
+        doThrow(NotFoundException.class).when(cityService).searchAddressByPrefectureCode(anyString());
 
         // exercise
-        mvc.perform(MockMvcRequestBuilders.get("/post_offices/prefectures/{prefectures_code}",
+        mvc.perform(get("/post_offices/prefectures/{prefectures_code}",
                 tblCity.getTblPrefecture().getPrefectureCode()).
                 contentType(MediaType.APPLICATION_JSON))
                 // verify
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error", CoreMatchers.is(ApiMessage.error404().getError())))
-                .andExpect(jsonPath("$.error_description", is(ApiMessage.error404().getErrorDescription())))
-        ;
+                .andExpect(jsonPath("$.error_description", is(ApiMessage.error404().getErrorDescription())));
     }
 
-    @Test
-    public void getAll() throws Exception {
+    /**
+     * Test GET "/city/"
+     *
+     *
+     */
+    @Test()
+    public void testGetAll() throws Exception {
         // setup
+        TblCity tblCity = TblCityFixtures.createCity();
         List<TblCity> tblCityList = new ArrayList<>();
         tblCityList.add(tblCity);
 
         when(cityService.findAll()).thenReturn(tblCityList);
 
         // exercise
-        mvc.perform(MockMvcRequestBuilders.get("/city/").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/city/").contentType(MediaType.APPLICATION_JSON))
                 // verify
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data[0].cityId", is(tblCity.getCityId())))
                 .andExpect(jsonPath("$.data[0].code", is(tblCity.getCode())))
-                .andExpect(jsonPath("$.data[0].cityKana", is(tblCity.getCityKana())))
-                .andExpect(jsonPath("$.data[0].city", is(tblCity.getCity())))
-        ;
+                .andExpect(jsonPath("$.data[0].city_kana", is(tblCity.getCityKana())))
+                .andExpect(jsonPath("$.data[0].city", is(tblCity.getCity())));
     }
 
+    /**
+     * Test GET "/city/{cityId}"
+     *
+     *
+     */
     @Test
-    public void findCityById() throws Exception {
+    public void testGetCity() throws Exception {
         // setup
-        when(cityService.findCityById(anyInt())).thenReturn(tblCity);
+        TblCity tblCity = TblCityFixtures.createCity();
+        when(cityService.findCityById(anyString())).thenReturn(Optional.of(tblCity));
 
         // exercise
-        mvc.perform(MockMvcRequestBuilders.get("/city/{cityId}",
-                tblCity.getCityId()).contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/city/{cityId}", tblCity.getCityId()).contentType(MediaType.APPLICATION_JSON))
                 // verify
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.cityId", is(tblCity.getCityId())))
                 .andExpect(jsonPath("$.code", is(tblCity.getCode())))
-                .andExpect(jsonPath("$.cityKana", is(tblCity.getCityKana())))
-                .andExpect(jsonPath("$.city", is(tblCity.getCity())))
-        ;
+                .andExpect(jsonPath("$.city_kana", is(tblCity.getCityKana())))
+                .andExpect(jsonPath("$.city", is(tblCity.getCity())));
     }
 
+    /**
+     * Test GET "/city/{cityId}"
+     *
+     * @throws IllegalArgumentException exceptions
+     */
     @Test
-    public void testFindCityByIdError404() throws Exception {
+    public void testGetCityCatchIAE() throws Exception {
         // setup
-        doThrow(NoExistResourcesException.class).when(cityService).findCityById(anyInt());
+        TblCity tblCity = TblCityFixtures.createCity();
+        doThrow(IllegalArgumentException.class).when(cityService).findCityById(anyString());
 
         // exercise
-        mvc.perform(MockMvcRequestBuilders.get("/city/8189").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/city/{cityID}", tblCity.getCityId()).contentType(MediaType.APPLICATION_JSON))
                 // verify
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error", is(ApiMessage.error404().getError())))
-                .andExpect(jsonPath("$.error_description", is(ApiMessage.error404().getErrorDescription())))
-        ;
+                .andExpect(status().isBadRequest());
     }
 
+    /**
+     * Test GET "/city/{cityId}"
+     *
+     *
+     */
     @Test
-    public void registerCity() throws Exception {
+    public void testGetCityCatchNFE() throws Exception {
         // setup
+        TblCity tblCity = TblCityFixtures.createCity();
+        when(cityService.findCityById(anyString())).thenReturn(Optional.empty());
+
+        // exercise
+        mvc.perform(get("/city/{cityID}", tblCity.getCityId()).contentType(MediaType.APPLICATION_JSON))
+                // verify
+                .andExpect(status().isNotFound());
+    }
+
+    /**
+     * Test PUT "/city/"
+     *
+     *
+     */
+    @Test
+    public void testRegisterCity() throws Exception {
+        // setup
+        RegisterCityRequest request = RegisterCityRequestFixtures.creatRequest();
+
+        TblCity tblCity = request.get();
         when(cityService.create(any(TblCity.class))).thenReturn(tblCity);
 
         ObjectMapper mapper = new ObjectMapper();
-        String content = mapper.writeValueAsString(tblCity);
+        String content = mapper.writeValueAsString(request);
 
         // exercise
-        mvc.perform(MockMvcRequestBuilders.put("/city/",tblCity)
+        mvc.perform(put("/city/")
                 .content(content)
                 .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 // verify
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.cityId", is(tblCity.getCityId())))
-                .andExpect(jsonPath("$.code", is(tblCity.getCode())))
-                .andExpect(jsonPath("$.cityKana", is(tblCity.getCityKana())))
-                .andExpect(jsonPath("$.city", is(tblCity.getCity())))
-        ;
+                .andExpect(status().isOk());
     }
 
+    /**
+     * Test PUT "/city/"
+     *
+     * @throws ConflicException
+     */
     @Test
-    public void registerCityError400() throws Exception {
+    public void testRegisterCityThrowCE() throws Exception {
         // setup
+        RegisterCityRequest request = RegisterCityRequestFixtures.creatRequest();
         ObjectMapper mapper = new ObjectMapper();
-        String content = mapper.writeValueAsString(tblCity);
+        String content = mapper.writeValueAsString(request);
 
         doThrow(ConflicException.class).when(cityService).create(any(TblCity.class));
 
@@ -191,54 +247,103 @@ public class CityControllerTest {
                 .content(content)
                 .contentType(MediaType.APPLICATION_JSON))
                 // verify
+                .andExpect(status().isConflict())
+        ;
+    }
+
+    /**
+     * Test PUT "/city/"
+     *
+     * @throws NullPointerException
+     */
+    @Test
+    public void testRegisterCityThrowNPE() throws Exception {
+        // setup
+        RegisterCityRequest request = null;
+        ObjectMapper mapper = new ObjectMapper();
+        String content = mapper.writeValueAsString(request);
+
+        doThrow(NullPointerException.class).when(cityService).create(any(TblCity.class));
+
+        // exercise
+        mvc.perform(MockMvcRequestBuilders.put("/city/")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON))
+                // verify
+                .andExpect(status().isBadRequest())
+        ;
+    }
+
+    /**
+     * Test PUT "/city/{cityId}"
+     *
+     *
+     */
+    @Test
+    public void testUpdateCity() throws Exception {
+        // setup
+        UpdateCityRequest request = UpdateCityRequestFixtures.creatRequest();
+        TblCity tblCity = TblCityFixtures.createCity();
+        when(cityService.update(anyString(), any())).thenReturn(tblCity);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String content = mapper.writeValueAsString(request);
+
+        // exercise
+        mvc.perform(MockMvcRequestBuilders.put("/city/{cityId}",tblCity.getCityId())
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON))
+                // verify
+                .andExpect(status().isOk());
+    }
+
+    /**
+     * Test PUT "/city/{cityId}"
+     *
+     * @throws IllegalArgumentException
+     */
+    @Test
+    public void testUpdateCityThrowIAE() throws Exception {
+        // setup
+        UpdateCityRequest request = UpdateCityRequestFixtures.creatRequest();
+        TblCity tblCity = TblCityFixtures.createCity();
+
+        doThrow(IllegalArgumentException.class).when(cityService).update(anyString(),any());
+
+        ObjectMapper mapper = new ObjectMapper();
+        String content = mapper.writeValueAsString(request);
+
+        // exercise
+        mvc.perform(MockMvcRequestBuilders.put("/city/{cityId}",tblCity.getCityId())
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON))
+                // verify
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error", is(ApiMessage.error400().getError())))
-                .andExpect(jsonPath("$.error_description", is(ApiMessage.error400().getErrorDescription())))
-        ;
+                .andExpect(jsonPath("$.error_description", is(ApiMessage.error400().getErrorDescription())));
     }
 
+    /**
+     * Test PUT "/city/{cityId}"
+     *
+     * @throws ConflicException
+     */
     @Test
-    public void updateCity() throws Exception {
+    public void testUpdateCityThrowCE() throws Exception {
         // setup
-        TblCity tblCityRequestBody = new TblCity(8652,"09201","ｳﾂﾉﾐﾔｼupdate","宇都宮市update",
-                new TblPrefecture(263,"ﾄﾁｷﾞｹﾝ","栃木県","09"));
-        when(cityService.update(anyInt() ,any(TblCity.class))).thenReturn(tblCityRequestBody);
+        UpdateCityRequest request = UpdateCityRequestFixtures.creatRequest();
+        TblCity tblCity = TblCityFixtures.createCity();
+
+        doThrow(ConflicException.class).when(cityService).update(anyString(),any());
 
         ObjectMapper mapper = new ObjectMapper();
-        String content = mapper.writeValueAsString(tblCityRequestBody);
+        String content = mapper.writeValueAsString(request);
 
         // exercise
-        mvc.perform(MockMvcRequestBuilders.put("/city/{cityId}",tblCityRequestBody.getCityId())
+        mvc.perform(MockMvcRequestBuilders.put("/city/{cityId}",tblCity.getCityId())
                 .content(content)
                 .contentType(MediaType.APPLICATION_JSON))
                 // verify
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.cityId", is(tblCityRequestBody.getCityId())))
-                .andExpect(jsonPath("$.code", is(tblCityRequestBody.getCode())))
-                .andExpect(jsonPath("$.cityKana", is(tblCityRequestBody.getCityKana())))
-                .andExpect(jsonPath("$.city", is(tblCityRequestBody.getCity())))
-        ;
-    }
-
-    @Test
-    public void updateCityError404() throws Exception {
-        // setup
-        TblCity tblCityRequestBody = new TblCity(8652,"09201","ｳﾂﾉﾐﾔｼupdate","宇都宮市update",
-                new TblPrefecture(263,"ﾄﾁｷﾞｹﾝ","栃木県","09"));
-
-        doThrow(NoExistResourcesException.class).when(cityService).update(anyInt(),any(TblCity.class));
-
-        ObjectMapper mapper = new ObjectMapper();
-        String content = mapper.writeValueAsString(tblCityRequestBody);
-
-        // exercise
-        mvc.perform(MockMvcRequestBuilders.put("/city/{cityId}",tblCityRequestBody.getCityId())
-                .content(content)
-                .contentType(MediaType.APPLICATION_JSON))
-                // verify
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error", is(ApiMessage.error404().getError())))
-                .andExpect(jsonPath("$.error_description", is(ApiMessage.error404().getErrorDescription())))
-        ;
+                .andExpect(status().isConflict());
     }
 }

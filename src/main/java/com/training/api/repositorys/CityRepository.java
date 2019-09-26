@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface CityRepository extends JpaRepository<TblCity, Integer>{
     /**
-     * Search address by prefecture code
+     * Get list City by prefecture code
      *
      * @param prefectureCode prefecture code
      *

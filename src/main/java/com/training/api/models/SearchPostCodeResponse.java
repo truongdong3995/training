@@ -8,7 +8,7 @@ import com.training.api.entitys.TblPrefecture;
 import lombok.Getter;
 import lombok.Setter;
 
-public class PostCodeResponse {
+public class SearchPostCodeResponse {
 
     @JsonProperty("code")
     @Getter
@@ -90,7 +90,7 @@ public class PostCodeResponse {
     @Setter
     private int changeReason;
 
-    public PostCodeResponse(TblArea tblArea) {
+    public SearchPostCodeResponse(TblArea tblArea) {
         TblCity tblCity = tblArea.getTblCity();
         TblPrefecture tblPrefecture = tblCity.getTblPrefecture();
         TblPost tblPost = tblArea.getTblPost();

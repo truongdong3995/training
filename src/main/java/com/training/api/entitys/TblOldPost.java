@@ -1,46 +1,56 @@
 package com.training.api.entitys;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
+/**
+ * OldPost model
+ *
+ */
 @Entity
 @Table(name = "tbl_old_post")
 public class TblOldPost {
 	
 	@Id
 	@Column(name = "old_post_id")
+	@JsonIgnore
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Getter
+	@Setter
     private int oldPostId;
 	
-	@Column(name = "old_post_code")
+	@Column(name = "old_post_code", unique = true)
+	@JsonProperty("old_post_code")
+	@NotNull
+	@Length(max = 5)
+	@Getter
+	@Setter
 	private String oldPostCode;
-	
-	
+
+	/**
+	 * Create instance
+	 *
+	 */
 	public TblOldPost() {
 	}
-	
-	public TblOldPost(int oldPostId, String oldPostCode) {
-		this.oldPostId = oldPostId;
-		this.oldPostCode = oldPostCode;
-	}
-	
-	public int getOldPostId() {
-		return oldPostId;
-	}
-	
-	public void setOldPostId(int oldPostId) {
-		this.oldPostId = oldPostId;
-	}
-	
-	public String getOldPostCode() {
-		return oldPostCode;
-	}
-	
-	public void setOldPostCode(String oldPostCode) {
+
+	/**
+	 * Create instance
+	 *
+	 * @param oldPostCode old post code
+	 */
+	public TblOldPost(String oldPostCode) {
 		this.oldPostCode = oldPostCode;
 	}
 }

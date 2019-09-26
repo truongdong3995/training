@@ -1,5 +1,9 @@
 package com.training.api.entitys;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -13,51 +17,97 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
+/**
+ * Area model.
+ *
+ */
 @Entity
 @Table(name = "tbl_area")
 public class TblArea implements Serializable{
-	
 	@Id
 	@Column(name = "area_id")
+	@JsonIgnore
+	@Getter
+	@Setter
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int areaId;
-	
+
 	@Column(name = "area_kana")
+	@NotNull
+	@Getter
+	@Setter
+	@JsonProperty("area_kana")
 	private String areaKana;
-	
+
 	@Column(name = "area")
+	@NotNull
+	@Getter
+	@Setter
+	@JsonProperty("area")
 	private String area;
 	
 	@ManyToOne
 	@JoinColumn(name = "city_id")
+	@Getter
+	@Setter
 	private TblCity tblCity;
 	
 	@Column(name = "chome_area")
+	@NotNull
+	@Getter
+	@Setter
+	@JsonProperty("chome_area")
 	private int chomeArea;
 	
 	@Column(name = "koaza_area")
+	@NotNull
+	@Getter
+	@Setter
+	@JsonProperty("koaza_area")
 	private int koazaArea;
 	
 	@Column(name = "multi_post_area")
+	@JsonProperty("multi_post_area")
+	@NotNull
+	@Getter
+	@Setter
 	private int multiPostArea;
 	
 	@ManyToOne()
 	@JoinColumn(name = "post_id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
+	@Getter
+	@Setter
 	private TblPost tblPost;
 	
 	@ManyToOne
 	@JoinColumn(name = "old_post_id")
+	@Getter
+	@Setter
 	private TblOldPost tblOldPost;
-	
-	
+
+	/**
+	 * Create instance.
+	 */
 	public TblArea() {
 	}
-	
-	public TblArea(int areaId, String areaKana, String area, TblCity tblCity, int chomeArea, int koazaArea,
+
+	/**
+	 * Create instance.
+	 *
+	 * @param areaKana area kana
+	 * @param area area
+	 * @param tblCity {@link TblCity}
+	 * @param chomeArea chome area
+	 * @param koazaArea koaza area
+	 * @param multiPostArea multi post area
+	 * @param tblPost {@link TblPost}
+	 * @param tblOldPost {@link TblOldPost}
+	 */
+	public TblArea(String areaKana, String area, TblCity tblCity, int chomeArea, int koazaArea,
 			int multiPostArea, TblPost tblPost, TblOldPost tblOldPost) {
-		this.areaId = areaId;
 		this.areaKana = areaKana;
 		this.area = area;
 		this.tblCity = tblCity;
@@ -65,78 +115,6 @@ public class TblArea implements Serializable{
 		this.koazaArea = koazaArea;
 		this.multiPostArea = multiPostArea;
 		this.tblPost = tblPost;
-		this.tblOldPost = tblOldPost;
-	}
-	
-	public int getAreaId() {
-		return areaId;
-	}
-	
-	public void setAreaId(int areaId) {
-		this.areaId = areaId;
-	}
-	
-	public String getAreaKana() {
-		return areaKana;
-	}
-	
-	public void setAreaKana(String areaKana) {
-		this.areaKana = areaKana;
-	}
-	
-	public String getArea() {
-		return area;
-	}
-	
-	public void setArea(String area) {
-		this.area = area;
-	}
-	
-	public TblCity getTblCity() {
-		return tblCity;
-	}
-	
-	public void setTblCity(TblCity tblCity) {
-		this.tblCity = tblCity;
-	}
-	
-	public int getChomeArea() {
-		return chomeArea;
-	}
-	
-	public void setChomeArea(int chomeArea) {
-		this.chomeArea = chomeArea;
-	}
-	
-	public int getKoazaArea() {
-		return koazaArea;
-	}
-	
-	public void setKoazaArea(int koazaArea) {
-		this.koazaArea = koazaArea;
-	}
-	
-	public int getMultiPostArea() {
-		return multiPostArea;
-	}
-	
-	public void setMultiPostArea(int multiPostArea) {
-		this.multiPostArea = multiPostArea;
-	}
-	
-	public TblPost getTblPost() {
-		return tblPost;
-	}
-	
-	public void setTblPost(TblPost tblPost) {
-		this.tblPost = tblPost;
-	}
-	
-	public TblOldPost getTblOldPost() {
-		return tblOldPost;
-	}
-	
-	public void setTblOldPost(TblOldPost tblOldPost) {
 		this.tblOldPost = tblOldPost;
 	}
 }

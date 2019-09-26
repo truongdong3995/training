@@ -1,6 +1,8 @@
 package com.training.api.utils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Class handle message of API
@@ -9,9 +11,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ApiMessage {
 
     @JsonProperty("error")
+    @Getter
+    @Setter
     private String error;
 
     @JsonProperty("error_description")
+    @Getter
+    @Setter
     private String errorDescription;
 
     public ApiMessage(String error, String errorDescription) {
@@ -26,25 +32,5 @@ public class ApiMessage {
 
     public static ApiMessage error404() {
         return new ApiMessage("404", "Cố gắng thao tác một tài nguyên không tồn tại" );
-    }
-
-    public static ApiMessage error500() {
-        return new ApiMessage("500", "Một lỗi xảy ra ở phía máy chủ" );
-    }
-
-    public String getError() {
-        return error;
-    }
-
-    public void setError(String error) {
-        this.error = error;
-    }
-
-    public String getErrorDescription() {
-        return errorDescription;
-    }
-
-    public void setErrorDescription(String errorDescription) {
-        this.errorDescription = errorDescription;
     }
 }
