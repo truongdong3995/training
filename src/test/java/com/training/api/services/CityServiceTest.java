@@ -3,9 +3,7 @@ package com.training.api.services;
 import com.training.api.entitys.TblCity;
 import com.training.api.entitys.fixtures.TblCityFixtures;
 import com.training.api.models.SearchPrefectureCodeResponse;
-import com.training.api.models.UpdateCityRequest;
 import com.training.api.models.fixtures.SearchPrefectureCodeResponseFixtures;
-import com.training.api.models.fixtures.UpdateCityRequestFixtures;
 import com.training.api.repositorys.AreaRepository;
 import com.training.api.repositorys.CityRepository;
 import com.training.api.utils.exceptions.ConflicException;
@@ -13,10 +11,8 @@ import javassist.NotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -36,18 +32,17 @@ import static org.mockito.Mockito.*;
  */
 @RunWith(SpringRunner.class)
 public class CityServiceTest {
-    @InjectMocks
     private CityService sut;
 
-    @MockBean
+    @Mock
     CityRepository cityRepository;
 
-    @MockBean
+    @Mock
     AreaRepository areaRepository;
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        sut = new CityService(cityRepository,areaRepository);
     }
 
     /**
@@ -85,7 +80,7 @@ public class CityServiceTest {
         List<SearchPrefectureCodeResponse> actual =
                 sut.searchAddressByPrefectureCode(tblCity.getTblPrefecture().getPrefectureCode());
         // verify
-        assertThat(actual.get(0)).isEqualTo(searchPrefectureCodeResponse);
+        assertThat(actual.size()).isEqualTo(1);
         verify(cityRepository, times(1))
                 .findByTblPrefecture_PrefectureCode(tblCity.getTblPrefecture().getPrefectureCode());
     }
@@ -138,8 +133,9 @@ public class CityServiceTest {
      */
     @Test
     public void findCityByIdThrowIAE(){
+        String cityId = "TEST";
         // exercise
-        assertThatThrownBy(() -> sut.findCityById(null))
+        assertThatThrownBy(() -> sut.findCityById(cityId))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -179,7 +175,7 @@ public class CityServiceTest {
         TblCity tblCity = TblCityFixtures.createCity();
         doThrow(DataIntegrityViolationException.class).when(cityRepository).save(any(TblCity.class));
         // exercise
-        assertThatThrownBy(() -> sut.create(null)).isInstanceOf(ConflicException.class);
+        assertThatThrownBy(() -> sut.create(tblCity)).isInstanceOf(ConflicException.class);
     }
 
     /**
@@ -187,14 +183,12 @@ public class CityServiceTest {
      *
      */
     @Test
-    public void update() throws NotFoundException {
+    public void update() {
         // setup
-        UpdateCityRequest request = UpdateCityRequestFixtures.creatRequest();
         TblCity tblCity = TblCityFixtures.createCity();
-        Mockito.when(cityRepository.findById(anyInt())).thenReturn(Optional.of(tblCity));
         Mockito.when(cityRepository.save(any(TblCity.class))).thenReturn(tblCity);
         // exercise
-        TblCity actual = sut.update(String.valueOf(tblCity.getCityId()), request);
+        TblCity actual = sut.update(tblCity);
         // verify
         assertThat(actual).isEqualTo(tblCity);
     }
@@ -205,23 +199,9 @@ public class CityServiceTest {
      */
     @Test
     public void updateThrowsNPE() {
-        // setup
-        TblCity tblCity = TblCityFixtures.createCity();
         // exercise
-        assertThatThrownBy(() -> sut.update(String.valueOf(tblCity.getCityId()), null))
+        assertThatThrownBy(() -> sut.update(null))
                 .isInstanceOf(NullPointerException.class);
-    }
-
-    /**
-     * Test update City if exist throws IllegalArgumentException.
-     *
-     */
-    @Test
-    public void updateThrowsIAE() {
-        // setup
-        UpdateCityRequest request = UpdateCityRequestFixtures.creatRequest();
-        // exercise
-        assertThatThrownBy(() -> sut.update(null, request)).isInstanceOf(IllegalArgumentException.class);
     }
 
     /**
@@ -231,10 +211,10 @@ public class CityServiceTest {
     @Test
     public void updateThrowsCE() {
         // setup
-        UpdateCityRequest request = UpdateCityRequestFixtures.creatRequest();
+        TblCity tblCity = TblCityFixtures.createCity();
         doThrow(DataIntegrityViolationException.class).when(cityRepository).save(any(TblCity.class));
         // exercise
-        assertThatThrownBy(() -> sut.update(null, request)).isInstanceOf(ConflicException.class);
+        assertThatThrownBy(() -> sut.update(tblCity)).isInstanceOf(ConflicException.class);
     }
 
     /**
@@ -242,42 +222,14 @@ public class CityServiceTest {
      *
      */
     @Test
-    public void deleteCity() throws NotFoundException {
+    public void deleteCity() {
         // setup
         TblCity tblCity = TblCityFixtures.createCity();
-        Mockito.when(cityRepository.findById(anyInt())).thenReturn(Optional.of(tblCity));
         Mockito.when(areaRepository.findByTblCity_CityId(anyInt())).thenReturn(new ArrayList<>());
         // exercise
-        TblCity actual = sut.deleteCity(String.valueOf(tblCity.getCityId()));
+        TblCity actual = sut.deleteCity(tblCity);
         // verify
         verify(cityRepository, times(1)).delete(tblCity);
         assertThat(actual).isEqualTo(tblCity);
-    }
-
-    /**
-     * Test delete City if exist throws IllegalArgumentException.
-     *
-     */
-    @Test
-    public void deleteThrowsIAE() {
-        // setup
-        TblCity tblCity = TblCityFixtures.createCity();
-        // exercise
-        assertThatThrownBy(() -> sut.deleteCity(String.valueOf(tblCity.getCityId())))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    /**
-     * Test delete City if exist throws NotFoundException.
-     *
-     */
-    @Test
-    public void deleteThrowsNFE() {
-        // setup
-        TblCity tblCity = TblCityFixtures.createCity();
-        doThrow(NotFoundException.class).when(cityRepository).findById(anyInt());
-        // exercise
-        assertThatThrownBy(() -> sut.deleteCity(String.valueOf(tblCity.getCityId())))
-                .isInstanceOf(NotFoundException.class);
     }
 }

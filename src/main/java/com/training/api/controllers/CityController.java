@@ -63,23 +63,6 @@ public class CityController {
     }
 
     /**
-     * Delete city {@link TblCity}
-     *
-     * @param cityId City id
-     * @return deleted {@link TblCity}
-     */
-    @RequestMapping(value = "/city/{cityId}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteCity(@PathVariable("cityId") String cityId){
-        try {
-            TblCity deleteCity = cityService.deleteCity(cityId);
-
-            return new ResponseEntity<>(deleteCity, HttpStatus.OK);
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(new ApiMessage("404", e.getMessage()), HttpStatus.NOT_FOUND);
-        }
-    }
-
-    /**
      * Get city {@link TblCity}.
      *
      * @param cityId City id
@@ -87,7 +70,7 @@ public class CityController {
      * @return {@link TblCity} found
      */
     @RequestMapping(value = "/city/{cityId}", method = RequestMethod.GET)
-        public ResponseEntity getCity(@PathVariable("cityId") String cityId){
+    public ResponseEntity getCity(@PathVariable("cityId") String cityId){
         try {
             TblCity tblCity = cityService.findCityById(cityId).orElseThrow(() -> new NotFoundException("City not found"));
 
@@ -120,6 +103,7 @@ public class CityController {
         }
     }
 
+
     /**
      * Update a existing {@link TblCity}
      *
@@ -128,10 +112,13 @@ public class CityController {
      * @param cityId City id
      * @return
      */
-    @RequestMapping(value = "/city/{cityId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/city/{cityId}", method = RequestMethod.POST)
     public ResponseEntity updateCity(@Validated @RequestBody UpdateCityRequest request, @PathVariable("cityId") String cityId){
         try {
-            TblCity updateTblCity = cityService.update(cityId, request);
+            TblCity updateTblCity = cityService.findCityById(cityId)
+                    .map(request)
+                    .map(city -> cityService.update(city))
+                    .orElseThrow(() -> new NotFoundException("City no found"));
 
             return new ResponseEntity<>(updateTblCity, HttpStatus.OK);
         } catch (IllegalArgumentException | NullPointerException e) {
@@ -140,6 +127,25 @@ public class CityController {
             return new ResponseEntity<>(new ApiMessage("409", e.getMessage()), HttpStatus.CONFLICT);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    /**
+     * Delete city {@link TblCity}
+     *
+     * @param cityId City id
+     * @return deleted {@link TblCity}
+     */
+    @RequestMapping(value = "/city/{cityId}", method = RequestMethod.DELETE)
+    public ResponseEntity deleteCity(@PathVariable("cityId") String cityId){
+        try {
+            TblCity deleteCity = cityService.findCityById(cityId)
+                    .map(city -> cityService.deleteCity(city))
+                    .orElseThrow(() -> new NotFoundException("City no found"));
+
+            return new ResponseEntity<>(deleteCity, HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(new ApiMessage("404", e.getMessage()), HttpStatus.NOT_FOUND);
         }
     }
 }

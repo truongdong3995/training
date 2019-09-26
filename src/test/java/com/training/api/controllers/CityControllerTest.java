@@ -3,6 +3,7 @@ package com.training.api.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.training.api.entitys.TblArea;
 import com.training.api.entitys.TblCity;
+import com.training.api.entitys.TblPost;
 import com.training.api.entitys.TblPrefecture;
 import com.training.api.entitys.fixtures.TblAreaFixtures;
 import com.training.api.entitys.fixtures.TblCityFixtures;
@@ -34,9 +35,11 @@ import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -49,7 +52,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @RunWith(SpringRunner.class)
 @WebMvcTest(CityController.class)
-public class CityControllerTest {
+public class  CityControllerTest {
 
     @Autowired
     private MockMvc mvc;
@@ -259,9 +262,8 @@ public class CityControllerTest {
     @Test
     public void testRegisterCityThrowNPE() throws Exception {
         // setup
-        RegisterCityRequest request = null;
         ObjectMapper mapper = new ObjectMapper();
-        String content = mapper.writeValueAsString(request);
+        String content = mapper.writeValueAsString(null);
 
         doThrow(NullPointerException.class).when(cityService).create(any(TblCity.class));
 
@@ -284,13 +286,14 @@ public class CityControllerTest {
         // setup
         UpdateCityRequest request = UpdateCityRequestFixtures.creatRequest();
         TblCity tblCity = TblCityFixtures.createCity();
-        when(cityService.update(anyString(), any())).thenReturn(tblCity);
+        when(cityService.findCityById(anyString())).thenReturn(Optional.of(tblCity));
+        when(cityService.update(any(TblCity.class))).thenReturn(tblCity);
 
         ObjectMapper mapper = new ObjectMapper();
         String content = mapper.writeValueAsString(request);
 
         // exercise
-        mvc.perform(MockMvcRequestBuilders.put("/city/{cityId}",tblCity.getCityId())
+        mvc.perform(MockMvcRequestBuilders.post("/city/{cityId}",tblCity.getCityId())
                 .content(content)
                 .contentType(MediaType.APPLICATION_JSON))
                 // verify
@@ -308,13 +311,14 @@ public class CityControllerTest {
         UpdateCityRequest request = UpdateCityRequestFixtures.creatRequest();
         TblCity tblCity = TblCityFixtures.createCity();
 
-        doThrow(IllegalArgumentException.class).when(cityService).update(anyString(),any());
+        when(cityService.findCityById(anyString())).thenReturn(Optional.of(tblCity));
+        doThrow(IllegalArgumentException.class).when(cityService).update(any(TblCity.class));
 
         ObjectMapper mapper = new ObjectMapper();
         String content = mapper.writeValueAsString(request);
 
         // exercise
-        mvc.perform(MockMvcRequestBuilders.put("/city/{cityId}",tblCity.getCityId())
+        mvc.perform(MockMvcRequestBuilders.post("/city/{cityId}",tblCity.getCityId())
                 .content(content)
                 .contentType(MediaType.APPLICATION_JSON))
                 // verify
@@ -334,16 +338,51 @@ public class CityControllerTest {
         UpdateCityRequest request = UpdateCityRequestFixtures.creatRequest();
         TblCity tblCity = TblCityFixtures.createCity();
 
-        doThrow(ConflicException.class).when(cityService).update(anyString(),any());
+        when(cityService.findCityById(anyString())).thenReturn(Optional.of(tblCity));
+        doThrow(ConflicException.class).when(cityService).update(any(TblCity.class));
 
         ObjectMapper mapper = new ObjectMapper();
         String content = mapper.writeValueAsString(request);
 
         // exercise
-        mvc.perform(MockMvcRequestBuilders.put("/city/{cityId}",tblCity.getCityId())
+        mvc.perform(MockMvcRequestBuilders.post("/city/{cityId}",tblCity.getCityId())
                 .content(content)
                 .contentType(MediaType.APPLICATION_JSON))
                 // verify
                 .andExpect(status().isConflict());
+    }
+
+    /**
+     * Test DELETE "/areas/{area_code}"
+     *
+     */
+    @Test
+    public void deleteCity() throws Exception {
+        // setup
+        TblCity tblCity = TblCityFixtures.createCity();
+        when(cityService.findCityById(anyString())).thenReturn(Optional.of(tblCity));
+        when(cityService.deleteCity(any(TblCity.class))).thenReturn(tblCity);
+
+        // exercise
+        mvc.perform(delete("/city/{cityId}", tblCity.getCityId()))
+                .andDo(print())
+                // verify
+                .andExpect(status().isOk());
+    }
+
+    /**
+     * Test DELETE "/areas/{area_code}" throws NotFoundException
+     *
+     */
+    @Test
+    public void deleteCityThrowsNFE() throws Exception {
+        // setup
+        TblCity tblCity = TblCityFixtures.createCity();
+        when(cityService.findCityById(anyString())).thenReturn(Optional.empty());
+        // exercise
+        mvc.perform(delete("/city/{cityId}", tblCity.getCityId()))
+                .andDo(print())
+                // verify
+                .andExpect(status().isNotFound());
     }
 }

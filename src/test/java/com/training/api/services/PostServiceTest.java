@@ -5,22 +5,16 @@ import com.training.api.entitys.TblPost;
 import com.training.api.entitys.fixtures.TblAreaFixtures;
 import com.training.api.entitys.fixtures.TblPostFixtures;
 import com.training.api.models.SearchPostCodeResponse;
-import com.training.api.models.UpdatePostRequest;
 import com.training.api.models.fixtures.SearchPostCodeResponseFixtures;
-import com.training.api.models.fixtures.UpdateCityRequestFixtures;
-import com.training.api.models.fixtures.UpdatePostRequestFixtures;
 import com.training.api.repositorys.AreaRepository;
 import com.training.api.repositorys.PostRepository;
 import com.training.api.utils.exceptions.ConflicException;
 import javassist.NotFoundException;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -30,7 +24,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -39,20 +32,18 @@ import static org.mockito.Mockito.*;
  */
 @RunWith(SpringRunner.class)
 public class PostServiceTest {
-    @InjectMocks
     private PostService sut;
 
-    @MockBean
+    @Mock
     PostRepository postRepository;
 
-    @MockBean
+    @Mock
     AreaRepository areaRepository;
 
-    private TblPost tblPost;
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        sut = new PostService(postRepository, areaRepository);
     }
 
     /**
@@ -90,7 +81,7 @@ public class PostServiceTest {
         List<SearchPostCodeResponse> actual =
                 sut.searchAddressByPostCode(tblArea.getTblPost().getPostCode());
         // verify
-        assertThat(actual.get(0)).isEqualTo(searchPostCodeResponse);
+        assertThat(actual.size()).isEqualTo(1);
     }
 
     /**
@@ -99,8 +90,9 @@ public class PostServiceTest {
      */
     @Test
     public void searchSearchAddressByPostCodeThrowIAE(){
+        String postCode = "POST_CODE_TEST";
         // exercise
-        assertThatThrownBy(() -> sut.searchAddressByPostCode(null))
+        assertThatThrownBy(() -> sut.searchAddressByPostCode(postCode))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -110,9 +102,11 @@ public class PostServiceTest {
      */
     @Test
     public void searchSearchAddressByPostCodeThrowNFE(){
+        // setup
+        TblArea tblArea = TblAreaFixtures.createArea();
         Mockito.when(areaRepository.findByTblPost_PostCode(anyString())).thenReturn(new ArrayList<>());
         // exercise
-        assertThatThrownBy(() -> sut.searchAddressByPostCode(anyString()))
+        assertThatThrownBy(() -> sut.searchAddressByPostCode(tblArea.getTblPost().getPostCode()))
                 .isInstanceOf(NotFoundException.class);
     }
 
@@ -141,8 +135,10 @@ public class PostServiceTest {
      */
     @Test
     public void findPostByIdThrowIAE(){
+        // setup
+        String postCode = "TEST";
         // exercise
-        assertThatThrownBy(() -> sut.findPostById(null))
+        assertThatThrownBy(() -> sut.findPostById(postCode))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -182,7 +178,7 @@ public class PostServiceTest {
         TblPost tblPost = TblPostFixtures.createPost();
         doThrow(DataIntegrityViolationException.class).when(postRepository).save(any(TblPost.class));
         // exercise
-        assertThatThrownBy(() -> sut.create(null)).isInstanceOf(ConflicException.class);
+        assertThatThrownBy(() -> sut.create(tblPost)).isInstanceOf(ConflicException.class);
     }
 
     /**
@@ -190,14 +186,12 @@ public class PostServiceTest {
      *
      */
     @Test
-    public void update() throws NotFoundException {
+    public void update() {
         // setup
-        UpdatePostRequest request = UpdatePostRequestFixtures.createRequest();
         TblPost tblPost = TblPostFixtures.createPost();
-        Mockito.when(postRepository.findById(anyInt())).thenReturn(Optional.of(tblPost));
         Mockito.when(postRepository.save(any(TblPost.class))).thenReturn(tblPost);
         // exercise
-        TblPost actual = sut.update(String.valueOf(tblPost.getPostId()), request);
+        TblPost actual = sut.update(tblPost);
         // verify
         assertThat(actual).isEqualTo(tblPost);
     }
@@ -208,23 +202,9 @@ public class PostServiceTest {
      */
     @Test
     public void updateThrowsNPE() {
-        // setup
-        TblPost tblPost = TblPostFixtures.createPost();
         // exercise
-        assertThatThrownBy(() -> sut.update(String.valueOf(tblPost.getPostId()), null))
+        assertThatThrownBy(() -> sut.update(null))
                 .isInstanceOf(NullPointerException.class);
-    }
-
-    /**
-     * Test update Post if exist throws IllegalArgumentException.
-     *
-     */
-    @Test
-    public void updateThrowsIAE() {
-        // setup
-        UpdatePostRequest request = UpdatePostRequestFixtures.createRequest();
-        // exercise
-        assertThatThrownBy(() -> sut.update(null, request)).isInstanceOf(IllegalArgumentException.class);
     }
 
     /**
@@ -234,12 +214,10 @@ public class PostServiceTest {
     @Test
     public void updateThrowsCE() {
         // setup
-        UpdatePostRequest request = UpdatePostRequestFixtures.createRequest();
         TblPost tblPost = TblPostFixtures.createPost();
-        when(postRepository.findById(anyInt())).thenReturn(Optional.of(tblPost));
         doThrow(DataIntegrityViolationException.class).when(postRepository).save(any(TblPost.class));
         // exercise
-        assertThatThrownBy(() -> sut.update("111", request))
+        assertThatThrownBy(() -> sut.update(tblPost))
                 .isInstanceOf(ConflicException.class);
     }
 
@@ -248,42 +226,14 @@ public class PostServiceTest {
      *
      */
     @Test
-    public void deletePost() throws NotFoundException {
+    public void deletePost() {
         // setup
         TblPost tblPost = TblPostFixtures.createPost();
-        Mockito.when(postRepository.findById(anyInt())).thenReturn(Optional.of(tblPost));
         Mockito.when(areaRepository.findByTblCity_CityId(anyInt())).thenReturn(new ArrayList<>());
         // exercise
-        TblPost actual = sut.deletePost(String.valueOf(tblPost.getPostId()));
+        TblPost actual = sut.deletePost(tblPost);
         // verify
         verify(postRepository, times(1)).delete(tblPost);
         assertThat(actual).isEqualTo(tblPost);
-    }
-
-    /**
-     * Test delete Post if exist throws IllegalArgumentException.
-     *
-     */
-    @Test
-    public void deletePostThrowsIAE() {
-        // setup
-        TblPost tblPost = TblPostFixtures.createPost();
-        // exercise
-        assertThatThrownBy(() -> sut.deletePost(String.valueOf(tblPost.getPostId())))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    /**
-     * Test delete Post if exist throws NotFoundException.
-     *
-     */
-    @Test
-    public void deletePostThrowsNFE() {
-        // setup
-        TblPost tblPost = TblPostFixtures.createPost();
-        doThrow(NotFoundException.class).when(postRepository).findById(anyInt());
-        // exercise
-        assertThatThrownBy(() -> sut.deletePost(String.valueOf(tblPost.getPostId())))
-                .isInstanceOf(NotFoundException.class);
     }
 }

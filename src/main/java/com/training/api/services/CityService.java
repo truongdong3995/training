@@ -54,7 +54,6 @@ public class CityService {
         return searchPrefectureCodeResponseList;
     }
 
-
     /**
      * Get all {@link TblCity}
      *
@@ -82,29 +81,6 @@ public class CityService {
     }
 
     /**
-     * Delete existing {@link TblCity}
-     *
-     * @param cityId city id
-     * @return deleted {@link TblCity}
-     * @throws NullPointerException if cityId is null
-     * @throws NotFoundException if city is not found
-     */
-    @Transactional(rollbackOn = Exception.class)
-    public TblCity deleteCity(String cityId) throws NotFoundException {
-        if (Common.checkValidNumber(cityId) == false) {
-            throw new IllegalArgumentException("City id must be halfsize number");
-        }
-        TblCity tblCity = findCityById(cityId).orElseThrow(()-> new NotFoundException("City not found"));
-        List<TblArea> tblAreaList= areaRepository.findByTblCity_CityId(Integer.valueOf(cityId));
-        if (tblAreaList.size() > 0) {
-            areaRepository.deleteAll(tblAreaList);
-        }
-        cityRepository.delete(tblCity);
-
-        return tblCity;
-    }
-
-    /**
      * Create new {@link TblCity}
      *
      * @param createCity The City to post
@@ -127,27 +103,40 @@ public class CityService {
     /**
      * Update existing {@link TblCity}
      *
-     * @param cityId city id
-     * @param request The request to update
+     * @param updateCity {@link TblCity}
      * @return updatedCity updated area
-     * @throws NotFoundException if city is not found
      * @throws NullPointerException if cityId is null
      * @throws ConflicException if update failed
      */
-    public TblCity update(String cityId, UpdateCityRequest request) throws NotFoundException {
-        if (Common.checkValidNumber(cityId) == false) {
-            throw new IllegalArgumentException("City id must be halfsize number");
-        }
-        Common.checkNotNull(request, "City must not be null");
-        TblCity tblCity = findCityById(cityId).map(request).orElseThrow(()-> new NotFoundException("City not found"));
+    public TblCity update(TblCity updateCity) {
+        Common.checkNotNull(updateCity, "City must not be null");
 
         TblCity updatedCity;
         try {
-            updatedCity = cityRepository.save(tblCity);
+            updatedCity = cityRepository.save(updateCity);
         } catch (DataIntegrityViolationException e) {
             throw new ConflicException("City has been exist");
         }
 
         return updatedCity;
+    }
+
+    /**
+     * Delete existing {@link TblCity}
+     *
+     * @param deleteCity {@link TblCity} delete
+     * @return deleted {@link TblCity}
+     * @throws NullPointerException if cityId is null
+     * @throws NotFoundException if city is not found
+     */
+    @Transactional(rollbackOn = Exception.class)
+    public TblCity deleteCity(TblCity deleteCity) {
+        List<TblArea> tblAreaList= areaRepository.findByTblCity_CityId(Integer.valueOf(deleteCity.getCityId()));
+        if (tblAreaList.size() > 0) {
+            areaRepository.deleteAll(tblAreaList);
+        }
+        cityRepository.delete(deleteCity);
+
+        return deleteCity;
     }
 }

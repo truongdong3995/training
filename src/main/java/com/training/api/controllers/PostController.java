@@ -62,66 +62,6 @@ public class PostController {
     }
 
     /**
-     * Create new Post {@link TblPost}
-     *
-     * @param request The request to register {@link RegisterPostRequest}
-     *
-     * @return registed {@link TblPost}
-     */
-    @RequestMapping(value = "/post/", method = RequestMethod.PUT)
-    public ResponseEntity registerPost(@Validated @RequestBody RegisterPostRequest request){
-        try {
-            TblPost postToRegister = request.get();
-            TblPost tblPostCreate = postService.create(postToRegister);
-
-            return new ResponseEntity<>(tblPostCreate, HttpStatus.OK);
-        } catch (ConflicException e) {
-            return new ResponseEntity<>(ApiMessage.error400(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    /**
-     * Update a existing {@link TblPost}
-     *
-     * @param request The request to update {@link UpdatePostRequest}
-     *
-     * @param postId Post id
-     * @return
-     */
-    @RequestMapping(value = "/post/{postId}", method = RequestMethod.PUT)
-    public ResponseEntity updatePost(@Validated @RequestBody UpdatePostRequest request, @PathVariable("postId") String postId){
-        try {
-
-            TblPost updateTblPost = postService.update(postId, request);
-
-            return new ResponseEntity<>(updateTblPost, HttpStatus.OK);
-        } catch (IllegalArgumentException | NotFoundException e) {
-            return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
-        } catch (ConflicException e) {
-            return new ResponseEntity<>(new ApiMessage("409", e.getMessage()), HttpStatus.CONFLICT);
-        }
-    }
-
-    /**
-     * Delete post {@link TblPost}
-     *
-     * @param postId Post id
-     * @return deleted {@link TblPost}
-     */
-    @RequestMapping(value = "/post/{postId}", method = RequestMethod.DELETE)
-    public ResponseEntity deletePost(@PathVariable("postId") String postId){
-        try {
-            TblPost deletePost = postService.deletePost(postId);
-
-            return new ResponseEntity<>(deletePost, HttpStatus.OK);
-        } catch (IllegalArgumentException ex){
-            return new ResponseEntity<>(ApiMessage.error400(), HttpStatus.BAD_REQUEST);
-        } catch (NotFoundException ex) {
-            return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
-        }
-    }
-
-    /**
      * Get city {@link TblPost}.
      *
      * @param postId Post id
@@ -138,6 +78,73 @@ public class PostController {
             return new ResponseEntity<>(new ApiMessage("400", e.getMessage()), HttpStatus.BAD_REQUEST);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(new ApiMessage("404", e.getMessage()), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    /**
+     * Create new Post {@link TblPost}
+     *
+     * @param request The request to register {@link RegisterPostRequest}
+     *
+     * @return registed {@link TblPost}
+     */
+    @RequestMapping(value = "/post/", method = RequestMethod.PUT)
+    public ResponseEntity registerPost(@Validated @RequestBody RegisterPostRequest request){
+        try {
+            TblPost postToRegister = request.get();
+            TblPost tblPostCreate = postService.create(postToRegister);
+
+            return new ResponseEntity<>(tblPostCreate, HttpStatus.OK);
+        } catch (ConflicException e) {
+            return new ResponseEntity<>(new ApiMessage("409", e.getMessage()), HttpStatus.CONFLICT);
+        } catch (NullPointerException e) {
+            return new ResponseEntity<>(new ApiMessage("400", e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Update a existing {@link TblPost}
+     *
+     * @param request The request to update {@link UpdatePostRequest}
+     *
+     * @param postId Post id
+     * @return
+     */
+    @RequestMapping(value = "/post/{postId}", method = RequestMethod.POST)
+    public ResponseEntity updatePost(@Validated @RequestBody UpdatePostRequest request, @PathVariable("postId") String postId){
+        try {
+
+            TblPost updateTblPost = postService.findPostById(postId)
+                    .map(request)
+                    .map(post -> postService.update(post))
+                    .orElseThrow(() -> new NotFoundException("City no found"));
+
+            return new ResponseEntity<>(updateTblPost, HttpStatus.OK);
+        } catch (IllegalArgumentException | NotFoundException e) {
+            return new ResponseEntity<>(ApiMessage.error400(), HttpStatus.BAD_REQUEST);
+        } catch (ConflicException e) {
+            return new ResponseEntity<>(new ApiMessage("409", e.getMessage()), HttpStatus.CONFLICT);
+        }
+    }
+
+    /**
+     * Delete post {@link TblPost}
+     *
+     * @param postId Post id
+     * @return deleted {@link TblPost}
+     */
+    @RequestMapping(value = "/post/{postId}", method = RequestMethod.DELETE)
+    public ResponseEntity deletePost(@PathVariable("postId") String postId){
+        try {
+            TblPost deletePost = postService.findPostById(postId)
+                    .map(post -> postService.deletePost(post))
+                    .orElseThrow(() -> new NotFoundException("City no found"));
+
+            return new ResponseEntity<>(deletePost, HttpStatus.OK);
+        } catch (IllegalArgumentException ex){
+            return new ResponseEntity<>(ApiMessage.error400(), HttpStatus.BAD_REQUEST);
+        } catch (NotFoundException ex) {
+            return new ResponseEntity<>(ApiMessage.error404(), HttpStatus.NOT_FOUND);
         }
     }
 }

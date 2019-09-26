@@ -1,6 +1,7 @@
 package com.training.api.services;
 
 import com.training.api.entitys.TblArea;
+import com.training.api.entitys.TblCity;
 import com.training.api.entitys.TblPost;
 import com.training.api.models.SearchPostCodeResponse;
 import com.training.api.models.SearchPrefectureCodeResponse;
@@ -95,43 +96,34 @@ public class PostService {
     /**
      * Delete existing {@link TblPost}
      *
-     * @param postId post id
+     * @param deletePost {@link TblPost} delete
      * @return deleted {@link TblPost}
-     * @throws NullPointerException if postId is null
-     * @throws NotFoundException if post is not found
      */
     @Transactional(rollbackOn = Exception.class)
-    public TblPost deletePost(String postId) throws NotFoundException {
-        TblPost tblPost = findPostById(postId).orElseThrow(()-> new NotFoundException("Post not found"));
-        List<TblArea> tblAreaList= areaRepository.findByTblPost_PostId(Integer.valueOf(postId));
+    public TblPost deletePost(TblPost deletePost) {
+        List<TblArea> tblAreaList= areaRepository.findByTblPost_PostId(Integer.valueOf(deletePost.getPostId()));
         if (tblAreaList.size() > 0) {
             areaRepository.deleteAll(tblAreaList);
         }
-        postRepository.delete(tblPost);
+        postRepository.delete(deletePost);
 
-        return tblPost;
+        return deletePost;
     }
 
     /**
      * Update existing {@link TblPost}
      *
-     * @param postId post id
-     * @param request The request to update
+     * @param updatePost {@link TblPost} update
      * @return updatedPost updated post
-     * @throws NotFoundException if post is not found
      * @throws NullPointerException if post is null
      * @throws ConflicException if post failed
      */
-    public TblPost update(String postId, UpdatePostRequest request) throws NotFoundException {
-        TblPost tblPost = findPostById(postId).map(request).orElseThrow(()-> new NotFoundException("City not found"));
-        Common.checkNotNull(request, "City must not be null");
+    public TblPost update(TblPost updatePost) {
+        Common.checkNotNull(updatePost, "Post must not be null");
 
-        tblPost.setPostCode(request.getPostCode());
-        tblPost.setMultiArea(request.getMultiArea());
-        tblPost.setChangeReason(request.getChangeReason());
         TblPost updatedPost;
         try {
-            updatedPost = postRepository.save(tblPost);
+            updatedPost = postRepository.save(updatePost);
         } catch (DataIntegrityViolationException e) {
             throw new ConflicException("Post has been exist");
         }
