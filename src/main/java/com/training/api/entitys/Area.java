@@ -25,7 +25,8 @@ import javax.validation.constraints.NotNull;
  */
 @Entity
 @Table(name = "tbl_area")
-public class TblArea implements Serializable{
+public class Area implements Serializable {
+	
 	@Id
 	@Column(name = "area_id")
 	@JsonIgnore
@@ -33,14 +34,14 @@ public class TblArea implements Serializable{
 	@Setter
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int areaId;
-
+	
 	@Column(name = "area_kana")
 	@NotNull
 	@Getter
 	@Setter
 	@JsonProperty("area_kana")
 	private String areaKana;
-
+	
 	@Column(name = "area")
 	@NotNull
 	@Getter
@@ -52,7 +53,7 @@ public class TblArea implements Serializable{
 	@JoinColumn(name = "city_id")
 	@Getter
 	@Setter
-	private TblCity tblCity;
+	private City City;
 	
 	@Column(name = "chome_area")
 	@NotNull
@@ -80,37 +81,38 @@ public class TblArea implements Serializable{
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	@Getter
 	@Setter
-	private TblPost tblPost;
+	private Post tblPost;
 	
 	@ManyToOne
 	@JoinColumn(name = "old_post_id")
 	@Getter
 	@Setter
-	private TblOldPost tblOldPost;
-
+	private OldPost tblOldPost;
+	
+	
 	/**
 	 * Create instance.
 	 */
-	public TblArea() {
+	public Area() {
 	}
-
+	
 	/**
 	 * Create instance.
 	 *
 	 * @param areaKana area kana
 	 * @param area area
-	 * @param tblCity {@link TblCity}
+	 * @param city {@link City}
 	 * @param chomeArea chome area
 	 * @param koazaArea koaza area
 	 * @param multiPostArea multi post area
-	 * @param tblPost {@link TblPost}
-	 * @param tblOldPost {@link TblOldPost}
+	 * @param tblPost {@link Post}
+	 * @param tblOldPost {@link OldPost}
 	 */
-	public TblArea(String areaKana, String area, TblCity tblCity, int chomeArea, int koazaArea,
-			int multiPostArea, TblPost tblPost, TblOldPost tblOldPost) {
+	public Area(String areaKana, String area, City city, int chomeArea, int koazaArea,
+			int multiPostArea, Post tblPost, OldPost tblOldPost) {
 		this.areaKana = areaKana;
 		this.area = area;
-		this.tblCity = tblCity;
+		this.City = city;
 		this.chomeArea = chomeArea;
 		this.koazaArea = koazaArea;
 		this.multiPostArea = multiPostArea;

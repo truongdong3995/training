@@ -1,7 +1,6 @@
 package com.training.api.models.fixtures;
 
-import com.training.api.entitys.TblArea;
-import com.training.api.entitys.fixtures.TblAreaFixtures;
+import com.training.api.entitys.Area;
 import com.training.api.models.SearchPostCodeResponse;
 
 /**
@@ -9,9 +8,10 @@ import com.training.api.models.SearchPostCodeResponse;
  *
  */
 public class SearchPostCodeResponseFixtures {
-    public static SearchPostCodeResponse createReponse(TblArea tblArea ) {
-        SearchPostCodeResponse response = new SearchPostCodeResponse(tblArea);
-
-        return response;
-    }
+	
+	public static SearchPostCodeResponse createResponse(Area tblArea) {
+		SearchPostCodeResponse response = new SearchPostCodeResponse(tblArea);
+		
+		return response;
+	}
 }

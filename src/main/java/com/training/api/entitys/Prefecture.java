@@ -19,16 +19,19 @@ import javax.validation.constraints.NotNull;
  *
  */
 @Entity
-@Table(name = "tbl_prefecture", uniqueConstraints = @UniqueConstraint(columnNames = {"prefecture_kana", "prefecture"}))
-public class TblPrefecture {
+@Table(name = "tbl_prefecture", uniqueConstraints = @UniqueConstraint(columnNames = {
+	"prefecture_kana",
+	"prefecture"
+}))
+public class Prefecture {
 	
 	@Id
 	@Column(name = "prefecture_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@JsonProperty("prefecture_id")
 	@Getter
 	@Setter
-    private int prefectureId;
+	private int prefectureId;
 	
 	@Column(name = "prefecture_kana")
 	@JsonProperty("prefecture_kana")
@@ -53,14 +56,15 @@ public class TblPrefecture {
 	@Getter
 	@Setter
 	private String prefectureCode;
-
+	
+	
 	/**
 	 * Create instance
 	 *
 	 */
-	public TblPrefecture() {
+	public Prefecture() {
 	}
-
+	
 	/**
 	 * Create instance
 	 *
@@ -69,7 +73,7 @@ public class TblPrefecture {
 	 * @param prefecture prefecture
 	 * @param prefectureCode prefecture code
 	 */
-	public TblPrefecture(int prefectureId, String prefectureKana, String prefecture, String prefectureCode) {
+	public Prefecture(int prefectureId, String prefectureKana, String prefecture, String prefectureCode) {
 		this.prefectureId = prefectureId;
 		this.prefectureKana = prefectureKana;
 		this.prefecture = prefecture;

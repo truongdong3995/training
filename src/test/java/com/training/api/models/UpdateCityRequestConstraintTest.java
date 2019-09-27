@@ -16,25 +16,27 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  */
 public class UpdateCityRequestConstraintTest {
-    final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-
-    @Test
-    public void testPatternConstraints() {
-        // setup
-        UpdateCityRequest sut = new UpdateCityRequest();
-        sut.setCode(StringHelper.repeat("x", 8));
-        sut.setCityKana(null);
-        // exercise
-        Set<ConstraintViolation<UpdateCityRequest>> actual = validator.validate(sut);
-        // verify
-        Set<String> errorExpression = actual.stream()
-                .map(violation -> violation.getPropertyPath().toString() + " " + violation.getMessage())
-                .collect(Collectors.toSet());
-        assertThat(errorExpression).containsExactlyInAnyOrder(
-                "code length must be between 0 and 7",
-                "cityKana must not be null",
-                "tblPrefecture must not be null",
-                "city must not be null");
-        assertThat(actual).hasSize(4);
-    }
+	
+	final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+	
+	
+	@Test
+	public void testPatternConstraints() {
+		// setup
+		UpdateCityRequest sut = new UpdateCityRequest();
+		sut.setCode(StringHelper.repeat("x", 8));
+		sut.setCityKana(null);
+		// exercise
+		Set<ConstraintViolation<UpdateCityRequest>> actual = validator.validate(sut);
+		// verify
+		Set<String> errorExpression = actual.stream()
+			.map(violation -> violation.getPropertyPath().toString() + " " + violation.getMessage())
+			.collect(Collectors.toSet());
+		assertThat(errorExpression).containsExactlyInAnyOrder(
+				"code length must be between 0 and 7",
+				"cityKana must not be null",
+				"tblPrefecture must not be null",
+				"city must not be null");
+		assertThat(actual).hasSize(4);
+	}
 }

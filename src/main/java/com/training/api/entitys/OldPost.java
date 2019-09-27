@@ -20,15 +20,15 @@ import javax.validation.constraints.NotNull;
  */
 @Entity
 @Table(name = "tbl_old_post")
-public class TblOldPost {
+public class OldPost {
 	
 	@Id
 	@Column(name = "old_post_id")
 	@JsonIgnore
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Getter
 	@Setter
-    private int oldPostId;
+	private int oldPostId;
 	
 	@Column(name = "old_post_code", unique = true)
 	@JsonProperty("old_post_code")
@@ -37,20 +37,21 @@ public class TblOldPost {
 	@Getter
 	@Setter
 	private String oldPostCode;
-
+	
+	
 	/**
 	 * Create instance
 	 *
 	 */
-	public TblOldPost() {
+	public OldPost() {
 	}
-
+	
 	/**
 	 * Create instance
 	 *
 	 * @param oldPostCode old post code
 	 */
-	public TblOldPost(String oldPostCode) {
+	public OldPost(String oldPostCode) {
 		this.oldPostCode = oldPostCode;
 	}
 }

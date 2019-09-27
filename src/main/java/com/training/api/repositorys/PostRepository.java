@@ -1,7 +1,7 @@
 package com.training.api.repositorys;
 
-import com.training.api.entitys.TblPost;
+import com.training.api.entitys.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PostRepository extends JpaRepository<TblPost, Integer>{
+public interface PostRepository extends JpaRepository<Post, Integer> {
 }
