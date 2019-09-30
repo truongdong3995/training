@@ -7,15 +7,17 @@ import com.training.api.models.HttpExceptionResponse;
 import com.training.api.models.RegisterCityRequest;
 import com.training.api.models.UpdateCityRequest;
 import com.training.api.services.CityService;
-import com.training.api.utils.exceptions.ConflictException;
+import com.training.api.utils.exceptions.AlreadyExistsException;
 import com.training.api.models.SearchPrefectureCodeResponse;
 import com.training.api.utils.ApiMessage;
 import com.training.api.utils.RestData;
+import com.training.api.utils.exceptions.InvalidModelException;
 import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,10 +25,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.transaction.Transactional;
-
 @Validated
 @RestController
+@Transactional
 @Slf4j
 @RequiredArgsConstructor
 public class CityController {
@@ -62,7 +63,7 @@ public class CityController {
 	 *
 	 * @return List of {@link City}
 	 */
-	@RequestMapping(value = "/citys", method = RequestMethod.GET)
+	@RequestMapping(value = "/cities", method = RequestMethod.GET)
 	public ResponseEntity getAll() {
 		List<City> newList = cityService.findAll();
 		
@@ -104,8 +105,10 @@ public class CityController {
 			City cityCreate = cityService.create(cityToRegister);
 			
 			return new ResponseEntity<>(cityCreate, HttpStatus.OK);
-		} catch (ConflictException e) {
+		} catch (AlreadyExistsException e) {
 			return new ResponseEntity<>(new HttpExceptionResponse("409", e.getMessage()), HttpStatus.CONFLICT);
+		} catch (InvalidModelException e) {
+			return new ResponseEntity<>(new HttpExceptionResponse("400", e.getMessage()), HttpStatus.BAD_REQUEST);
 		}
 	}
 	
@@ -128,9 +131,9 @@ public class CityController {
 						() -> new NotFoundException(apiMessage.getMessageError("service.city.find.city_not_exist")));
 			
 			return new ResponseEntity<>(updateCity, HttpStatus.OK);
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException | InvalidModelException e) {
 			return new ResponseEntity<>(new HttpExceptionResponse("400", e.getMessage()), HttpStatus.BAD_REQUEST);
-		} catch (ConflictException e) {
+		} catch (AlreadyExistsException e) {
 			return new ResponseEntity<>(new HttpExceptionResponse("409", e.getMessage()), HttpStatus.CONFLICT);
 		} catch (NotFoundException e) {
 			return new ResponseEntity<>(new HttpExceptionResponse("404", e.getMessage()), HttpStatus.NOT_FOUND);

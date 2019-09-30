@@ -4,21 +4,18 @@ import com.training.api.entitys.Area;
 import com.training.api.entitys.City;
 import com.training.api.models.SearchPrefectureCodeResponse;
 import com.training.api.utils.ApiMessage;
-import com.training.api.utils.exceptions.ConflictException;
+import com.training.api.utils.exceptions.AlreadyExistsException;
 import com.training.api.repositorys.AreaRepository;
 import com.training.api.repositorys.CityRepository;
 import com.training.api.utils.Common;
+import com.training.api.validators.ModelValidator;
 import javassist.NotFoundException;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,6 +25,7 @@ import java.util.stream.Collectors;
  *
  */
 @Service
+@Transactional(readOnly = true)
 @Slf4j
 @RequiredArgsConstructor
 public class CityService {
@@ -37,6 +35,8 @@ public class CityService {
 	private final AreaRepository areaRepository;
 
 	private final ApiMessage apiMessage;
+
+	private final ModelValidator modelValidator;
 
 
 	/**
@@ -94,16 +94,18 @@ public class CityService {
 	 *
 	 * @param createCity The City to post
 	 * @return created City
-	 * @throws ConflictException if create failed
+	 * @throws AlreadyExistsException if create failed
 	 * @throws NullPointerException if argument is null
 	 */
+	@Transactional
 	public City create(City createCity) {
 		Common.checkNotNull(createCity, "City must not be null");
 		City createdCity;
 		try {
+			modelValidator.validate(createCity);
 			createdCity = cityRepository.save(createCity);
 		} catch (DataIntegrityViolationException e) {
-			throw new ConflictException(apiMessage.getMessageError("service.city.create.conflict"));
+			throw new AlreadyExistsException(apiMessage.getMessageError("service.city.create.conflict"));
 		}
 		
 		return createdCity;
@@ -115,16 +117,18 @@ public class CityService {
 	 * @param updateCity {@link City}
 	 * @return updatedCity updated area
 	 * @throws NullPointerException if cityId is null
-	 * @throws ConflictException if update failed
+	 * @throws AlreadyExistsException if update failed
 	 */
+	@Transactional
 	public City update(City updateCity) {
 		Common.checkNotNull(updateCity, "City must not be null");
 		
 		City updatedCity;
 		try {
+			modelValidator.validate(updateCity);
 			updatedCity = cityRepository.save(updateCity);
 		} catch (DataIntegrityViolationException e) {
-			throw new ConflictException(apiMessage.getMessageError("service.city.update.conflict"));
+			throw new AlreadyExistsException(apiMessage.getMessageError("service.city.update.conflict"));
 		}
 		
 		return updatedCity;
@@ -138,7 +142,7 @@ public class CityService {
 	 * @throws NullPointerException if cityId is null
 	 * @throws NotFoundException if city is not found
 	 */
-	@Transactional(rollbackOn = Exception.class)
+	@Transactional
 	public City deleteCity(City deleteCity) {
 		List<Area> tblAreaList = areaRepository.findByCity_CityId(Integer.valueOf(deleteCity.getCityId()));
 		if (tblAreaList.size() > 0) {

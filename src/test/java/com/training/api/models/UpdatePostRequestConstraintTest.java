@@ -24,7 +24,7 @@ public class UpdatePostRequestConstraintTest {
 	public void testPatternConstraints() {
 		// setup
 		UpdatePostRequest sut = new UpdatePostRequest();
-		sut.setPostCode(StringHelper.repeat("x", 8));
+//		sut.setPostCode(StringHelper.repeat("x", 8));
 		// exercise
 		Set<ConstraintViolation<UpdatePostRequest>> actual = validator.validate(sut);
 		// verify

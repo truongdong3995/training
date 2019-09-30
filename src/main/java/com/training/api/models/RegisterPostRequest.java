@@ -13,7 +13,7 @@ import java.util.function.Supplier;
  * Request to Register {@link Post}.
  *
  */
-public class RegisterPostRequest implements Supplier<Post> {
+public class  RegisterPostRequest implements Supplier<Post> {
 	
 	@JsonProperty("post_code")
 	@NotNull

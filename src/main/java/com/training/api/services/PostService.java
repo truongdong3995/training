@@ -5,20 +5,22 @@ import com.training.api.entitys.Post;
 import com.training.api.models.SearchPostCodeResponse;
 import com.training.api.utils.ApiMessage;
 import com.training.api.utils.Common;
-import com.training.api.utils.exceptions.ConflictException;
+import com.training.api.utils.exceptions.AlreadyExistsException;
 import com.training.api.repositorys.AreaRepository;
 import com.training.api.repositorys.PostRepository;
+import com.training.api.validators.ModelValidator;
 import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PostService {
 	
@@ -27,7 +29,8 @@ public class PostService {
 	private final AreaRepository areaRepository;
 	
 	private final ApiMessage apiMessage;
-	
+
+	private final ModelValidator modelValidator;
 	
 	/**
 	 * Get address information by post code
@@ -81,16 +84,18 @@ public class PostService {
 	 *
 	 * @param createPost The Post to post
 	 * @return created Post
-	 * @throws ConflictException if create failed
+	 * @throws AlreadyExistsException if create failed
 	 * @throws NullPointerException if argument is null
 	 */
+	@Transactional
 	public Post create(Post createPost) {
 		Common.checkNotNull(createPost, "Post must not be null");
 		Post createdPost;
 		try {
+			modelValidator.validate(createPost);
 			createdPost = postRepository.save(createPost);
 		} catch (DataIntegrityViolationException e) {
-			throw new ConflictException(apiMessage.getMessageError("service.post.create.conflict"));
+			throw new AlreadyExistsException(apiMessage.getMessageError("service.post.create.conflict"));
 		}
 		
 		return createdPost;
@@ -102,7 +107,7 @@ public class PostService {
 	 * @param deletePost {@link Post} delete
 	 * @return deleted {@link Post}
 	 */
-	@Transactional(rollbackOn = Exception.class)
+	@Transactional
 	public Post deletePost(Post deletePost) {
 		List<Area> tblAreaList = areaRepository.findByPost_PostId(Integer.valueOf(deletePost.getPostId()));
 		if (tblAreaList.size() > 0) {
@@ -119,16 +124,18 @@ public class PostService {
 	 * @param updatePost {@link Post} update
 	 * @return updatedPost updated post
 	 * @throws NullPointerException if post is null
-	 * @throws ConflictException if post failed
+	 * @throws AlreadyExistsException if post failed
 	 */
+	@Transactional
 	public Post update(Post updatePost) {
 		Common.checkNotNull(updatePost, "Post must not be null");
 		
 		Post updatedPost;
 		try {
+			modelValidator.validate(updatePost);
 			updatedPost = postRepository.save(updatePost);
 		} catch (DataIntegrityViolationException e) {
-			throw new ConflictException(apiMessage.getMessageError("service.post.update.conflict"));
+			throw new AlreadyExistsException(apiMessage.getMessageError("service.post.update.conflict"));
 		}
 		
 		return updatedPost;

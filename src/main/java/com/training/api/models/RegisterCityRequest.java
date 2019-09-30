@@ -40,8 +40,8 @@ public class RegisterCityRequest implements Supplier<City> {
 	@Getter
 	@Setter
 	@NotNull
-	@JsonProperty("tblPrefecture")
-	private Prefecture tblPrefecture;
+	@JsonProperty("prefecture")
+	private Prefecture prefecture;
 	
 	
 	@Override
@@ -50,7 +50,7 @@ public class RegisterCityRequest implements Supplier<City> {
 		tblCity.setCode(code);
 		tblCity.setCityKana(cityKana);
 		tblCity.setCityName(city);
-		tblCity.setPrefecture(tblPrefecture);
+		tblCity.setPrefecture(prefecture);
 		
 		return tblCity;
 	}

@@ -10,7 +10,8 @@ import com.training.api.models.fixtures.RegisterCityRequestFixtures;
 import com.training.api.models.fixtures.UpdateCityRequestFixtures;
 import com.training.api.services.CityService;
 import com.training.api.utils.ApiMessage;
-import com.training.api.utils.exceptions.ConflictException;
+import com.training.api.utils.exceptions.AlreadyExistsException;
+import com.training.api.utils.exceptions.InvalidModelException;
 import javassist.NotFoundException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -225,7 +226,7 @@ public class CityControllerTest {
 	/**
 	 * Test PUT "/citys/"
 	 *
-	 * @throws ConflictException
+	 * @throws AlreadyExistsException
 	 */
 	@Test
 	public void testRegisterCityThrowCE() throws Exception {
@@ -235,7 +236,7 @@ public class CityControllerTest {
 		ObjectMapper mapper = new ObjectMapper();
 		String content = mapper.writeValueAsString(request);
 
-		doThrow(ConflictException.class).when(cityService).create(any(City.class));
+		doThrow(AlreadyExistsException.class).when(cityService).create(any(City.class));
 
 		// exercise
 		mvc.perform(MockMvcRequestBuilders.post("/citys/")
@@ -243,6 +244,29 @@ public class CityControllerTest {
 			.contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isConflict());
+	}
+
+	/**
+	 * Test POST "/citys/"
+	 *
+	 * @throws InvalidModelException
+	 */
+	@Test
+	public void testRegisterCityThrowIME() throws Exception {
+		// setup
+		String code = "25562";
+		RegisterCityRequest request = RegisterCityRequestFixtures.creatRequest(code);
+		ObjectMapper mapper = new ObjectMapper();
+		String content = mapper.writeValueAsString(request);
+
+		doThrow(InvalidModelException.class).when(cityService).create(any(City.class));
+
+		// exercise
+		mvc.perform(MockMvcRequestBuilders.post("/citys")
+				.content(content)
+				.contentType(MediaType.APPLICATION_JSON))
+				// verify
+				.andExpect(status().isBadRequest());
 	}
 
 	/**
@@ -297,7 +321,7 @@ public class CityControllerTest {
 	/**
 	 * Test PUT "/citys/{code}"
 	 *
-	 * @throws ConflictException
+	 * @throws AlreadyExistsException
 	 */
 	@Test
 	public void testUpdateCityThrowCE() throws Exception {
@@ -306,7 +330,7 @@ public class CityControllerTest {
 		City city = CityFixtures.createCity();
 
 		when(cityService.findCityByCode(anyString())).thenReturn(Optional.of(city));
-		doThrow(ConflictException.class).when(cityService).update(any(City.class));
+		doThrow(AlreadyExistsException.class).when(cityService).update(any(City.class));
 
 		ObjectMapper mapper = new ObjectMapper();
 		String content = mapper.writeValueAsString(request);
@@ -317,6 +341,31 @@ public class CityControllerTest {
 			.contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isConflict());
+	}
+
+	/**
+	 * Test PUT "/citys/{code}"
+	 *
+	 * @throws AlreadyExistsException
+	 */
+	@Test
+	public void testUpdateCityThrowIME() throws Exception {
+		// setup
+		UpdateCityRequest request = UpdateCityRequestFixtures.creatRequest();
+		City city = CityFixtures.createCity();
+
+		when(cityService.findCityByCode(anyString())).thenReturn(Optional.of(city));
+		doThrow(InvalidModelException.class).when(cityService).update(any(City.class));
+
+		ObjectMapper mapper = new ObjectMapper();
+		String content = mapper.writeValueAsString(request);
+
+		// exercise
+		mvc.perform(MockMvcRequestBuilders.post("/citys/{code}", city.getCode())
+				.content(content)
+				.contentType(MediaType.APPLICATION_JSON))
+				// verify
+				.andExpect(status().isBadRequest());
 	}
 
 	/**

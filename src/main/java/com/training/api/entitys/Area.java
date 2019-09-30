@@ -105,8 +105,8 @@ public class Area implements Serializable {
 	 * @param chomeArea chome area
 	 * @param koazaArea koaza area
 	 * @param multiPostArea multi post area
-	 * @param tblPost {@link Post}
-	 * @param tblOldPost {@link OldPost}
+	 * @param post {@link Post}
+	 * @param oldPost {@link OldPost}
 	 */
 	public Area(String areaKana, String area, City city, int chomeArea, int koazaArea,
 			int multiPostArea, Post post, OldPost oldPost) {

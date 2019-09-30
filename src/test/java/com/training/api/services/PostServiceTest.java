@@ -9,13 +9,16 @@ import com.training.api.models.fixtures.SearchPostCodeResponseFixtures;
 import com.training.api.repositorys.AreaRepository;
 import com.training.api.repositorys.PostRepository;
 import com.training.api.utils.ApiMessage;
-import com.training.api.utils.exceptions.ConflictException;
+import com.training.api.utils.exceptions.AlreadyExistsException;
+import com.training.api.utils.exceptions.InvalidModelException;
+import com.training.api.validators.ModelValidator;
 import javassist.NotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -43,11 +46,14 @@ public class PostServiceTest {
 	AreaRepository areaRepository;
 	
 	ApiMessage apiMessage;
+
+	@Mock
+	ModelValidator modelValidator;
 	
 	
 	@Before
 	public void setUp() {
-		sut = new PostService(postRepository, areaRepository, apiMessage);
+		sut = new PostService(postRepository, areaRepository, apiMessage, modelValidator);
 	}
 	
 	/**
@@ -115,14 +121,14 @@ public class PostServiceTest {
 	}
 	
 	/**
-	 * Test find Post by id
+	 * Test find Post by
 	 *
 	 */
 	@Test
-	public void findPostById() {
+	public void findPostByPostCode() {
 		// setup
 		Post tblPost = PostFixtures.createPost();
-		when(postRepository.findById(anyInt())).thenReturn(Optional.of(tblPost));
+		when(postRepository.findByPostCode(anyString())).thenReturn(Optional.of(tblPost));
 		
 		// exercise
 		Optional<Post> actual = sut.findPostByPostCode(tblPost.getPostCode());
@@ -130,11 +136,11 @@ public class PostServiceTest {
 		//verify
 		assertThat(actual).isPresent();
 		assertThat(actual.get()).isEqualTo(tblPost);
-		verify(postRepository, times(1)).findById(tblPost.getPostId());
+		verify(postRepository, times(1)).findByPostCode(tblPost.getPostCode());
 	}
 	
 	/**
-	 * Test find Post by id throws IllegalArgumentException
+	 * Test find Post by post code throws IllegalArgumentException
 	 *
 	 */
 	@Test
@@ -173,7 +179,7 @@ public class PostServiceTest {
 	}
 	
 	/**
-	 * Test create new Post throws ConflictException.
+	 * Test create new Post throws AlreadyExistsException.
 	 *
 	 */
 	@Test
@@ -182,7 +188,20 @@ public class PostServiceTest {
 		Post tblPost = PostFixtures.createPost();
 		doThrow(DataIntegrityViolationException.class).when(postRepository).save(any(Post.class));
 		// exercise
-		assertThatThrownBy(() -> sut.create(tblPost)).isInstanceOf(ConflictException.class);
+		assertThatThrownBy(() -> sut.create(tblPost)).isInstanceOf(AlreadyExistsException.class);
+	}
+
+	/**
+	 * Test create new Post throws InvalidModelException.
+	 *
+	 */
+	@Test
+	public void createThrowsIME() {
+		// setup
+		Post tblPost = PostFixtures.createPost();
+		doThrow(InvalidModelException.class).when(modelValidator).validate(any(Post.class));
+		// exercise
+		assertThatThrownBy(() -> sut.create(tblPost)).isInstanceOf(InvalidModelException.class);
 	}
 	
 	/**
@@ -201,7 +220,7 @@ public class PostServiceTest {
 	}
 	
 	/**
-	 * Test update Post if exist throws ConflictException.
+	 * Test update Post if exist throws AlreadyExistsException.
 	 *
 	 */
 	@Test
@@ -211,7 +230,21 @@ public class PostServiceTest {
 		doThrow(DataIntegrityViolationException.class).when(postRepository).save(any(Post.class));
 		// exercise
 		assertThatThrownBy(() -> sut.update(tblPost))
-			.isInstanceOf(ConflictException.class);
+			.isInstanceOf(AlreadyExistsException.class);
+	}
+
+	/**
+	 * Test update Post if exist throws InvalidModelException.
+	 *
+	 */
+	@Test
+	public void updateThrowsIME() {
+		// setup
+		Post tblPost = PostFixtures.createPost();
+		doThrow(InvalidModelException.class).when(modelValidator).validate(any(Post.class));
+		// exercise
+		assertThatThrownBy(() -> sut.update(tblPost))
+				.isInstanceOf(InvalidModelException.class);
 	}
 	
 	/**

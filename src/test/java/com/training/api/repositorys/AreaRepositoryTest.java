@@ -21,15 +21,17 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.context.TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS;
 
+/**
+ * Test for {@link AreaRepository}.
+ */
 @TestExecutionListeners(value = FlywayTestExecutionListener.class, mergeMode = MERGE_WITH_DEFAULTS)
-@ContextConfiguration(classes = {
-	DataSourceAutoConfiguration.class,
-	FlywayAutoConfiguration.class,
-	ValidationAutoConfiguration.class
+@ActiveProfiles("unittest")@ContextConfiguration(classes = {
+		DataSourceAutoConfiguration.class,
+		FlywayAutoConfiguration.class,
+		ValidationAutoConfiguration.class
 }, initializers = ConfigFileApplicationContextInitializer.class)
-@ActiveProfiles("unittest")
 @ExtendWith(SpringExtension.class)
-public class AreaRepositoryTest {
+public class AreaRepositoryTest extends AbstractRepositoryTest{
 	
 	@Autowired
 	AreaRepository sut;
@@ -40,7 +42,6 @@ public class AreaRepositoryTest {
 	 *
 	 */
 	@Test
-	@FlywayTest
 	public void testFindByCity_CityId() {
 		// setup
 		Area area = AreaFixtures.createArea();

@@ -7,13 +7,16 @@ import com.training.api.models.fixtures.SearchPrefectureCodeResponseFixtures;
 import com.training.api.repositorys.AreaRepository;
 import com.training.api.repositorys.CityRepository;
 import com.training.api.utils.ApiMessage;
-import com.training.api.utils.exceptions.ConflictException;
+import com.training.api.utils.exceptions.AlreadyExistsException;
+import com.training.api.utils.exceptions.InvalidModelException;
+import com.training.api.validators.ModelValidator;
 import javassist.NotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -41,13 +44,16 @@ public class CityServiceTest {
 	
 	@Mock
 	AreaRepository areaRepository;
-	
+
+	@Mock
+	ModelValidator modelValidator;
+
 	ApiMessage apiMessage;
 	
 	
 	@Before
 	public void setUp() {
-		sut = new CityService(cityRepository, areaRepository, apiMessage);
+		sut = new CityService(cityRepository, areaRepository, apiMessage,modelValidator);
 	}
 	
 	/**
@@ -118,10 +124,10 @@ public class CityServiceTest {
 	 *
 	 */
 	@Test
-	public void findCityById() {
+	public void findCityByCode() {
 		// setup
 		City city = CityFixtures.createCity();
-		Mockito.when(cityRepository.findById(anyInt())).thenReturn(Optional.of(city));
+		Mockito.when(cityRepository.findByCode(anyString())).thenReturn(Optional.of(city));
 		
 		// exercise
 		Optional<City> actual = sut.findCityByCode(city.getCode());
@@ -129,15 +135,15 @@ public class CityServiceTest {
 		//verify
 		assertThat(actual).isPresent();
 		assertThat(actual.get()).isEqualTo(city);
-		verify(cityRepository, times(1)).findById(city.getCityId());
+		verify(cityRepository, times(1)).findByCode(city.getCode());
 	}
 	
 	/**
-	 * Test find City by id throws IllegalArgumentException.
+	 * Test find City by code throws IllegalArgumentException.
 	 *
 	 */
 	@Test
-	public void findCityByIdThrowIAE() {
+	public void findCityByCodeThrowIAE() {
 		String code = "TEST";
 		// exercise
 		assertThatThrownBy(() -> sut.findCityByCode(code))
@@ -171,7 +177,7 @@ public class CityServiceTest {
 	}
 	
 	/**
-	 * Test creat new City throws ConflictException.
+	 * Test creat new City throws AlreadyExistsException.
 	 *
 	 */
 	@Test
@@ -180,7 +186,20 @@ public class CityServiceTest {
 		City city = CityFixtures.createCity();
 		doThrow(DataIntegrityViolationException.class).when(cityRepository).save(any(City.class));
 		// exercise
-		assertThatThrownBy(() -> sut.create(city)).isInstanceOf(ConflictException.class);
+		assertThatThrownBy(() -> sut.create(city)).isInstanceOf(AlreadyExistsException.class);
+	}
+
+	/**
+	 * Test creat new City throws InvalidModelException.
+	 *
+	 */
+	@Test
+	public void createThrowsIME() {
+		// setup
+		City city = CityFixtures.createCity();
+		doThrow(InvalidModelException.class).when(modelValidator).validate(any(City.class));
+		// exercise
+		assertThatThrownBy(() -> sut.create(city)).isInstanceOf(InvalidModelException.class);
 	}
 	
 	/**
@@ -210,7 +229,7 @@ public class CityServiceTest {
 	}
 	
 	/**
-	 * Test update City if exist throws ConflictException.
+	 * Test update City if exist throws AlreadyExistsException.
 	 *
 	 */
 	@Test
@@ -219,7 +238,20 @@ public class CityServiceTest {
 		City city = CityFixtures.createCity();
 		doThrow(DataIntegrityViolationException.class).when(cityRepository).save(any(City.class));
 		// exercise
-		assertThatThrownBy(() -> sut.update(city)).isInstanceOf(ConflictException.class);
+		assertThatThrownBy(() -> sut.update(city)).isInstanceOf(AlreadyExistsException.class);
+	}
+
+	/**
+	 * Test update City if exist throws InvalidModelException.
+	 *
+	 */
+	@Test
+	public void updateThrowsIME() {
+		// setup
+		City city = CityFixtures.createCity();
+		doThrow(InvalidModelException.class).when(modelValidator).validate(any(City.class));
+		// exercise
+		assertThatThrownBy(() -> sut.update(city)).isInstanceOf(InvalidModelException.class);
 	}
 	
 	/**

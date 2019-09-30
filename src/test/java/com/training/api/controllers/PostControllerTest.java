@@ -17,9 +17,8 @@ import com.training.api.models.fixtures.RegisterPostRequestFixtures;
 import com.training.api.models.fixtures.UpdateCityRequestFixtures;
 import com.training.api.services.PostService;
 import com.training.api.utils.ApiMessage;
-import com.training.api.utils.exceptions.ConflictException;
+import com.training.api.utils.exceptions.AlreadyExistsException;
 import javassist.NotFoundException;
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -214,7 +213,7 @@ public class PostControllerTest {
 	/**
 	 * Test PUT "/city/"
 	 *
-	 * @throws ConflictException exceptions
+	 * @throws AlreadyExistsException exceptions
 	 */
 	@Test
 	public void testRegisterPostThrowCE() throws Exception {
@@ -225,7 +224,7 @@ public class PostControllerTest {
 		ObjectMapper mapper = new ObjectMapper();
 		String content = mapper.writeValueAsString(request);
 		
-		doThrow(ConflictException.class).when(postService).create(any(Post.class));
+		doThrow(AlreadyExistsException.class).when(postService).create(any(Post.class));
 		
 		// exercise
 		mvc.perform(MockMvcRequestBuilders.put("/posts/")
@@ -314,7 +313,7 @@ public class PostControllerTest {
 	/**
 	 * Test PUT "/posts/{postCode}"
 	 *
-	 * @throws ConflictException exceptions
+	 * @throws AlreadyExistsException exceptions
 	 */
 	@Test
 	public void testUpdatePostThrowCE() throws Exception {
@@ -323,7 +322,7 @@ public class PostControllerTest {
 		Post tblPost = PostFixtures.createPost();
 		
 		when(postService.findPostByPostCode(anyString())).thenReturn(Optional.of(tblPost));
-		doThrow(ConflictException.class).when(postService).update(any(Post.class));
+		doThrow(AlreadyExistsException.class).when(postService).update(any(Post.class));
 		
 		ObjectMapper mapper = new ObjectMapper();
 		String content = mapper.writeValueAsString(request);

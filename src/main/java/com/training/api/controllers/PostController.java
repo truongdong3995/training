@@ -8,14 +8,16 @@ import com.training.api.models.SearchPostCodeResponse;
 import com.training.api.models.RegisterPostRequest;
 import com.training.api.models.UpdatePostRequest;
 import com.training.api.services.PostService;
-import com.training.api.utils.exceptions.ConflictException;
+import com.training.api.utils.exceptions.AlreadyExistsException;
 import com.training.api.utils.ApiMessage;
 import com.training.api.utils.RestData;
+import com.training.api.utils.exceptions.InvalidModelException;
 import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,10 +25,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.transaction.Transactional;
-
 @RestController
 @RequiredArgsConstructor
+@Transactional
 @Slf4j
 @Validated
 public class PostController {
@@ -39,14 +40,14 @@ public class PostController {
 	/**
 	 * Function request processing when call url mapping
 	 *
-	 * @param postcode post code
+	 * @param postCode post code
 	 *
 	 * @return List of {@link SearchPostCodeResponse} found
 	 */
-	@RequestMapping(value = "/post_offices/post/{postcode}", method = RequestMethod.GET)
-	public ResponseEntity searchAddressByPostCode(@PathVariable("postcode") String postcode) {
+	@RequestMapping(value = "/post_offices/post/{postCode}", method = RequestMethod.GET)
+	public ResponseEntity searchAddressByPostCode(@PathVariable("postCode") String postCode) {
 		try {
-			List<SearchPostCodeResponse> postCodeResponseList = postService.searchAddressByPostCode(postcode);
+			List<SearchPostCodeResponse> postCodeResponseList = postService.searchAddressByPostCode(postCode);
 			
 			return new ResponseEntity<>(new RestData(postCodeResponseList), HttpStatus.OK);
 		} catch (IllegalArgumentException e) {
@@ -61,7 +62,7 @@ public class PostController {
 	 *
 	 * @return List of {@link Post}
 	 */
-	@RequestMapping(value = "/posts/", method = RequestMethod.GET)
+	@RequestMapping(value = "/posts", method = RequestMethod.GET)
 	public ResponseEntity getAll() {
 		List<Post> tblPostList = postService.findAllPost();
 		
@@ -102,8 +103,10 @@ public class PostController {
 			Post tblPostCreate = postService.create(postToRegister);
 			
 			return new ResponseEntity<>(tblPostCreate, HttpStatus.OK);
-		} catch (ConflictException e) {
+		} catch (AlreadyExistsException e) {
 			return new ResponseEntity<>(new HttpExceptionResponse("409", e.getMessage()), HttpStatus.CONFLICT);
+		} catch (InvalidModelException e) {
+			return new ResponseEntity<>(new HttpExceptionResponse("400", e.getMessage()), HttpStatus.BAD_REQUEST);
 		}
 	}
 	
@@ -125,9 +128,9 @@ public class PostController {
 						() -> new NotFoundException(apiMessage.getMessageError("service.post.delete.city_not_exist")));
 			
 			return new ResponseEntity<>(updateTblPost, HttpStatus.OK);
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException | InvalidModelException e) {
 			return new ResponseEntity<>(new HttpExceptionResponse("400", e.getMessage()), HttpStatus.BAD_REQUEST);
-		} catch (ConflictException e) {
+		} catch (AlreadyExistsException e) {
 			return new ResponseEntity<>(new HttpExceptionResponse("409", e.getMessage()), HttpStatus.CONFLICT);
 		} catch (NotFoundException e) {
 			return new ResponseEntity<>(new HttpExceptionResponse("404", e.getMessage()), HttpStatus.NOT_FOUND);

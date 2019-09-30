@@ -23,12 +23,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.context.TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS;
 
-@TestExecutionListeners(value = FlywayTestExecutionListener.class, mergeMode = MERGE_WITH_DEFAULTS)
-@ContextConfiguration(classes = {
-	DataSourceAutoConfiguration.class,
-	FlywayAutoConfiguration.class,
-	ValidationAutoConfiguration.class
-}, initializers = ConfigFileApplicationContextInitializer.class)
+/**
+ * Test for {@link PostRepository}.
+ */
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("unittest")
 public class PostRepositoryTest {
@@ -42,7 +39,6 @@ public class PostRepositoryTest {
 	 *
 	 */
 	@Test
-	@FlywayTest
 	public void testFindByCode() {
 		// setup
 		Post post = PostFixtures.createPost();

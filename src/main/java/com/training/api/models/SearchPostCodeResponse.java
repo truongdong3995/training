@@ -91,25 +91,25 @@ public class SearchPostCodeResponse {
 	private int changeReason;
 	
 	
-	public SearchPostCodeResponse(Area tblArea) {
-		City city = tblArea.getCity();
-		Prefecture tblPrefecture = city.getPrefecture();
-		Post tblPost = tblArea.getPost();
+	public SearchPostCodeResponse(Area area) {
+		City city = area.getCity();
+		Prefecture prefecture = city.getPrefecture();
+		Post post = area.getPost();
 		this.code = city.getCode();
 		this.city = city.getCityName();
 		this.cityKana = city.getCityKana();
-		this.prefecture = tblPrefecture.getPrefecture();
-		this.prefectureKana = tblPrefecture.getPrefectureKana();
-		this.prefectureCode = tblPrefecture.getPrefectureCode();
-		this.area = tblArea.getArea();
-		this.areaKana = tblArea.getAreaKana();
-		this.multiPostArea = tblArea.getMultiPostArea();
-		this.koazaArea = tblArea.getKoazaArea();
-		this.chomeArea = tblArea.getChomeArea();
-		this.oldPostCode = tblArea.getOldPost().getOldPostCode();
-		this.postCode = tblPost.getPostCode();
-		this.multiArea = tblPost.getMultiArea();
-		this.updateShow = tblPost.getUpdateShow();
-		this.changeReason = tblPost.getChangeReason();
+		this.prefecture = prefecture.getPrefecture();
+		this.prefectureKana = prefecture.getPrefectureKana();
+		this.prefectureCode = prefecture.getPrefectureCode();
+		this.area = area.getArea();
+		this.areaKana = area.getAreaKana();
+		this.multiPostArea = area.getMultiPostArea();
+		this.koazaArea = area.getKoazaArea();
+		this.chomeArea = area.getChomeArea();
+		this.oldPostCode = area.getOldPost().getOldPostCode();
+		this.postCode = post.getPostCode();
+		this.multiArea = post.getMultiArea();
+		this.updateShow = post.getUpdateShow();
+		this.changeReason = post.getChangeReason();
 	}
 }
