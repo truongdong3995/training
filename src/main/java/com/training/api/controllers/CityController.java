@@ -3,6 +3,7 @@ package com.training.api.controllers;
 import java.util.List;
 
 import com.training.api.entitys.City;
+import com.training.api.models.HttpExceptionResponse;
 import com.training.api.models.RegisterCityRequest;
 import com.training.api.models.UpdateCityRequest;
 import com.training.api.services.CityService;
@@ -26,12 +27,13 @@ import javax.transaction.Transactional;
 
 @Validated
 @RestController
-@Transactional
 @Slf4j
 @RequiredArgsConstructor
 public class CityController {
 	
 	private final CityService cityService;
+	
+	private final ApiMessage apiMessage;
 	
 	
 	/**
@@ -49,9 +51,9 @@ public class CityController {
 			
 			return new ResponseEntity<>(new RestData(prefectureCodeResponseList), HttpStatus.OK);
 		} catch (IllegalArgumentException e) {
-			return new ResponseEntity<>(new ApiMessage("400", e.getMessage()), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new HttpExceptionResponse("400", e.getMessage()), HttpStatus.BAD_REQUEST);
 		} catch (NotFoundException e) {
-			return new ResponseEntity<>(new ApiMessage("404", e.getMessage()), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new HttpExceptionResponse("404", e.getMessage()), HttpStatus.NOT_FOUND);
 		}
 	}
 	
@@ -60,7 +62,7 @@ public class CityController {
 	 *
 	 * @return List of {@link City}
 	 */
-	@RequestMapping(value = "/city/", method = RequestMethod.GET)
+	@RequestMapping(value = "/citys", method = RequestMethod.GET)
 	public ResponseEntity getAll() {
 		List<City> newList = cityService.findAll();
 		
@@ -70,20 +72,21 @@ public class CityController {
 	/**
 	 * Get city {@link City}.
 	 *
-	 * @param cityId City id
+	 * @param code City code
 	 *
 	 * @return {@link City} found
 	 */
-	@RequestMapping(value = "/citys/{cityId}", method = RequestMethod.GET)
-	public ResponseEntity getCity(@PathVariable("cityId") String cityId) {
+	@RequestMapping(value = "/citys/{code}", method = RequestMethod.GET)
+	public ResponseEntity getCity(@PathVariable("code") String code) {
 		try {
-			City city = cityService.findCityById(cityId).orElseThrow(() -> new NotFoundException("City not found"));
+			City city = cityService.findCityByCode(code).orElseThrow(
+					() -> new NotFoundException(apiMessage.getMessageError("service.city.find.city_not_exist")));
 			
 			return new ResponseEntity<>(city, HttpStatus.OK);
 		} catch (IllegalArgumentException e) {
-			return new ResponseEntity<>(new ApiMessage("400", e.getMessage()), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new HttpExceptionResponse("400", e.getMessage()), HttpStatus.BAD_REQUEST);
 		} catch (NotFoundException e) {
-			return new ResponseEntity<>(new ApiMessage("404", e.getMessage()), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new HttpExceptionResponse("404", e.getMessage()), HttpStatus.NOT_FOUND);
 		}
 	}
 	
@@ -94,7 +97,7 @@ public class CityController {
 	 *
 	 * @return register {@link City}
 	 */
-	@RequestMapping(value = "/citys", method = RequestMethod.PUT)
+	@RequestMapping(value = "/citys", method = RequestMethod.POST)
 	public ResponseEntity registerCity(@Validated @RequestBody RegisterCityRequest request) {
 		try {
 			City cityToRegister = request.get();
@@ -102,7 +105,7 @@ public class CityController {
 			
 			return new ResponseEntity<>(cityCreate, HttpStatus.OK);
 		} catch (ConflictException e) {
-			return new ResponseEntity<>(new ApiMessage("409", e.getMessage()), HttpStatus.CONFLICT);
+			return new ResponseEntity<>(new HttpExceptionResponse("409", e.getMessage()), HttpStatus.CONFLICT);
 		}
 	}
 	
@@ -111,44 +114,46 @@ public class CityController {
 	 *
 	 * @param request The request to update {@link UpdateCityRequest}
 	 *
-	 * @param cityId City id
+	 * @param code City code
 	 * @return
 	 */
-	@RequestMapping(value = "/citys/{cityId}", method = RequestMethod.POST)
+	@RequestMapping(value = "/citys/{code}", method = RequestMethod.POST)
 	public ResponseEntity updateCity(@Validated @RequestBody UpdateCityRequest request,
-			@PathVariable("cityId") String cityId) {
+			@PathVariable("code") String code) {
 		try {
-			City updateCity = cityService.findCityById(cityId)
+			City updateCity = cityService.findCityByCode(code)
 				.map(request)
 				.map(city -> cityService.update(city))
-				.orElseThrow(() -> new NotFoundException("City no found"));
+				.orElseThrow(
+						() -> new NotFoundException(apiMessage.getMessageError("service.city.find.city_not_exist")));
 			
 			return new ResponseEntity<>(updateCity, HttpStatus.OK);
 		} catch (IllegalArgumentException e) {
-			return new ResponseEntity<>(new ApiMessage("400", e.getMessage()), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new HttpExceptionResponse("400", e.getMessage()), HttpStatus.BAD_REQUEST);
 		} catch (ConflictException e) {
-			return new ResponseEntity<>(new ApiMessage("409", e.getMessage()), HttpStatus.CONFLICT);
+			return new ResponseEntity<>(new HttpExceptionResponse("409", e.getMessage()), HttpStatus.CONFLICT);
 		} catch (NotFoundException e) {
-			return new ResponseEntity<>(new ApiMessage("404", e.getMessage()), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new HttpExceptionResponse("404", e.getMessage()), HttpStatus.NOT_FOUND);
 		}
 	}
 	
 	/**
 	 * Delete city {@link City}
 	 *
-	 * @param cityId City id
+	 * @param code City code
 	 * @return deleted {@link City}
 	 */
-	@RequestMapping(value = "/citys/{cityId}", method = RequestMethod.DELETE)
-	public ResponseEntity deleteCity(@PathVariable("cityId") String cityId) {
+	@RequestMapping(value = "/citys/{code}", method = RequestMethod.DELETE)
+	public ResponseEntity deleteCity(@PathVariable("code") String code) {
 		try {
-			City deleteCity = cityService.findCityById(cityId)
+			City deleteCity = cityService.findCityByCode(code)
 				.map(city -> cityService.deleteCity(city))
-				.orElseThrow(() -> new NotFoundException("City no found"));
+				.orElseThrow(
+						() -> new NotFoundException(apiMessage.getMessageError("service.city.delete.city_not_exist")));
 			
 			return new ResponseEntity<>(deleteCity, HttpStatus.OK);
 		} catch (NotFoundException e) {
-			return new ResponseEntity<>(new ApiMessage("404", e.getMessage()), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new HttpExceptionResponse("404", e.getMessage()), HttpStatus.NOT_FOUND);
 		}
 	}
 }

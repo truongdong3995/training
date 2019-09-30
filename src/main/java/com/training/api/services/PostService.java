@@ -3,6 +3,7 @@ package com.training.api.services;
 import com.training.api.entitys.Area;
 import com.training.api.entitys.Post;
 import com.training.api.models.SearchPostCodeResponse;
+import com.training.api.utils.ApiMessage;
 import com.training.api.utils.Common;
 import com.training.api.utils.exceptions.ConflictException;
 import com.training.api.repositorys.AreaRepository;
@@ -25,6 +26,8 @@ public class PostService {
 	
 	private final AreaRepository areaRepository;
 	
+	private final ApiMessage apiMessage;
+	
 	
 	/**
 	 * Get address information by post code
@@ -35,15 +38,15 @@ public class PostService {
 	 */
 	public List<SearchPostCodeResponse> searchAddressByPostCode(String postCode) throws NotFoundException {
 		if (Common.checkValidNumber(postCode) == false) {
-			throw new IllegalArgumentException("Post code phải là số halfsize");
+			throw new IllegalArgumentException(apiMessage.getMessageError("service.post.search.invalid_input"));
 		}
 		
 		List<SearchPostCodeResponse> searchPostCodeResponseList =
-				areaRepository.findByTblPost_PostCode(postCode).stream()
+				areaRepository.findByPost_PostCode(postCode).stream()
 					.map(SearchPostCodeResponse::new).collect(Collectors.toList());
 		
 		if (searchPostCodeResponseList.size() == 0) {
-			throw new NotFoundException("Not found result");
+			throw new NotFoundException(apiMessage.getMessageError("service.post.search.not_found"));
 		}
 		return searchPostCodeResponseList;
 	}
@@ -60,17 +63,17 @@ public class PostService {
 	/**
 	 * Find single {@link Post}.
 	 *
-	 * @param postId post id
+	 * @param postCode post code
 	 *
 	 * @return Found {@link Post}
-	 * @throws IllegalArgumentException if Post invalid
+	 * @throws IllegalArgumentException if post code invalid
 	 */
-	public Optional<Post> findPostById(String postId) {
-		if (Common.checkValidNumber(postId) == false) {
-			throw new IllegalArgumentException("Post id phải là số halfsize");
+	public Optional<Post> findPostByPostCode(String postCode) {
+		if (Common.checkValidNumber(postCode) == false) {
+			throw new IllegalArgumentException(apiMessage.getMessageError("service.post.find.post_code_invalid"));
 		}
 		
-		return postRepository.findById(Integer.valueOf(postId));
+		return postRepository.findByPostCode(postCode);
 	}
 	
 	/**
@@ -82,12 +85,12 @@ public class PostService {
 	 * @throws NullPointerException if argument is null
 	 */
 	public Post create(Post createPost) {
-		Common.checkNotNull(createPost, "City must not be null");
+		Common.checkNotNull(createPost, "Post must not be null");
 		Post createdPost;
 		try {
 			createdPost = postRepository.save(createPost);
 		} catch (DataIntegrityViolationException e) {
-			throw new ConflictException("Post has been exist");
+			throw new ConflictException(apiMessage.getMessageError("service.post.create.conflict"));
 		}
 		
 		return createdPost;
@@ -101,7 +104,7 @@ public class PostService {
 	 */
 	@Transactional(rollbackOn = Exception.class)
 	public Post deletePost(Post deletePost) {
-		List<Area> tblAreaList = areaRepository.findByTblPost_PostId(Integer.valueOf(deletePost.getPostId()));
+		List<Area> tblAreaList = areaRepository.findByPost_PostId(Integer.valueOf(deletePost.getPostId()));
 		if (tblAreaList.size() > 0) {
 			areaRepository.deleteAll(tblAreaList);
 		}
@@ -125,7 +128,7 @@ public class PostService {
 		try {
 			updatedPost = postRepository.save(updatePost);
 		} catch (DataIntegrityViolationException e) {
-			throw new ConflictException("Post has been exist");
+			throw new ConflictException(apiMessage.getMessageError("service.post.update.conflict"));
 		}
 		
 		return updatedPost;

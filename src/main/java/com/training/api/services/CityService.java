@@ -3,13 +3,18 @@ package com.training.api.services;
 import com.training.api.entitys.Area;
 import com.training.api.entitys.City;
 import com.training.api.models.SearchPrefectureCodeResponse;
+import com.training.api.utils.ApiMessage;
 import com.training.api.utils.exceptions.ConflictException;
 import com.training.api.repositorys.AreaRepository;
 import com.training.api.repositorys.CityRepository;
 import com.training.api.utils.Common;
 import javassist.NotFoundException;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -30,8 +35,10 @@ public class CityService {
 	private final CityRepository cityRepository;
 	
 	private final AreaRepository areaRepository;
-	
-	
+
+	private final ApiMessage apiMessage;
+
+
 	/**
 	 * Get address information by prefecture code
 	 *
@@ -44,14 +51,14 @@ public class CityService {
 	public List<SearchPrefectureCodeResponse> searchAddressByPrefectureCode(String prefectureCode)
 			throws NotFoundException {
 		if (Common.checkValidNumber(prefectureCode) == false) {
-			throw new IllegalArgumentException("Prefecture code must be halfsize number");
+			throw new IllegalArgumentException(apiMessage.getMessageError("service.city.search.invalid_input"));
 		}
-		
+
 		List<SearchPrefectureCodeResponse> searchPrefectureCodeResponseList =
-				cityRepository.findByTblPrefecture_PrefectureCode(prefectureCode)
+				cityRepository.findByPrefecture_PrefectureCode(prefectureCode)
 					.stream().map(SearchPrefectureCodeResponse::new).collect(Collectors.toList());
 		if (searchPrefectureCodeResponseList.size() == 0) {
-			throw new NotFoundException("Not found result");
+			throw new NotFoundException(apiMessage.getMessageError("service.city.search.not_found"));
 		}
 		
 		return searchPrefectureCodeResponseList;
@@ -69,17 +76,17 @@ public class CityService {
 	/**
 	 * Find single {@link City}.
 	 *
-	 * @param cityId city id
+	 * @param code city code
 	 *
-	 * @return Found @link City}
+	 * @return Found {@link City}
 	 * @throws IllegalArgumentException if cityId invalid
 	 */
-	public Optional<City> findCityById(String cityId) {
-		if (Common.checkValidNumber(cityId) == false) {
-			throw new IllegalArgumentException("City id must be halfsize number");
+	public Optional<City> findCityByCode(String code) {
+		if (Common.checkValidNumber(code) == false) {
+			throw new IllegalArgumentException(apiMessage.getMessageError("service.city.find.code_invalid"));
 		}
 		
-		return cityRepository.findById(Integer.valueOf(cityId));
+		return cityRepository.findByCode(code);
 	}
 	
 	/**
@@ -96,7 +103,7 @@ public class CityService {
 		try {
 			createdCity = cityRepository.save(createCity);
 		} catch (DataIntegrityViolationException e) {
-			throw new ConflictException("City has been exist");
+			throw new ConflictException(apiMessage.getMessageError("service.city.create.conflict"));
 		}
 		
 		return createdCity;
@@ -117,7 +124,7 @@ public class CityService {
 		try {
 			updatedCity = cityRepository.save(updateCity);
 		} catch (DataIntegrityViolationException e) {
-			throw new ConflictException("City has been exist");
+			throw new ConflictException(apiMessage.getMessageError("service.city.update.conflict"));
 		}
 		
 		return updatedCity;

@@ -11,9 +11,8 @@ public class UpdateCityRequestFixtures {
 	
 	public static UpdateCityRequest creatRequest() {
 		UpdateCityRequest request = new UpdateCityRequest();
-		request.setCode("47313");
-		request.setCityKana("ｱﾏｸﾞﾝｶﾆｴﾁｮｳ");
-		request.setCity("海部郡蟹江町");
+		request.setCityKana("ｱﾏｸﾞﾝｶﾆｴﾁｮｳupdate");
+		request.setCity("海部郡蟹江町update");
 		request.setTblPrefecture(new Prefecture(258, "ｵｷﾅﾜｹﾝ", "沖縄県", "47"));
 		
 		return request;

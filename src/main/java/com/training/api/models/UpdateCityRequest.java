@@ -19,13 +19,6 @@ public class UpdateCityRequest implements UnaryOperator<City> {
 	
 	@Getter
 	@Setter
-	@Length(max = 7)
-	@NotNull
-	@JsonProperty("code")
-	private String code;
-	
-	@Getter
-	@Setter
 	@Length(max = 100)
 	@NotNull
 	@JsonProperty("city_kana")
@@ -47,10 +40,9 @@ public class UpdateCityRequest implements UnaryOperator<City> {
 	
 	@Override
 	public City apply(City tblCity) {
-		Optional.ofNullable(getCode()).ifPresent(tblCity::setCode);
 		Optional.ofNullable(getCityKana()).ifPresent(tblCity::setCityKana);
-		Optional.ofNullable(getCity()).ifPresent(tblCity::setCity);
-		Optional.ofNullable(getTblPrefecture()).ifPresent(tblCity::setTblPrefecture);
+		Optional.ofNullable(getCity()).ifPresent(tblCity::setCityName);
+		Optional.ofNullable(getTblPrefecture()).ifPresent(tblCity::setPrefecture);
 		
 		return tblCity;
 	}

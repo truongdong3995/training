@@ -3,6 +3,7 @@ package com.training.api.controllers;
 import java.util.List;
 
 import com.training.api.entitys.Post;
+import com.training.api.models.HttpExceptionResponse;
 import com.training.api.models.SearchPostCodeResponse;
 import com.training.api.models.RegisterPostRequest;
 import com.training.api.models.UpdatePostRequest;
@@ -26,12 +27,13 @@ import javax.transaction.Transactional;
 
 @RestController
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
 @Validated
 public class PostController {
 	
 	private final PostService postService;
+	
+	private final ApiMessage apiMessage;
 	
 	
 	/**
@@ -48,9 +50,9 @@ public class PostController {
 			
 			return new ResponseEntity<>(new RestData(postCodeResponseList), HttpStatus.OK);
 		} catch (IllegalArgumentException e) {
-			return new ResponseEntity<>(new ApiMessage("400", e.getMessage()), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new HttpExceptionResponse("400", e.getMessage()), HttpStatus.BAD_REQUEST);
 		} catch (NotFoundException e) {
-			return new ResponseEntity<>(new ApiMessage("404", e.getMessage()), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new HttpExceptionResponse("404", e.getMessage()), HttpStatus.NOT_FOUND);
 		}
 	}
 	
@@ -69,20 +71,20 @@ public class PostController {
 	/**
 	 * Get city {@link Post}.
 	 *
-	 * @param postId Post id
-	 *
+	 * @param postCode Post code
 	 * @return {@link Post} found
 	 */
-	@RequestMapping(value = "/posts/{postId}", method = RequestMethod.GET)
-	public ResponseEntity getPost(@PathVariable("postId") String postId) {
+	@RequestMapping(value = "/posts/{postCode}", method = RequestMethod.GET)
+	public ResponseEntity getPost(@PathVariable("postCode") String postCode) {
 		try {
-			Post tblPost = postService.findPostById(postId).orElseThrow(() -> new NotFoundException("City not found"));
+			Post tblPost = postService.findPostByPostCode(postCode).orElseThrow(
+					() -> new NotFoundException(apiMessage.getMessageError("service.post.find.city_not_exist")));
 			
 			return new ResponseEntity<>(tblPost, HttpStatus.OK);
 		} catch (IllegalArgumentException e) {
-			return new ResponseEntity<>(new ApiMessage("400", e.getMessage()), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new HttpExceptionResponse("400", e.getMessage()), HttpStatus.BAD_REQUEST);
 		} catch (NotFoundException e) {
-			return new ResponseEntity<>(new ApiMessage("404", e.getMessage()), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new HttpExceptionResponse("404", e.getMessage()), HttpStatus.NOT_FOUND);
 		}
 	}
 	
@@ -93,7 +95,7 @@ public class PostController {
 	 *
 	 * @return register {@link Post}
 	 */
-	@RequestMapping(value = "/posts", method = RequestMethod.PUT)
+	@RequestMapping(value = "/posts", method = RequestMethod.POST)
 	public ResponseEntity registerPost(@Validated @RequestBody RegisterPostRequest request) {
 		try {
 			Post postToRegister = request.get();
@@ -101,7 +103,7 @@ public class PostController {
 			
 			return new ResponseEntity<>(tblPostCreate, HttpStatus.OK);
 		} catch (ConflictException e) {
-			return new ResponseEntity<>(new ApiMessage("409", e.getMessage()), HttpStatus.CONFLICT);
+			return new ResponseEntity<>(new HttpExceptionResponse("409", e.getMessage()), HttpStatus.CONFLICT);
 		}
 	}
 	
@@ -110,46 +112,46 @@ public class PostController {
 	 *
 	 * @param request The request to update {@link UpdatePostRequest}
 	 *
-	 * @param postId Post id
+	 * @param postCode Post code
 	 * @return
 	 */
-	@RequestMapping(value = "/posts/{postId}", method = RequestMethod.POST)
+	@RequestMapping(value = "/posts/{postCode}", method = RequestMethod.POST)
 	public ResponseEntity updatePost(@Validated @RequestBody UpdatePostRequest request,
-			@PathVariable("postId") String postId) {
+			@PathVariable("postCode") String postCode) {
 		try {
-			Post updateTblPost = postService.findPostById(postId)
+			Post updateTblPost = postService.findPostByPostCode(postCode)
 				.map(request)
-				.map(post -> postService.update(post))
-				.orElseThrow(() -> new NotFoundException("City no found"));
+				.map(post -> postService.update(post)).orElseThrow(
+						() -> new NotFoundException(apiMessage.getMessageError("service.post.delete.city_not_exist")));
 			
 			return new ResponseEntity<>(updateTblPost, HttpStatus.OK);
 		} catch (IllegalArgumentException e) {
-			return new ResponseEntity<>(new ApiMessage("400", e.getMessage()), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new HttpExceptionResponse("400", e.getMessage()), HttpStatus.BAD_REQUEST);
 		} catch (ConflictException e) {
-			return new ResponseEntity<>(new ApiMessage("409", e.getMessage()), HttpStatus.CONFLICT);
+			return new ResponseEntity<>(new HttpExceptionResponse("409", e.getMessage()), HttpStatus.CONFLICT);
 		} catch (NotFoundException e) {
-			return new ResponseEntity<>(new ApiMessage("404", e.getMessage()), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new HttpExceptionResponse("404", e.getMessage()), HttpStatus.NOT_FOUND);
 		}
 	}
 	
 	/**
 	 * Delete post {@link Post}
 	 *
-	 * @param postId Post id
+	 * @param postCode Post code
 	 * @return deleted {@link Post}
 	 */
-	@RequestMapping(value = "/posts/{postId}", method = RequestMethod.DELETE)
-	public ResponseEntity deletePost(@PathVariable("postId") String postId) {
+	@RequestMapping(value = "/posts/{postCode}", method = RequestMethod.DELETE)
+	public ResponseEntity deletePost(@PathVariable("postCode") String postCode) {
 		try {
-			Post deletePost = postService.findPostById(postId)
-				.map(post -> postService.deletePost(post))
-				.orElseThrow(() -> new NotFoundException("City no found"));
+			Post deletePost = postService.findPostByPostCode(postCode)
+				.map(post -> postService.deletePost(post)).orElseThrow(
+						() -> new NotFoundException(apiMessage.getMessageError("service.post.delete.city_not_exist")));
 			
 			return new ResponseEntity<>(deletePost, HttpStatus.OK);
 		} catch (IllegalArgumentException e) {
-			return new ResponseEntity<>(new ApiMessage("400", e.getMessage()), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new HttpExceptionResponse("400", e.getMessage()), HttpStatus.BAD_REQUEST);
 		} catch (NotFoundException e) {
-			return new ResponseEntity<>(new ApiMessage("404", e.getMessage()), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new HttpExceptionResponse("404", e.getMessage()), HttpStatus.NOT_FOUND);
 		}
 	}
 }

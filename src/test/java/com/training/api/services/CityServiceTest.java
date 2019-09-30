@@ -6,6 +6,7 @@ import com.training.api.models.SearchPrefectureCodeResponse;
 import com.training.api.models.fixtures.SearchPrefectureCodeResponseFixtures;
 import com.training.api.repositorys.AreaRepository;
 import com.training.api.repositorys.CityRepository;
+import com.training.api.utils.ApiMessage;
 import com.training.api.utils.exceptions.ConflictException;
 import javassist.NotFoundException;
 import org.junit.Before;
@@ -41,10 +42,12 @@ public class CityServiceTest {
 	@Mock
 	AreaRepository areaRepository;
 	
+	ApiMessage apiMessage;
+	
 	
 	@Before
 	public void setUp() {
-		sut = new CityService(cityRepository, areaRepository);
+		sut = new CityService(cityRepository, areaRepository, apiMessage);
 	}
 	
 	/**
@@ -77,14 +80,14 @@ public class CityServiceTest {
 				SearchPrefectureCodeResponseFixtures.createResponse(city);
 		List<City> cityList = new ArrayList<>();
 		cityList.add(city);
-		Mockito.when(cityRepository.findByTblPrefecture_PrefectureCode(anyString())).thenReturn(cityList);
+		Mockito.when(cityRepository.findByPrefecture_PrefectureCode(anyString())).thenReturn(cityList);
 		// exercise
 		List<SearchPrefectureCodeResponse> actual =
-				sut.searchAddressByPrefectureCode(city.getTblPrefecture().getPrefectureCode());
+				sut.searchAddressByPrefectureCode(city.getPrefecture().getPrefectureCode());
 		// verify
 		assertThat(actual.size()).isEqualTo(1);
 		verify(cityRepository, times(1))
-			.findByTblPrefecture_PrefectureCode(city.getTblPrefecture().getPrefectureCode());
+			.findByPrefecture_PrefectureCode(city.getPrefecture().getPrefectureCode());
 	}
 	
 	/**
@@ -104,7 +107,7 @@ public class CityServiceTest {
 	 */
 	@Test
 	public void searchCityByPrefectureCodeThrowNFE() {
-		Mockito.when(cityRepository.findByTblPrefecture_PrefectureCode(anyString())).thenReturn(new ArrayList<>());
+		Mockito.when(cityRepository.findByPrefecture_PrefectureCode(anyString())).thenReturn(new ArrayList<>());
 		// exercise
 		assertThatThrownBy(() -> sut.searchAddressByPrefectureCode(anyString()))
 			.isInstanceOf(NotFoundException.class);
@@ -121,7 +124,7 @@ public class CityServiceTest {
 		Mockito.when(cityRepository.findById(anyInt())).thenReturn(Optional.of(city));
 		
 		// exercise
-		Optional<City> actual = sut.findCityById(String.valueOf(city.getCityId()));
+		Optional<City> actual = sut.findCityByCode(city.getCode());
 		
 		//verify
 		assertThat(actual).isPresent();
@@ -135,9 +138,9 @@ public class CityServiceTest {
 	 */
 	@Test
 	public void findCityByIdThrowIAE() {
-		String cityId = "TEST";
+		String code = "TEST";
 		// exercise
-		assertThatThrownBy(() -> sut.findCityById(cityId))
+		assertThatThrownBy(() -> sut.findCityByCode(code))
 			.isInstanceOf(IllegalArgumentException.class);
 	}
 	

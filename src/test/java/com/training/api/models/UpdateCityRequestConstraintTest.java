@@ -24,8 +24,6 @@ public class UpdateCityRequestConstraintTest {
 	public void testPatternConstraints() {
 		// setup
 		UpdateCityRequest sut = new UpdateCityRequest();
-		sut.setCode(StringHelper.repeat("x", 8));
-		sut.setCityKana(null);
 		// exercise
 		Set<ConstraintViolation<UpdateCityRequest>> actual = validator.validate(sut);
 		// verify

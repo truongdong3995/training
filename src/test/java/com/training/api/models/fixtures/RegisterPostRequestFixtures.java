@@ -8,9 +8,9 @@ import com.training.api.models.RegisterPostRequest;
  */
 public class RegisterPostRequestFixtures {
 	
-	public static RegisterPostRequest createRequest() {
+	public static RegisterPostRequest createRequest(String postCode) {
 		RegisterPostRequest request = new RegisterPostRequest();
-		request.setPostCode("0010000");
+		request.setPostCode(postCode);
 		request.setChangeReason(0);
 		request.setMultiArea(0);
 		request.setUpdateShow(0);

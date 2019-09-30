@@ -40,9 +40,9 @@ public class SearchPrefectureCodeResponse {
 	
 	
 	public SearchPrefectureCodeResponse(City city) {
-		Prefecture tblPrefecture = city.getTblPrefecture();
+		Prefecture tblPrefecture = city.getPrefecture();
 		this.code = city.getCode();
-		this.city = city.getCity();
+		this.city = city.getCityName();
 		this.cityKana = city.getCityKana();
 		this.prefecture = tblPrefecture.getPrefecture();
 		this.prefectureKana = tblPrefecture.getPrefectureKana();

@@ -1,37 +1,27 @@
 package com.training.api.utils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.stereotype.Component;
+
+import javax.persistence.Entity;
+import java.util.Locale;
 
 /**
  * Class handle message of API
  *
  */
+@AllArgsConstructor
+@Component
 public class ApiMessage {
-	
-	@JsonProperty("error")
-	@Getter
-	@Setter
-	private String error;
-	
-	@JsonProperty("error_description")
-	@Getter
-	@Setter
-	private String errorDescription;
-	
-	
-	public ApiMessage(String error, String errorDescription) {
-		this.error = error;
-		this.errorDescription = errorDescription;
-	}
-	
-	public static ApiMessage error400() {
-		return new ApiMessage("400",
-				"Thiếu thông số bắt buộc, giá trị không hợp lệ hoặc request không đúng định dạng");
-	}
-	
-	public static ApiMessage error404() {
-		return new ApiMessage("404", "Cố gắng thao tác một tài nguyên không tồn tại");
+	private final MessageSource messageSource;
+
+	public String getMessageError(String code) {
+		return messageSource.getMessage(code, null, LocaleContextHolder.getLocale());
 	}
 }

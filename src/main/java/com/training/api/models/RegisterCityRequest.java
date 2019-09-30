@@ -49,8 +49,8 @@ public class RegisterCityRequest implements Supplier<City> {
 		City tblCity = new City();
 		tblCity.setCode(code);
 		tblCity.setCityKana(cityKana);
-		tblCity.setCity(city);
-		tblCity.setTblPrefecture(tblPrefecture);
+		tblCity.setCityName(city);
+		tblCity.setPrefecture(tblPrefecture);
 		
 		return tblCity;
 	}

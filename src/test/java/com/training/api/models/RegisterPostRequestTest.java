@@ -33,7 +33,8 @@ public class RegisterPostRequestTest {
 	@Test
 	public void testValueToJson() throws Exception {
 		// setup
-		RegisterPostRequest registerPostRequest = RegisterPostRequestFixtures.createRequest();
+		String postCode = "0010018";
+		RegisterPostRequest registerPostRequest = RegisterPostRequestFixtures.createRequest(postCode);
 		// exercise
 		JsonContent<RegisterPostRequest> actual = json.write(registerPostRequest);
 		// verify
@@ -56,7 +57,7 @@ public class RegisterPostRequestTest {
 		JsonNode actualNode = mapper.readTree(areaJson);
 		// verify
 		assertThat(actualNode.path("post_code").isTextual()).isTrue();
-		assertThat(actualNode.path("post_code").textValue()).isEqualTo("0010000");
+		assertThat(actualNode.path("post_code").textValue()).isEqualTo("22222222");
 		assertThat(actualNode.path("update_show").isNumber()).isTrue();
 		assertThat(actualNode.path("update_show").numberValue()).isEqualTo(0);
 		assertThat(actualNode.path("change_reason").isNumber()).isTrue();

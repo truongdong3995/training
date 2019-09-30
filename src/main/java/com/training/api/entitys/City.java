@@ -61,13 +61,13 @@ public class City implements Serializable {
 	@Getter
 	@Setter
 	@Length(max = 100)
-	private String city;
+	private String cityName;
 	
 	@ManyToOne
 	@Getter
 	@Setter
 	@JoinColumn(name = "prefecture_id")
-	private Prefecture tblPrefecture;
+	private Prefecture prefecture;
 	
 	
 	/**
@@ -82,13 +82,13 @@ public class City implements Serializable {
 	 * @param code code
 	 * @param cityKana city kana
 	 * @param city city
-	 * @param tblPrefecture {@link Prefecture}
+	 * @param prefecture {@link Prefecture}
 	 */
-	public City(int cityId, String code, String cityKana, String city, Prefecture tblPrefecture) {
+	public City(int cityId, String code, String cityKana, String city, Prefecture prefecture) {
 		this.cityId = cityId;
 		this.code = code;
 		this.cityKana = cityKana;
-		this.city = city;
-		this.tblPrefecture = tblPrefecture;
+		this.cityName = city;
+		this.prefecture = prefecture;
 	}
 }

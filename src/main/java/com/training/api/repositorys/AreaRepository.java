@@ -23,7 +23,7 @@ public interface AreaRepository extends JpaRepository<Area, Integer> {
 	 *
 	 * @return List of {@link Area}
 	 */
-	List<Area> findByTblPost_PostCode(String postCode);
+	List<Area> findByPost_PostCode(String postCode);
 	
 	/**
 	 * Get list Area by post id
@@ -32,5 +32,5 @@ public interface AreaRepository extends JpaRepository<Area, Integer> {
 	 *
 	 * @return List of {@link Area}
 	 */
-	List<Area> findByTblPost_PostId(int postId);
+	List<Area> findByPost_PostId(int postId);
 }

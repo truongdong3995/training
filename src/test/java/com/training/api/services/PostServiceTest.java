@@ -8,6 +8,7 @@ import com.training.api.models.SearchPostCodeResponse;
 import com.training.api.models.fixtures.SearchPostCodeResponseFixtures;
 import com.training.api.repositorys.AreaRepository;
 import com.training.api.repositorys.PostRepository;
+import com.training.api.utils.ApiMessage;
 import com.training.api.utils.exceptions.ConflictException;
 import javassist.NotFoundException;
 import org.junit.Before;
@@ -41,10 +42,12 @@ public class PostServiceTest {
 	@Mock
 	AreaRepository areaRepository;
 	
+	ApiMessage apiMessage;
+	
 	
 	@Before
 	public void setUp() {
-		sut = new PostService(postRepository, areaRepository);
+		sut = new PostService(postRepository, areaRepository, apiMessage);
 	}
 	
 	/**
@@ -77,10 +80,10 @@ public class PostServiceTest {
 				SearchPostCodeResponseFixtures.createResponse(tblArea);
 		List<Area> tblAreaList = new ArrayList<>();
 		tblAreaList.add(tblArea);
-		Mockito.when(areaRepository.findByTblPost_PostCode(anyString())).thenReturn(tblAreaList);
+		Mockito.when(areaRepository.findByPost_PostCode(anyString())).thenReturn(tblAreaList);
 		// exercise
 		List<SearchPostCodeResponse> actual =
-				sut.searchAddressByPostCode(tblArea.getTblPost().getPostCode());
+				sut.searchAddressByPostCode(tblArea.getPost().getPostCode());
 		// verify
 		assertThat(actual.size()).isEqualTo(1);
 	}
@@ -105,9 +108,9 @@ public class PostServiceTest {
 	public void searchSearchAddressByPostCodeThrowNFE() {
 		// setup
 		Area tblArea = AreaFixtures.createArea();
-		Mockito.when(areaRepository.findByTblPost_PostCode(anyString())).thenReturn(new ArrayList<>());
+		Mockito.when(areaRepository.findByPost_PostCode(anyString())).thenReturn(new ArrayList<>());
 		// exercise
-		assertThatThrownBy(() -> sut.searchAddressByPostCode(tblArea.getTblPost().getPostCode()))
+		assertThatThrownBy(() -> sut.searchAddressByPostCode(tblArea.getPost().getPostCode()))
 			.isInstanceOf(NotFoundException.class);
 	}
 	
@@ -122,7 +125,7 @@ public class PostServiceTest {
 		when(postRepository.findById(anyInt())).thenReturn(Optional.of(tblPost));
 		
 		// exercise
-		Optional<Post> actual = sut.findPostById(String.valueOf(tblPost.getPostId()));
+		Optional<Post> actual = sut.findPostByPostCode(tblPost.getPostCode());
 		
 		//verify
 		assertThat(actual).isPresent();
@@ -139,7 +142,7 @@ public class PostServiceTest {
 		// setup
 		String postCode = "TEST";
 		// exercise
-		assertThatThrownBy(() -> sut.findPostById(postCode))
+		assertThatThrownBy(() -> sut.findPostByPostCode(postCode))
 			.isInstanceOf(IllegalArgumentException.class);
 	}
 	
@@ -195,17 +198,6 @@ public class PostServiceTest {
 		Post actual = sut.update(tblPost);
 		// verify
 		assertThat(actual).isEqualTo(tblPost);
-	}
-	
-	/**
-	 * Test update Post if exist throws NullPointerException.
-	 *
-	 */
-	@Test
-	public void updateThrowsNPE() {
-		// exercise
-		assertThatThrownBy(() -> sut.update(null))
-			.isInstanceOf(NullPointerException.class);
 	}
 	
 	/**

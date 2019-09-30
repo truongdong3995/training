@@ -93,10 +93,10 @@ public class SearchPostCodeResponse {
 	
 	public SearchPostCodeResponse(Area tblArea) {
 		City city = tblArea.getCity();
-		Prefecture tblPrefecture = city.getTblPrefecture();
-		Post tblPost = tblArea.getTblPost();
+		Prefecture tblPrefecture = city.getPrefecture();
+		Post tblPost = tblArea.getPost();
 		this.code = city.getCode();
-		this.city = city.getCity();
+		this.city = city.getCityName();
 		this.cityKana = city.getCityKana();
 		this.prefecture = tblPrefecture.getPrefecture();
 		this.prefectureKana = tblPrefecture.getPrefectureKana();
@@ -106,7 +106,7 @@ public class SearchPostCodeResponse {
 		this.multiPostArea = tblArea.getMultiPostArea();
 		this.koazaArea = tblArea.getKoazaArea();
 		this.chomeArea = tblArea.getChomeArea();
-		this.oldPostCode = tblArea.getTblOldPost().getOldPostCode();
+		this.oldPostCode = tblArea.getOldPost().getOldPostCode();
 		this.postCode = tblPost.getPostCode();
 		this.multiArea = tblPost.getMultiArea();
 		this.updateShow = tblPost.getUpdateShow();

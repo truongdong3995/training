@@ -12,43 +12,34 @@ import java.util.function.UnaryOperator;
 
 /**
  * Request to Update {@link Post}.
- *
  */
 public class UpdatePostRequest implements UnaryOperator<Post> {
-	
-	@JsonProperty("post_code")
-	@NotNull
-	@Length(max = 7)
-	@Getter
-	@Setter
-	private String postCode;
-	
-	@NotNull
-	@JsonProperty("update_show")
-	@Getter
-	@Setter
-	private int updateShow;
-	
-	@JsonProperty("change_reason")
-	@NotNull
-	@Getter
-	@Setter
-	private int changeReason;
-	
-	@JsonProperty("multi_area")
-	@NotNull
-	@Getter
-	@Setter
-	private int multiArea;
-	
-	
-	@Override
-	public Post apply(Post tblPost) {
-		Optional.ofNullable(getPostCode()).ifPresent(tblPost::setPostCode);
-		Optional.ofNullable(getUpdateShow()).ifPresent(tblPost::setUpdateShow);
-		Optional.ofNullable(getChangeReason()).ifPresent(tblPost::setChangeReason);
-		Optional.ofNullable(getMultiArea()).ifPresent(tblPost::setChangeReason);
-		
-		return tblPost;
-	}
+
+    @NotNull
+    @JsonProperty("update_show")
+    @Getter
+    @Setter
+    private int updateShow;
+
+    @JsonProperty("change_reason")
+    @NotNull
+    @Getter
+    @Setter
+    private int changeReason;
+
+    @JsonProperty("multi_area")
+    @NotNull
+    @Getter
+    @Setter
+    private int multiArea;
+
+
+    @Override
+    public Post apply(Post tblPost) {
+        Optional.ofNullable(getUpdateShow()).ifPresent(tblPost::setUpdateShow);
+        Optional.ofNullable(getChangeReason()).ifPresent(tblPost::setChangeReason);
+        Optional.ofNullable(getMultiArea()).ifPresent(tblPost::setChangeReason);
+
+        return tblPost;
+    }
 }

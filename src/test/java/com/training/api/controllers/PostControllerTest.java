@@ -12,9 +12,10 @@ import com.training.api.entitys.fixtures.CityFixtures;
 import com.training.api.entitys.fixtures.PostFixtures;
 import com.training.api.models.RegisterPostRequest;
 import com.training.api.models.SearchPostCodeResponse;
+import com.training.api.models.UpdateCityRequest;
 import com.training.api.models.fixtures.RegisterPostRequestFixtures;
+import com.training.api.models.fixtures.UpdateCityRequestFixtures;
 import com.training.api.services.PostService;
-import com.training.api.utils.ApiMessage;
 import com.training.api.utils.exceptions.ConflictException;
 import javassist.NotFoundException;
 import org.hamcrest.CoreMatchers;
@@ -75,13 +76,13 @@ public class PostControllerTest {
 		
 		// exercise
 		mvc.perform(get("/post_offices/post/{postCode}",
-				tblArea.getTblPost().getPostCode())
+				tblArea.getPost().getPostCode())
 					.contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.data[0].area", is(tblArea.getArea())))
 			.andExpect(jsonPath("$.data[0].area_kana", is(tblArea.getAreaKana())))
-			.andExpect(jsonPath("$.data[0].city", is(tblArea.getCity().getCity())))
+			.andExpect(jsonPath("$.data[0].city", is(tblArea.getCity().getCityName())))
 			.andExpect(jsonPath("$.data[0].city_kana", is(tblArea.getCity().getCityKana())));
 	}
 	
@@ -98,12 +99,10 @@ public class PostControllerTest {
 		
 		// exercise
 		mvc.perform(get("/post_offices/post/{postCode}",
-				tblArea.getTblPost().getPostCode())
+				tblArea.getPost().getPostCode())
 					.contentType(MediaType.APPLICATION_JSON))
 			// verify
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.error", CoreMatchers.is(ApiMessage.error400().getError())))
-			.andExpect(jsonPath("$.error_description", is(ApiMessage.error400().getErrorDescription())));
+			.andExpect(status().isBadRequest());
 	}
 	
 	/**
@@ -119,12 +118,10 @@ public class PostControllerTest {
 		
 		// exercise
 		mvc.perform(get("/post_offices/post/{postCode}",
-				tblArea.getTblPost().getPostCode())
+				tblArea.getPost().getPostCode())
 					.contentType(MediaType.APPLICATION_JSON))
 			// verify
-			.andExpect(status().isNotFound())
-			.andExpect(jsonPath("$.error", CoreMatchers.is(ApiMessage.error404().getError())))
-			.andExpect(jsonPath("$.error_description", is(ApiMessage.error404().getErrorDescription())));
+			.andExpect(status().isNotFound());
 	}
 	
 	/**
@@ -135,7 +132,7 @@ public class PostControllerTest {
 	public void testGetPost() throws Exception {
 		// setup
 		Post tblPost = PostFixtures.createPost();
-		when(postService.findPostById(anyString())).thenReturn(Optional.of(tblPost));
+		when(postService.findPostByPostCode(anyString())).thenReturn(Optional.of(tblPost));
 		
 		// exercise
 		mvc.perform(get("/post/{postId}", tblPost.getPostId()).contentType(MediaType.APPLICATION_JSON))
@@ -156,7 +153,7 @@ public class PostControllerTest {
 	public void testGetPostCatchIAE() throws Exception {
 		// setup
 		Post tblPost = PostFixtures.createPost();
-		doThrow(IllegalArgumentException.class).when(postService).findPostById(anyString());
+		doThrow(IllegalArgumentException.class).when(postService).findPostByPostCode(anyString());
 		// exercise
 		mvc.perform(MockMvcRequestBuilders.get("/post/{postId}", tblPost.getPostId())
 			.contentType(MediaType.APPLICATION_JSON))
@@ -173,7 +170,7 @@ public class PostControllerTest {
 	public void testGetPostCatchNFE() throws Exception {
 		// setup
 		Post tblPost = PostFixtures.createPost();
-		when(postService.findPostById(anyString())).thenReturn(Optional.empty());
+		when(postService.findPostByPostCode(anyString())).thenReturn(Optional.empty());
 		// exercise
 		mvc.perform(MockMvcRequestBuilders.get("/post/{postId}", tblPost.getPostId())
 			.contentType(MediaType.APPLICATION_JSON))
@@ -188,7 +185,8 @@ public class PostControllerTest {
 	@Test
 	public void testRegisterPost() throws Exception {
 		// setup
-		RegisterPostRequest request = RegisterPostRequestFixtures.createRequest();
+		String postCode = "47314";
+		RegisterPostRequest request = RegisterPostRequestFixtures.createRequest(postCode);
 		
 		Post tblPost = request.get();
 		when(postService.create(any(Post.class))).thenReturn(tblPost);
@@ -217,7 +215,8 @@ public class PostControllerTest {
 	@Test
 	public void testRegisterPostThrowCE() throws Exception {
 		// setup
-		RegisterPostRequest request = RegisterPostRequestFixtures.createRequest();
+		String postCode = "47314";
+		RegisterPostRequest request = RegisterPostRequestFixtures.createRequest(postCode);
 		
 		ObjectMapper mapper = new ObjectMapper();
 		String content = mapper.writeValueAsString(request);
@@ -260,10 +259,10 @@ public class PostControllerTest {
 	@Test
 	public void testUpdatePost() throws Exception {
 		// setup
-		RegisterPostRequest request = RegisterPostRequestFixtures.createRequest();
+		UpdateCityRequest request = UpdateCityRequestFixtures.creatRequest();
 		
 		Post tblPost = PostFixtures.createPost();
-		when(postService.findPostById(anyString())).thenReturn(Optional.of(tblPost));
+		when(postService.findPostByPostCode(anyString())).thenReturn(Optional.of(tblPost));
 		when(postService.update(any(Post.class))).thenReturn(tblPost);
 		
 		ObjectMapper mapper = new ObjectMapper();
@@ -290,10 +289,10 @@ public class PostControllerTest {
 	@Test
 	public void testUpdatePostThrowIAE() throws Exception {
 		// setup
-		RegisterPostRequest request = RegisterPostRequestFixtures.createRequest();
+		UpdateCityRequest request = UpdateCityRequestFixtures.creatRequest();
 		Post tblPost = PostFixtures.createPost();
 		
-		when(postService.findPostById(anyString())).thenReturn(Optional.of(tblPost));
+		when(postService.findPostByPostCode(anyString())).thenReturn(Optional.of(tblPost));
 		doThrow(IllegalArgumentException.class).when(postService).update(any(Post.class));
 		
 		ObjectMapper mapper = new ObjectMapper();
@@ -305,9 +304,7 @@ public class PostControllerTest {
 			.contentType(MediaType.APPLICATION_JSON))
 			.andDo(print())
 			// verify
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.error", is(ApiMessage.error400().getError())))
-			.andExpect(jsonPath("$.error_description", is(ApiMessage.error400().getErrorDescription())));
+			.andExpect(status().isBadRequest());
 	}
 	
 	/**
@@ -318,10 +315,10 @@ public class PostControllerTest {
 	@Test
 	public void testUpdatePostThrowCE() throws Exception {
 		// setup
-		RegisterPostRequest request = RegisterPostRequestFixtures.createRequest();
+		UpdateCityRequest request = UpdateCityRequestFixtures.creatRequest();
 		Post tblPost = PostFixtures.createPost();
 		
-		when(postService.findPostById(anyString())).thenReturn(Optional.of(tblPost));
+		when(postService.findPostByPostCode(anyString())).thenReturn(Optional.of(tblPost));
 		doThrow(ConflictException.class).when(postService).update(any(Post.class));
 		
 		ObjectMapper mapper = new ObjectMapper();
@@ -344,7 +341,7 @@ public class PostControllerTest {
 	public void deleteCity() throws Exception {
 		// setup
 		Post tblPost = PostFixtures.createPost();
-		when(postService.findPostById(anyString())).thenReturn(Optional.of(tblPost));
+		when(postService.findPostByPostCode(anyString())).thenReturn(Optional.of(tblPost));
 		when(postService.deletePost(any(Post.class))).thenReturn(tblPost);
 		
 		// exercise
@@ -362,7 +359,7 @@ public class PostControllerTest {
 	public void deleteCityThrowsNFE() throws Exception {
 		// setup
 		City city = CityFixtures.createCity();
-		when(postService.findPostById(anyString())).thenReturn(Optional.empty());
+		when(postService.findPostByPostCode(anyString())).thenReturn(Optional.empty());
 		// exercise
 		mvc.perform(delete("/post/{postId}", city.getCityId()))
 			.andDo(print())

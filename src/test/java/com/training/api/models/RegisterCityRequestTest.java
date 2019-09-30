@@ -33,7 +33,8 @@ public class RegisterCityRequestTest {
 	@Test
 	public void testValueToJson() throws Exception {
 		// setup
-		RegisterCityRequest registerCityRequest = RegisterCityRequestFixtures.creatRequest();
+		String code = "00138";
+		RegisterCityRequest registerCityRequest = RegisterCityRequestFixtures.creatRequest(code);
 		// exercise
 		JsonContent<RegisterCityRequest> actual = json.write(registerCityRequest);
 		// verify
@@ -63,11 +64,11 @@ public class RegisterCityRequestTest {
 		assertThat(actualNode.path("tblPrefecture").path("prefecture_code").isTextual()).isTrue();
 		assertThat(actualNode.path("tblPrefecture").path("prefecture_code").textValue()).isEqualTo("01");
 		assertThat(actualNode.path("code").isTextual()).isTrue();
-		assertThat(actualNode.path("code").textValue()).isEqualTo("01102");
+		assertThat(actualNode.path("code").textValue()).isEqualTo("47383");
 		assertThat(actualNode.path("city_kana").isTextual()).isTrue();
-		assertThat(actualNode.path("city_kana").textValue()).isEqualTo("ｻｯﾎﾟﾛｼｷﾀｸ");
+		assertThat(actualNode.path("city_kana").textValue()).isEqualTo("ｱﾏｸﾞﾝｶﾆｴﾁｮｳnew");
 		assertThat(actualNode.path("city").isTextual()).isTrue();
-		assertThat(actualNode.path("city").textValue()).isEqualTo("札幌市北区");
+		assertThat(actualNode.path("city").textValue()).isEqualTo("札幌市北区new");
 	}
 	
 	private String createAreaJson() {

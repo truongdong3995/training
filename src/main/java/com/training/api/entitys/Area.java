@@ -53,7 +53,7 @@ public class Area implements Serializable {
 	@JoinColumn(name = "city_id")
 	@Getter
 	@Setter
-	private City City;
+	private City city;
 	
 	@Column(name = "chome_area")
 	@NotNull
@@ -81,13 +81,13 @@ public class Area implements Serializable {
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	@Getter
 	@Setter
-	private Post tblPost;
+	private Post post;
 	
 	@ManyToOne
 	@JoinColumn(name = "old_post_id")
 	@Getter
 	@Setter
-	private OldPost tblOldPost;
+	private OldPost oldPost;
 	
 	
 	/**
@@ -109,14 +109,14 @@ public class Area implements Serializable {
 	 * @param tblOldPost {@link OldPost}
 	 */
 	public Area(String areaKana, String area, City city, int chomeArea, int koazaArea,
-			int multiPostArea, Post tblPost, OldPost tblOldPost) {
+			int multiPostArea, Post post, OldPost oldPost) {
 		this.areaKana = areaKana;
 		this.area = area;
-		this.City = city;
+		this.city = city;
 		this.chomeArea = chomeArea;
 		this.koazaArea = koazaArea;
 		this.multiPostArea = multiPostArea;
-		this.tblPost = tblPost;
-		this.tblOldPost = tblOldPost;
+		this.post = post;
+		this.oldPost = oldPost;
 	}
 }
