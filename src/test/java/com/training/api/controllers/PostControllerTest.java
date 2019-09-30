@@ -16,6 +16,7 @@ import com.training.api.models.UpdateCityRequest;
 import com.training.api.models.fixtures.RegisterPostRequestFixtures;
 import com.training.api.models.fixtures.UpdateCityRequestFixtures;
 import com.training.api.services.PostService;
+import com.training.api.utils.ApiMessage;
 import com.training.api.utils.exceptions.ConflictException;
 import javassist.NotFoundException;
 import org.hamcrest.CoreMatchers;
@@ -58,10 +59,13 @@ public class PostControllerTest {
 	
 	@MockBean
 	private PostService postService;
+
+	@MockBean
+	private ApiMessage apiMessage;
 	
 	
 	/**
-	 * Test GET "post_offices/post/{postCode}"
+	 * Test GET "post_offices/posts/{postCode}"
 	 *
 	 */
 	@Test
@@ -75,7 +79,7 @@ public class PostControllerTest {
 		when(postService.searchAddressByPostCode(anyString())).thenReturn(responseList);
 		
 		// exercise
-		mvc.perform(get("/post_offices/post/{postCode}",
+		mvc.perform(get("/posts_offices/posts/{postCode}",
 				tblArea.getPost().getPostCode())
 					.contentType(MediaType.APPLICATION_JSON))
 			// verify
@@ -87,7 +91,7 @@ public class PostControllerTest {
 	}
 	
 	/**
-	 * Test GET "post_offices/post/{postCode}"
+	 * Test GET "post_offices/posts/{postCode}"
 	 *
 	 * @throws IllegalArgumentException exceptions
 	 */
@@ -98,7 +102,7 @@ public class PostControllerTest {
 		doThrow(IllegalArgumentException.class).when(postService).searchAddressByPostCode(anyString());
 		
 		// exercise
-		mvc.perform(get("/post_offices/post/{postCode}",
+		mvc.perform(get("/posts_offices/posts/{postCode}",
 				tblArea.getPost().getPostCode())
 					.contentType(MediaType.APPLICATION_JSON))
 			// verify
@@ -106,7 +110,7 @@ public class PostControllerTest {
 	}
 	
 	/**
-	 * Test GET "post_offices/post/{postCode}"
+	 * Test GET "post_offices/posts/{postCode}"
 	 *
 	 * @throws NotFoundException exceptions
 	 */
@@ -117,7 +121,7 @@ public class PostControllerTest {
 		doThrow(NotFoundException.class).when(postService).searchAddressByPostCode(anyString());
 		
 		// exercise
-		mvc.perform(get("/post_offices/post/{postCode}",
+		mvc.perform(get("/posts_offices/posts/{postCode}",
 				tblArea.getPost().getPostCode())
 					.contentType(MediaType.APPLICATION_JSON))
 			// verify
@@ -125,7 +129,7 @@ public class PostControllerTest {
 	}
 	
 	/**
-	 * Test GET "/post/{postId}"
+	 * Test GET "/postss/{postCode}"
 	 *
 	 */
 	@Test
@@ -135,7 +139,7 @@ public class PostControllerTest {
 		when(postService.findPostByPostCode(anyString())).thenReturn(Optional.of(tblPost));
 		
 		// exercise
-		mvc.perform(get("/post/{postId}", tblPost.getPostId()).contentType(MediaType.APPLICATION_JSON))
+		mvc.perform(get("/posts/{postCode}", tblPost.getPostCode()).contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.post_code", is(tblPost.getPostCode())))
@@ -145,7 +149,7 @@ public class PostControllerTest {
 	}
 	
 	/**
-	 * Test GET "/post/{postId}"
+	 * Test GET "/posts/{postCode}"
 	 *
 	 * @throws IllegalArgumentException exceptions
 	 */
@@ -155,14 +159,14 @@ public class PostControllerTest {
 		Post tblPost = PostFixtures.createPost();
 		doThrow(IllegalArgumentException.class).when(postService).findPostByPostCode(anyString());
 		// exercise
-		mvc.perform(MockMvcRequestBuilders.get("/post/{postId}", tblPost.getPostId())
+		mvc.perform(MockMvcRequestBuilders.get("/posts/{postCode}", tblPost.getPostCode())
 			.contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isBadRequest());
 	}
 	
 	/**
-	 * Test GET "/post/{postId}"
+	 * Test GET "/posts/{postCode}"
 	 *
 	 * @throws NotFoundException exceptions
 	 */
@@ -172,7 +176,7 @@ public class PostControllerTest {
 		Post tblPost = PostFixtures.createPost();
 		when(postService.findPostByPostCode(anyString())).thenReturn(Optional.empty());
 		// exercise
-		mvc.perform(MockMvcRequestBuilders.get("/post/{postId}", tblPost.getPostId())
+		mvc.perform(MockMvcRequestBuilders.get("/posts/{postCode}", tblPost.getPostCode())
 			.contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isNotFound());
@@ -195,7 +199,7 @@ public class PostControllerTest {
 		String content = mapper.writeValueAsString(request);
 		
 		// exercise
-		mvc.perform(put("/post/")
+		mvc.perform(put("/posts/")
 			.content(content)
 			.contentType(MediaType.APPLICATION_JSON))
 			.andDo(print())
@@ -224,7 +228,7 @@ public class PostControllerTest {
 		doThrow(ConflictException.class).when(postService).create(any(Post.class));
 		
 		// exercise
-		mvc.perform(MockMvcRequestBuilders.put("/post/")
+		mvc.perform(MockMvcRequestBuilders.put("/posts/")
 			.content(content)
 			.contentType(MediaType.APPLICATION_JSON))
 			// verify
@@ -245,7 +249,7 @@ public class PostControllerTest {
 		doThrow(NullPointerException.class).when(postService).create(any(Post.class));
 		
 		// exercise
-		mvc.perform(MockMvcRequestBuilders.put("/post/")
+		mvc.perform(MockMvcRequestBuilders.put("/posts/")
 			.content(content)
 			.contentType(MediaType.APPLICATION_JSON))
 			// verify
@@ -253,7 +257,7 @@ public class PostControllerTest {
 	}
 	
 	/**
-	 * Test PUT "/post/{postId}"
+	 * Test PUT "/posts/{postCode}"
 	 *
 	 */
 	@Test
@@ -269,7 +273,7 @@ public class PostControllerTest {
 		String content = mapper.writeValueAsString(request);
 		
 		// exercise
-		mvc.perform(post("/post/{postId}", tblPost.getPostId())
+		mvc.perform(post("/posts/{postCode}", tblPost.getPostCode())
 			.content(content)
 			.contentType(MediaType.APPLICATION_JSON))
 			.andDo(print())
@@ -282,7 +286,7 @@ public class PostControllerTest {
 	}
 	
 	/**
-	 * Test PUT "/post/{postId}"
+	 * Test PUT "/posts/{postCode}"
 	 *
 	 * @throws IllegalArgumentException exceptions
 	 */
@@ -299,7 +303,7 @@ public class PostControllerTest {
 		String content = mapper.writeValueAsString(request);
 		
 		// exercise
-		mvc.perform(post("/post/{postId}", tblPost.getPostId())
+		mvc.perform(post("/posts/{postCode}", tblPost.getPostCode())
 			.content(content)
 			.contentType(MediaType.APPLICATION_JSON))
 			.andDo(print())
@@ -308,7 +312,7 @@ public class PostControllerTest {
 	}
 	
 	/**
-	 * Test PUT "/post/{postId}"
+	 * Test PUT "/posts/{postCode}"
 	 *
 	 * @throws ConflictException exceptions
 	 */
@@ -325,7 +329,7 @@ public class PostControllerTest {
 		String content = mapper.writeValueAsString(request);
 		
 		// exercise
-		mvc.perform(post("/post/{postId}", tblPost.getPostId())
+		mvc.perform(post("/posts/{postCode}", tblPost.getPostCode())
 			.content(content)
 			.contentType(MediaType.APPLICATION_JSON))
 			.andDo(print())
@@ -334,7 +338,7 @@ public class PostControllerTest {
 	}
 	
 	/**
-	 * Test DELETE "/post/{cityId}"
+	 * Test DELETE "/posts/{cityId}"
 	 *
 	 */
 	@Test
@@ -345,14 +349,14 @@ public class PostControllerTest {
 		when(postService.deletePost(any(Post.class))).thenReturn(tblPost);
 		
 		// exercise
-		mvc.perform(delete("/post/{cityId}", tblPost.getPostId()))
+		mvc.perform(delete("/posts/{cityId}", tblPost.getPostCode()))
 			.andDo(print())
 			// verify
 			.andExpect(status().isOk());
 	}
 	
 	/**
-	 * Test DELETE "/post/{cityId}" throws NotFoundException
+	 * Test DELETE "/posts/{cityId}" throws NotFoundException
 	 *
 	 */
 	@Test
@@ -361,7 +365,7 @@ public class PostControllerTest {
 		City city = CityFixtures.createCity();
 		when(postService.findPostByPostCode(anyString())).thenReturn(Optional.empty());
 		// exercise
-		mvc.perform(delete("/post/{postId}", city.getCityId()))
+		mvc.perform(delete("/posts/{postCode}", city.getCityId()))
 			.andDo(print())
 			// verify
 			.andExpect(status().isNotFound());

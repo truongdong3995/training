@@ -9,6 +9,7 @@ import com.training.api.models.UpdateCityRequest;
 import com.training.api.models.fixtures.RegisterCityRequestFixtures;
 import com.training.api.models.fixtures.UpdateCityRequestFixtures;
 import com.training.api.services.CityService;
+import com.training.api.utils.ApiMessage;
 import com.training.api.utils.exceptions.ConflictException;
 import javassist.NotFoundException;
 import org.junit.Test;
@@ -50,6 +51,9 @@ public class CityControllerTest {
 	
 	@MockBean
 	private CityService cityService;
+
+	@MockBean
+	private ApiMessage apiMessage;
 	
 	
 	/**
@@ -116,7 +120,7 @@ public class CityControllerTest {
 	}
 	
 	/**
-	 * Test GET "/city/"
+	 * Test GET "/citys/"
 	 *
 	 *
 	 */
@@ -126,20 +130,20 @@ public class CityControllerTest {
 		City city = CityFixtures.createCity();
 		List<City> cityList = new ArrayList<>();
 		cityList.add(city);
-		
+
 		when(cityService.findAll()).thenReturn(cityList);
-		
+
 		// exercise
-		mvc.perform(get("/city/").contentType(MediaType.APPLICATION_JSON))
+		mvc.perform(get("/citys").contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.data[0].code", is(city.getCode())))
 			.andExpect(jsonPath("$.data[0].city_kana", is(city.getCityKana())))
 			.andExpect(jsonPath("$.data[0].city", is(city.getCityName())));
 	}
-	
+
 	/**
-	 * Test GET "/city/{cityId}"
+	 * Test GET "/citys/{code}"
 	 *
 	 *
 	 */
@@ -148,18 +152,18 @@ public class CityControllerTest {
 		// setup
 		City city = CityFixtures.createCity();
 		when(cityService.findCityByCode(anyString())).thenReturn(Optional.of(city));
-		
+
 		// exercise
-		mvc.perform(get("/city/{cityId}", city.getCityId()).contentType(MediaType.APPLICATION_JSON))
+		mvc.perform(get("/citys/{code}", city.getCityId()).contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code", is(city.getCode())))
 			.andExpect(jsonPath("$.city_kana", is(city.getCityKana())))
 			.andExpect(jsonPath("$.city", is(city.getCityName())));
 	}
-	
+
 	/**
-	 * Test GET "/city/{cityId}"
+	 * Test GET "/citys/{code}"
 	 *
 	 * @throws IllegalArgumentException exceptions
 	 */
@@ -168,15 +172,15 @@ public class CityControllerTest {
 		// setup
 		City city = CityFixtures.createCity();
 		doThrow(IllegalArgumentException.class).when(cityService).findCityByCode(anyString());
-		
+
 		// exercise
-		mvc.perform(get("/city/{cityID}", city.getCityId()).contentType(MediaType.APPLICATION_JSON))
+		mvc.perform(get("/citys/{code}", city.getCityId()).contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isBadRequest());
 	}
-	
+
 	/**
-	 * Test GET "/city/{cityId}"
+	 * Test GET "/citys/{code}"
 	 *
 	 *
 	 */
@@ -185,15 +189,15 @@ public class CityControllerTest {
 		// setup
 		City city = CityFixtures.createCity();
 		when(cityService.findCityByCode(anyString())).thenReturn(Optional.empty());
-		
+
 		// exercise
-		mvc.perform(get("/city/{cityID}", city.getCityId()).contentType(MediaType.APPLICATION_JSON))
+		mvc.perform(get("/citys/{code}", city.getCode()).contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isNotFound());
 	}
-	
+
 	/**
-	 * Test PUT "/city/"
+	 * Test PUT "/citys/"
 	 *
 	 *
 	 */
@@ -202,24 +206,24 @@ public class CityControllerTest {
 		// setup
 		String code = "25562";
 		RegisterCityRequest request = RegisterCityRequestFixtures.creatRequest(code);
-		
+
 		City city = request.get();
 		when(cityService.create(any(City.class))).thenReturn(city);
-		
+
 		ObjectMapper mapper = new ObjectMapper();
 		String content = mapper.writeValueAsString(request);
-		
+
 		// exercise
-		mvc.perform(put("/city/")
+		mvc.perform(put("/citys/")
 			.content(content)
 			.contentType(MediaType.APPLICATION_JSON))
 			.andDo(print())
 			// verify
 			.andExpect(status().isOk());
 	}
-	
+
 	/**
-	 * Test PUT "/city/"
+	 * Test PUT "/citys/"
 	 *
 	 * @throws ConflictException
 	 */
@@ -230,38 +234,17 @@ public class CityControllerTest {
 		RegisterCityRequest request = RegisterCityRequestFixtures.creatRequest(code);
 		ObjectMapper mapper = new ObjectMapper();
 		String content = mapper.writeValueAsString(request);
-		
+
 		doThrow(ConflictException.class).when(cityService).create(any(City.class));
-		
+
 		// exercise
-		mvc.perform(MockMvcRequestBuilders.put("/city/")
+		mvc.perform(MockMvcRequestBuilders.post("/citys/")
 			.content(content)
 			.contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isConflict());
 	}
-	
-	/**
-	 * Test PUT "/city/"
-	 *
-	 * @throws NullPointerException
-	 */
-	@Test
-	public void testRegisterCityThrowNPE() throws Exception {
-		// setup
-		ObjectMapper mapper = new ObjectMapper();
-		String content = mapper.writeValueAsString(null);
-		
-		doThrow(NullPointerException.class).when(cityService).create(any(City.class));
-		
-		// exercise
-		mvc.perform(MockMvcRequestBuilders.put("/city/")
-			.content(content)
-			.contentType(MediaType.APPLICATION_JSON))
-			// verify
-			.andExpect(status().isBadRequest());
-	}
-	
+
 	/**
 	 * Test PUT "/city/{cityId}"
 	 *
@@ -274,20 +257,20 @@ public class CityControllerTest {
 		City city = CityFixtures.createCity();
 		when(cityService.findCityByCode(anyString())).thenReturn(Optional.of(city));
 		when(cityService.update(any(City.class))).thenReturn(city);
-		
+
 		ObjectMapper mapper = new ObjectMapper();
 		String content = mapper.writeValueAsString(request);
-		
+
 		// exercise
-		mvc.perform(MockMvcRequestBuilders.post("/city/{cityId}", city.getCityId())
+		mvc.perform(MockMvcRequestBuilders.post("/citys/{code}", city.getCode())
 			.content(content)
 			.contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isOk());
 	}
-	
+
 	/**
-	 * Test PUT "/city/{cityId}"
+	 * Test PUT "/citys/{code}"
 	 *
 	 * @throws IllegalArgumentException
 	 */
@@ -296,23 +279,23 @@ public class CityControllerTest {
 		// setup
 		UpdateCityRequest request = UpdateCityRequestFixtures.creatRequest();
 		City city = CityFixtures.createCity();
-		
+
 		when(cityService.findCityByCode(anyString())).thenReturn(Optional.of(city));
 		doThrow(IllegalArgumentException.class).when(cityService).update(any(City.class));
-		
+
 		ObjectMapper mapper = new ObjectMapper();
 		String content = mapper.writeValueAsString(request);
-		
+
 		// exercise
-		mvc.perform(MockMvcRequestBuilders.post("/city/{cityId}", city.getCityId())
+		mvc.perform(MockMvcRequestBuilders.post("/citys/{code}", city.getCode())
 			.content(content)
 			.contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isBadRequest());
 	}
-	
+
 	/**
-	 * Test PUT "/city/{cityId}"
+	 * Test PUT "/citys/{code}"
 	 *
 	 * @throws ConflictException
 	 */
@@ -321,23 +304,23 @@ public class CityControllerTest {
 		// setup
 		UpdateCityRequest request = UpdateCityRequestFixtures.creatRequest();
 		City city = CityFixtures.createCity();
-		
+
 		when(cityService.findCityByCode(anyString())).thenReturn(Optional.of(city));
 		doThrow(ConflictException.class).when(cityService).update(any(City.class));
-		
+
 		ObjectMapper mapper = new ObjectMapper();
 		String content = mapper.writeValueAsString(request);
-		
+
 		// exercise
-		mvc.perform(MockMvcRequestBuilders.post("/city/{cityId}", city.getCityId())
+		mvc.perform(MockMvcRequestBuilders.post("/citys/{code}", city.getCode())
 			.content(content)
 			.contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isConflict());
 	}
-	
+
 	/**
-	 * Test DELETE "/areas/{area_code}"
+	 * Test DELETE "/citys/{code}"
 	 *
 	 */
 	@Test
@@ -346,16 +329,16 @@ public class CityControllerTest {
 		City city = CityFixtures.createCity();
 		when(cityService.findCityByCode(anyString())).thenReturn(Optional.of(city));
 		when(cityService.deleteCity(any(City.class))).thenReturn(city);
-		
+
 		// exercise
-		mvc.perform(delete("/city/{cityId}", city.getCityId()))
+		mvc.perform(delete("/citys/{code}", city.getCityId()))
 			.andDo(print())
 			// verify
 			.andExpect(status().isOk());
 	}
-	
+
 	/**
-	 * Test DELETE "/areas/{area_code}" throws NotFoundException
+	 * Test DELETE "/citys/{code}" throws NotFoundException
 	 *
 	 */
 	@Test
@@ -364,7 +347,7 @@ public class CityControllerTest {
 		City city = CityFixtures.createCity();
 		when(cityService.findCityByCode(anyString())).thenReturn(Optional.empty());
 		// exercise
-		mvc.perform(delete("/city/{cityId}", city.getCityId()))
+		mvc.perform(delete("/citys/{code}", city.getCityId()))
 			.andDo(print())
 			// verify
 			.andExpect(status().isNotFound());
