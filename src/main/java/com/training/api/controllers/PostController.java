@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Transactional
 @Slf4j
 @Validated
+@RequestMapping(value = "/posts")
 public class PostController {
 	
 	private final PostService postService;
@@ -38,31 +39,11 @@ public class PostController {
 	
 	
 	/**
-	 * Function request processing when call url mapping
-	 *
-	 * @param postCode post code
-	 *
-	 * @return List of {@link SearchPostCodeResponse} found
-	 */
-	@RequestMapping(value = "/post_offices/post/{postCode}", method = RequestMethod.GET)
-	public ResponseEntity searchAddressByPostCode(@PathVariable("postCode") String postCode) {
-		try {
-			List<SearchPostCodeResponse> postCodeResponseList = postService.searchAddressByPostCode(postCode);
-			
-			return new ResponseEntity<>(new RestData(postCodeResponseList), HttpStatus.OK);
-		} catch (IllegalArgumentException e) {
-			return new ResponseEntity<>(new HttpExceptionResponse("400", e.getMessage()), HttpStatus.BAD_REQUEST);
-		} catch (NotFoundException e) {
-			return new ResponseEntity<>(new HttpExceptionResponse("404", e.getMessage()), HttpStatus.NOT_FOUND);
-		}
-	}
-	
-	/**
 	 * Get all {@link Post}
 	 *
 	 * @return List of {@link Post}
 	 */
-	@RequestMapping(value = "/posts", method = RequestMethod.GET)
+	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public ResponseEntity getAll() {
 		List<Post> tblPostList = postService.findAllPost();
 		
@@ -75,11 +56,12 @@ public class PostController {
 	 * @param postCode Post code
 	 * @return {@link Post} found
 	 */
-	@RequestMapping(value = "/posts/{postCode}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{postCode}", method = RequestMethod.GET)
 	public ResponseEntity getPost(@PathVariable("postCode") String postCode) {
 		try {
 			Post tblPost = postService.findPostByPostCode(postCode).orElseThrow(
-					() -> new NotFoundException(apiMessage.getMessageError("service.post.find.city_not_exist")));
+					() -> new NotFoundException(
+							apiMessage.getMessageError("controller.post.get.city_not_found", postCode)));
 			
 			return new ResponseEntity<>(tblPost, HttpStatus.OK);
 		} catch (IllegalArgumentException e) {
@@ -96,7 +78,7 @@ public class PostController {
 	 *
 	 * @return register {@link Post}
 	 */
-	@RequestMapping(value = "/posts", method = RequestMethod.POST)
+	@RequestMapping(value = "/", method = RequestMethod.POST)
 	public ResponseEntity registerPost(@Validated @RequestBody RegisterPostRequest request) {
 		try {
 			Post postToRegister = request.get();
@@ -118,14 +100,15 @@ public class PostController {
 	 * @param postCode Post code
 	 * @return
 	 */
-	@RequestMapping(value = "/posts/{postCode}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{postCode}", method = RequestMethod.POST)
 	public ResponseEntity updatePost(@Validated @RequestBody UpdatePostRequest request,
 			@PathVariable("postCode") String postCode) {
 		try {
 			Post updateTblPost = postService.findPostByPostCode(postCode)
 				.map(request)
 				.map(post -> postService.update(post)).orElseThrow(
-						() -> new NotFoundException(apiMessage.getMessageError("service.post.delete.city_not_exist")));
+						() -> new NotFoundException(
+								apiMessage.getMessageError("controller.post.update.city_not_found", postCode)));
 			
 			return new ResponseEntity<>(updateTblPost, HttpStatus.OK);
 		} catch (IllegalArgumentException | InvalidModelException e) {
@@ -143,12 +126,13 @@ public class PostController {
 	 * @param postCode Post code
 	 * @return deleted {@link Post}
 	 */
-	@RequestMapping(value = "/posts/{postCode}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/{postCode}", method = RequestMethod.DELETE)
 	public ResponseEntity deletePost(@PathVariable("postCode") String postCode) {
 		try {
 			Post deletePost = postService.findPostByPostCode(postCode)
 				.map(post -> postService.deletePost(post)).orElseThrow(
-						() -> new NotFoundException(apiMessage.getMessageError("service.post.delete.city_not_exist")));
+						() -> new NotFoundException(
+								apiMessage.getMessageError("controller.post.delete.city_not_found", postCode)));
 			
 			return new ResponseEntity<>(deletePost, HttpStatus.OK);
 		} catch (IllegalArgumentException e) {

@@ -48,7 +48,7 @@ public class AbstractIntegrationTest {
 		HttpEntity<RegisterCityRequest> entity = new HttpEntity<>(request, headers);
 		// exercise
 		ResponseEntity<String> actual =
-				restTemplate.exchange("/citys", HttpMethod.POST, entity, String.class);
+				restTemplate.exchange("/cities", HttpMethod.POST, entity, String.class);
 		// verify
 		assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.OK);
 		return request.getCode();
@@ -61,7 +61,7 @@ public class AbstractIntegrationTest {
 	 */
 	protected String createPost(HttpHeaders headers, String postCode) {
 		// setup
-		RegisterPostRequest request = RegisterPostRequestFixtures.createRequest(postCode);
+		RegisterPostRequest request = RegisterPostRequestFixtures.createRequest("0010000");
 		HttpEntity<RegisterPostRequest> entity = new HttpEntity<>(request, headers);
 		// exercise
 		ResponseEntity<String> actual =

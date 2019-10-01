@@ -61,71 +61,7 @@ public class PostControllerTest {
 
 	@MockBean
 	private ApiMessage apiMessage;
-	
-	
-	/**
-	 * Test GET "post_offices/posts/{postCode}"
-	 *
-	 */
-	@Test
-	public void testSearchAddressByPostCode() throws Exception {
-		// setup
-		Area tblArea = AreaFixtures.createArea();
-		SearchPostCodeResponse response = new SearchPostCodeResponse(tblArea);
-		List<SearchPostCodeResponse> responseList = new ArrayList<>();
-		responseList.add(response);
-		
-		when(postService.searchAddressByPostCode(anyString())).thenReturn(responseList);
-		
-		// exercise
-		mvc.perform(get("/posts_offices/posts/{postCode}",
-				tblArea.getPost().getPostCode())
-					.contentType(MediaType.APPLICATION_JSON))
-			// verify
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.data[0].area", is(tblArea.getArea())))
-			.andExpect(jsonPath("$.data[0].area_kana", is(tblArea.getAreaKana())))
-			.andExpect(jsonPath("$.data[0].city", is(tblArea.getCity().getCityName())))
-			.andExpect(jsonPath("$.data[0].city_kana", is(tblArea.getCity().getCityKana())));
-	}
-	
-	/**
-	 * Test GET "post_offices/posts/{postCode}"
-	 *
-	 * @throws IllegalArgumentException exceptions
-	 */
-	@Test
-	public void testSearchAddressByPostCodeThrowIAE() throws Exception {
-		// setup
-		Area tblArea = AreaFixtures.createArea();
-		doThrow(IllegalArgumentException.class).when(postService).searchAddressByPostCode(anyString());
-		
-		// exercise
-		mvc.perform(get("/posts_offices/posts/{postCode}",
-				tblArea.getPost().getPostCode())
-					.contentType(MediaType.APPLICATION_JSON))
-			// verify
-			.andExpect(status().isBadRequest());
-	}
-	
-	/**
-	 * Test GET "post_offices/posts/{postCode}"
-	 *
-	 * @throws NotFoundException exceptions
-	 */
-	@Test
-	public void testSearchAddressByPostCodeThrowNFE() throws Exception {
-		// setup
-		Area tblArea = AreaFixtures.createArea();
-		doThrow(NotFoundException.class).when(postService).searchAddressByPostCode(anyString());
-		
-		// exercise
-		mvc.perform(get("/posts_offices/posts/{postCode}",
-				tblArea.getPost().getPostCode())
-					.contentType(MediaType.APPLICATION_JSON))
-			// verify
-			.andExpect(status().isNotFound());
-	}
+
 	
 	/**
 	 * Test GET "/postss/{postCode}"

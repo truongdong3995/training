@@ -34,15 +34,15 @@ public class UpdateCityRequest implements UnaryOperator<City> {
 	@Getter
 	@Setter
 	@NotNull
-	@JsonProperty("tblPrefecture")
-	private Prefecture tblPrefecture;
+	@JsonProperty("prefecture")
+	private Prefecture prefecture;
 	
 	
 	@Override
 	public City apply(City tblCity) {
 		Optional.ofNullable(getCityKana()).ifPresent(tblCity::setCityKana);
 		Optional.ofNullable(getCity()).ifPresent(tblCity::setCityName);
-		Optional.ofNullable(getTblPrefecture()).ifPresent(tblCity::setPrefecture);
+		Optional.ofNullable(getPrefecture()).ifPresent(tblCity::setPrefecture);
 		
 		return tblCity;
 	}

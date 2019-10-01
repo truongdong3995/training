@@ -2,37 +2,27 @@ package com.training.api.repositorys;
 
 import com.training.api.entitys.Area;
 import com.training.api.entitys.fixtures.AreaFixtures;
-import org.flywaydb.test.FlywayTestExecutionListener;
-import org.flywaydb.test.annotation.FlywayTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration;
-import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.context.TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS;
 
 /**
  * Test for {@link AreaRepository}.
  */
-@TestExecutionListeners(value = FlywayTestExecutionListener.class, mergeMode = MERGE_WITH_DEFAULTS)
-@ActiveProfiles("unittest")@ContextConfiguration(classes = {
-		DataSourceAutoConfiguration.class,
-		FlywayAutoConfiguration.class,
-		ValidationAutoConfiguration.class
-}, initializers = ConfigFileApplicationContextInitializer.class)
 @ExtendWith(SpringExtension.class)
-public class AreaRepositoryTest extends AbstractRepositoryTest{
-	
+@DataJpaTest
+public class AreaRepositoryTest {
+	@Autowired
+	TestEntityManager entityManager;
+
 	@Autowired
 	AreaRepository sut;
 	
@@ -44,17 +34,14 @@ public class AreaRepositoryTest extends AbstractRepositoryTest{
 	@Test
 	public void testFindByCity_CityId() {
 		// setup
-		Area area = AreaFixtures.createArea();
-		sut.save(area);
+		int cityId = 413134;
 		// exercise
-		List<Area> actual = sut.findByCity_CityId(area.getCity().getCityId());
+		List<Area> actual = sut.findByCity_CityId(cityId);
 		// verify
 		assertThat(actual.size()).isEqualTo(1);
 		Area areaActual = actual.get(0);
-		assertThat(areaActual.getArea()).isEqualTo(area.getArea());
-		assertThat(areaActual.getAreaKana()).isEqualTo(area.getAreaKana());
-		assertThat(areaActual.getChomeArea()).isEqualTo(area.getChomeArea());
-		assertThat(areaActual.getCity().getCityId()).isEqualTo(area.getCity().getCityId());
+
+		assertThat(areaActual.getCity().getCityId()).isEqualTo(cityId);
 	}
 	
 	/**
@@ -62,11 +49,9 @@ public class AreaRepositoryTest extends AbstractRepositoryTest{
 	 *
 	 */
 	@Test
-	@FlywayTest
 	public void testFindByPost_PostCode() {
 		// setup
 		Area area = AreaFixtures.createArea();
-		sut.save(area);
 		// exercise
 		List<Area> actual = sut.findByPost_PostCode(area.getPost().getPostCode());
 		// verify
@@ -80,16 +65,14 @@ public class AreaRepositoryTest extends AbstractRepositoryTest{
 	 *
 	 */
 	@Test
-	@FlywayTest
 	public void testFindByPost_PostId() {
 		// setup
-		Area area = AreaFixtures.createArea();
-		sut.save(area);
+		int postId = 393221;
 		// exercise
-		List<Area> actual = sut.findByPost_PostId(area.getPost().getPostId());
+		List<Area> actual = sut.findByPost_PostId(postId);
 		// verify
 		assertThat(actual.size()).isEqualTo(1);
 		Area areaActual = actual.get(0);
-		assertThat(areaActual.getPost().getPostId()).isEqualTo(area.getPost().getPostId());
+		assertThat(areaActual.getPost().getPostId()).isEqualTo(postId);
 	}
 }

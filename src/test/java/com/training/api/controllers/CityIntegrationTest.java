@@ -19,17 +19,15 @@ import static org.hamcrest.Matchers.is;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({
-		"integrationtest"
-})
+@ActiveProfiles("integrationtest")
 public class CityIntegrationTest extends AbstractIntegrationTest {
 	
 	@Autowired
 	TestRestTemplate restTemplate;
-	
+
 	
 	/**
-	 * Test GET /citys/{code}
+	 * Test GET /cities/{code}
 	 *
 	 */
 	@Test
@@ -39,7 +37,7 @@ public class CityIntegrationTest extends AbstractIntegrationTest {
 		String code = createCity(headers, randomCode());
 		// exercise
 		ResponseEntity<String> actual =
-				restTemplate.exchange("/citys/{code}", HttpMethod.GET, new HttpEntity<>(headers),
+				restTemplate.exchange("/cities/{code}", HttpMethod.GET, new HttpEntity<>(headers),
 						String.class, code);
 		
 		// verify
@@ -49,7 +47,7 @@ public class CityIntegrationTest extends AbstractIntegrationTest {
 	}
 	
 	/**
-	 * Test GET /citys/{code} throws NotFoundException
+	 * Test GET /cities/{code} throws NotFoundException
 	 *
 	 */
 	@Test
@@ -59,7 +57,7 @@ public class CityIntegrationTest extends AbstractIntegrationTest {
 		String code = randomCode();
 		// exercise
 		ResponseEntity<String> actual =
-				restTemplate.exchange("/citys/{code}", HttpMethod.GET, new HttpEntity<>(headers),
+				restTemplate.exchange("/cities/{code}", HttpMethod.GET, new HttpEntity<>(headers),
 						String.class, code);
 		
 		// verify
@@ -70,7 +68,7 @@ public class CityIntegrationTest extends AbstractIntegrationTest {
 	}
 	
 	/**
-	 * Test POST /citys
+	 * Test POST /cities
 	 *
 	 */
 	@Test
@@ -82,7 +80,7 @@ public class CityIntegrationTest extends AbstractIntegrationTest {
 		HttpEntity<RegisterCityRequest> areaRequestEntity = new HttpEntity<>(request, headers);
 		// exercise
 		ResponseEntity<String> actual = restTemplate
-			.exchange("/citys", HttpMethod.POST, areaRequestEntity, String.class);
+			.exchange("/cities", HttpMethod.POST, areaRequestEntity, String.class);
 		
 		// verify
 		assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -93,7 +91,7 @@ public class CityIntegrationTest extends AbstractIntegrationTest {
 	}
 	
 	/**
-	 * Test POST /citys throws AlreadyExistsException
+	 * Test POST /cities throws AlreadyExistsException
 	 *
 	 */
 	@Test
@@ -106,7 +104,7 @@ public class CityIntegrationTest extends AbstractIntegrationTest {
 		// exercise
 		
 		ResponseEntity<String> actual = restTemplate
-			.exchange("/citys", HttpMethod.POST, areaRequestEntity, String.class);
+			.exchange("/cities", HttpMethod.POST, areaRequestEntity, String.class);
 		// verify
 		assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
 		with(actual.getBody())
@@ -115,7 +113,7 @@ public class CityIntegrationTest extends AbstractIntegrationTest {
 	}
 	
 	/**
-	 * Test DELETE /citys/{code}
+	 * Test DELETE /cities/{code}
 	 *
 	 */
 	@Test
@@ -125,7 +123,7 @@ public class CityIntegrationTest extends AbstractIntegrationTest {
 		String code = createCity(headers, randomCode());
 		// exercise
 		ResponseEntity<String> actual =
-				restTemplate.exchange("/citys/{code}", HttpMethod.DELETE, new HttpEntity<>(headers),
+				restTemplate.exchange("/cities/{code}", HttpMethod.DELETE, new HttpEntity<>(headers),
 						String.class, code);
 		
 		// verify
@@ -134,8 +132,8 @@ public class CityIntegrationTest extends AbstractIntegrationTest {
 			.assertThat("$.code", is(code));
 		
 		ResponseEntity<String> getForVerification =
-				restTemplate.exchange("/citys/{code}", HttpMethod.GET, new HttpEntity<>(headers), String.class,
-						code); // call GET /citys/{code}
+				restTemplate.exchange("/cities/{code}", HttpMethod.GET, new HttpEntity<>(headers), String.class,
+						code); // call GET /cities/{code}
 		assertThat(getForVerification.getStatusCode()).isIn(HttpStatus.NOT_FOUND, HttpStatus.GONE);
 	}
 	
@@ -151,7 +149,7 @@ public class CityIntegrationTest extends AbstractIntegrationTest {
 		UpdateCityRequest request = UpdateCityRequestFixtures.creatRequest();
 		// exercise
 		ResponseEntity<String> actual =
-				restTemplate.exchange("/citys/{code}", HttpMethod.POST, new HttpEntity<>(request, headers),
+				restTemplate.exchange("/cities/{code}", HttpMethod.POST, new HttpEntity<>(request, headers),
 						String.class, code);
 		// verify
 		assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -161,7 +159,7 @@ public class CityIntegrationTest extends AbstractIntegrationTest {
 	}
 	
 	/**
-	 * Test POST /citys/{code} throws AlreadyExistsException
+	 * Test POST /cities/{code} throws AlreadyExistsException
 	 *
 	 *
 	 */
@@ -174,10 +172,10 @@ public class CityIntegrationTest extends AbstractIntegrationTest {
 		UpdateCityRequest requestUpdate = UpdateCityRequestFixtures.creatRequest();
 		requestUpdate.setCityKana(requestRegister.getCityKana());
 		requestUpdate.setCity(requestRegister.getCity());
-		requestUpdate.setTblPrefecture(requestRegister.getPrefecture());
+		requestUpdate.setPrefecture(requestRegister.getPrefecture());
 		// exercise
 		ResponseEntity<String> actual =
-				restTemplate.exchange("/citys/{code}", HttpMethod.POST, new HttpEntity<>(requestUpdate, headers),
+				restTemplate.exchange("/cities/{code}", HttpMethod.POST, new HttpEntity<>(requestUpdate, headers),
 						String.class, code);
 		// verify
 		assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);

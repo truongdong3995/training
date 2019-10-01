@@ -2,7 +2,7 @@ package com.training.api.utils.exceptions;
 
 
 /**
- * Exception when contrains error
+ * Exception when constraint error
  *
  */
 public class AlreadyExistsException extends RuntimeException {

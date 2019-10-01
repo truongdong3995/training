@@ -22,7 +22,7 @@ public class ApiMessage {
 	 *
 	 * @return message
 	 */
-	public String getMessageError(String code) {
-		return messageSource.getMessage(code, null, LocaleContextHolder.getLocale());
+	public String getMessageError(String code, Object... args) {
+		return messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
 	}
 }

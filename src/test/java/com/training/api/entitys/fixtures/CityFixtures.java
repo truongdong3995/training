@@ -10,8 +10,8 @@ import com.training.api.entitys.Prefecture;
 public class CityFixtures {
 	
 	public static City createCity() {
-		City city = new City(1073, "01102", "ｻｯﾎﾟﾛｼｷﾀ", "札幌市北区",
-				new Prefecture(258, "ﾎｯｶｲﾄﾞｳ", "北海道", "01"));
+		City city = new City("01102", "ｻｯﾎﾟﾛｼｷﾀ", "札幌市北区",
+				new Prefecture(2288, "ﾎｯｶｲﾄﾞｳ", "北海道", "01"));
 		
 		return city;
 	}

@@ -19,7 +19,7 @@ public class  RegisterPostRequest implements Supplier<Post> {
 	@NotNull
 	@Getter
 	@Setter
-	@NotNull
+	@NotNull(message = "{postCode.notnull}")
 	@Length(max = 7)
 	private String postCode;
 	

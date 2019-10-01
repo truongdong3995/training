@@ -46,7 +46,7 @@ public class PostServiceTest {
 	AreaRepository areaRepository;
 	
 	ApiMessage apiMessage;
-
+	
 	@Mock
 	ModelValidator modelValidator;
 	
@@ -72,52 +72,6 @@ public class PostServiceTest {
 		// verify
 		verify(postRepository, times(1)).findAll();
 		assertThat(actual).isEqualTo(tblPostList);
-	}
-	
-	/**
-	 * Test search address by post code
-	 *
-	 */
-	@Test
-	public void searchAddressByPostCode() throws NotFoundException {
-		// setup
-		Area tblArea = AreaFixtures.createArea();
-		SearchPostCodeResponse searchPostCodeResponse =
-				SearchPostCodeResponseFixtures.createResponse(tblArea);
-		List<Area> tblAreaList = new ArrayList<>();
-		tblAreaList.add(tblArea);
-		Mockito.when(areaRepository.findByPost_PostCode(anyString())).thenReturn(tblAreaList);
-		// exercise
-		List<SearchPostCodeResponse> actual =
-				sut.searchAddressByPostCode(tblArea.getPost().getPostCode());
-		// verify
-		assertThat(actual.size()).isEqualTo(1);
-	}
-	
-	/**
-	 * Test search address by post code throws IllegalArgumentException
-	 *
-	 */
-	@Test
-	public void searchSearchAddressByPostCodeThrowIAE() {
-		String postCode = "POST_CODE_TEST";
-		// exercise
-		assertThatThrownBy(() -> sut.searchAddressByPostCode(postCode))
-			.isInstanceOf(IllegalArgumentException.class);
-	}
-	
-	/**
-	 * Test search address by post code throws NotFoundException
-	 *
-	 */
-	@Test
-	public void searchSearchAddressByPostCodeThrowNFE() {
-		// setup
-		Area tblArea = AreaFixtures.createArea();
-		Mockito.when(areaRepository.findByPost_PostCode(anyString())).thenReturn(new ArrayList<>());
-		// exercise
-		assertThatThrownBy(() -> sut.searchAddressByPostCode(tblArea.getPost().getPostCode()))
-			.isInstanceOf(NotFoundException.class);
 	}
 	
 	/**
@@ -190,7 +144,7 @@ public class PostServiceTest {
 		// exercise
 		assertThatThrownBy(() -> sut.create(tblPost)).isInstanceOf(AlreadyExistsException.class);
 	}
-
+	
 	/**
 	 * Test create new Post throws InvalidModelException.
 	 *
@@ -232,7 +186,7 @@ public class PostServiceTest {
 		assertThatThrownBy(() -> sut.update(tblPost))
 			.isInstanceOf(AlreadyExistsException.class);
 	}
-
+	
 	/**
 	 * Test update Post if exist throws InvalidModelException.
 	 *
@@ -244,7 +198,7 @@ public class PostServiceTest {
 		doThrow(InvalidModelException.class).when(modelValidator).validate(any(Post.class));
 		// exercise
 		assertThatThrownBy(() -> sut.update(tblPost))
-				.isInstanceOf(InvalidModelException.class);
+			.isInstanceOf(InvalidModelException.class);
 	}
 	
 	/**

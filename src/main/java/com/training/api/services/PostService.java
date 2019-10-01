@@ -2,25 +2,23 @@ package com.training.api.services;
 
 import com.training.api.entitys.Area;
 import com.training.api.entitys.Post;
-import com.training.api.models.SearchPostCodeResponse;
 import com.training.api.utils.ApiMessage;
 import com.training.api.utils.Common;
 import com.training.api.utils.exceptions.AlreadyExistsException;
 import com.training.api.repositorys.AreaRepository;
 import com.training.api.repositorys.PostRepository;
 import com.training.api.validators.ModelValidator;
-import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
 @RequiredArgsConstructor
 public class PostService {
 	
@@ -29,30 +27,9 @@ public class PostService {
 	private final AreaRepository areaRepository;
 	
 	private final ApiMessage apiMessage;
-
+	
 	private final ModelValidator modelValidator;
 	
-	/**
-	 * Get address information by post code
-	 *
-	 * @param  postCode postcode;
-	 *
-	 * @return searchPostCodeResponseList List of {@link SearchPostCodeResponse}
-	 */
-	public List<SearchPostCodeResponse> searchAddressByPostCode(String postCode) throws NotFoundException {
-		if (Common.checkValidNumber(postCode) == false) {
-			throw new IllegalArgumentException(apiMessage.getMessageError("service.post.search.invalid_input"));
-		}
-		
-		List<SearchPostCodeResponse> searchPostCodeResponseList =
-				areaRepository.findByPost_PostCode(postCode).stream()
-					.map(SearchPostCodeResponse::new).collect(Collectors.toList());
-		
-		if (searchPostCodeResponseList.size() == 0) {
-			throw new NotFoundException(apiMessage.getMessageError("service.post.search.not_found"));
-		}
-		return searchPostCodeResponseList;
-	}
 	
 	/**
 	 * Get all {@link Post}
@@ -73,7 +50,8 @@ public class PostService {
 	 */
 	public Optional<Post> findPostByPostCode(String postCode) {
 		if (Common.checkValidNumber(postCode) == false) {
-			throw new IllegalArgumentException(apiMessage.getMessageError("service.post.find.post_code_invalid"));
+			throw new IllegalArgumentException(
+					apiMessage.getMessageError("service.post.find.post_code_invalid", postCode));
 		}
 		
 		return postRepository.findByPostCode(postCode);
@@ -95,7 +73,8 @@ public class PostService {
 			modelValidator.validate(createPost);
 			createdPost = postRepository.save(createPost);
 		} catch (DataIntegrityViolationException e) {
-			throw new AlreadyExistsException(apiMessage.getMessageError("service.post.create.conflict"));
+			throw new AlreadyExistsException(
+					apiMessage.getMessageError("service.post.create.area_already_exists", createPost.getPostCode()));
 		}
 		
 		return createdPost;
@@ -135,7 +114,8 @@ public class PostService {
 			modelValidator.validate(updatePost);
 			updatedPost = postRepository.save(updatePost);
 		} catch (DataIntegrityViolationException e) {
-			throw new AlreadyExistsException(apiMessage.getMessageError("service.post.update.conflict"));
+			throw new AlreadyExistsException(
+					apiMessage.getMessageError("service.post.update.area_already_exists", updatePost.getPostCode()));
 		}
 		
 		return updatedPost;

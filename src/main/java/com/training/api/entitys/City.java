@@ -84,8 +84,7 @@ public class City implements Serializable {
 	 * @param city city
 	 * @param prefecture {@link Prefecture}
 	 */
-	public City(int cityId, String code, String cityKana, String city, Prefecture prefecture) {
-		this.cityId = cityId;
+	public City(String code, String cityKana, String city, Prefecture prefecture) {
 		this.code = code;
 		this.cityKana = cityKana;
 		this.cityName = city;

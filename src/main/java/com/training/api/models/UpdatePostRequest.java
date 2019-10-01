@@ -38,7 +38,7 @@ public class UpdatePostRequest implements UnaryOperator<Post> {
     public Post apply(Post tblPost) {
         Optional.ofNullable(getUpdateShow()).ifPresent(tblPost::setUpdateShow);
         Optional.ofNullable(getChangeReason()).ifPresent(tblPost::setChangeReason);
-        Optional.ofNullable(getMultiArea()).ifPresent(tblPost::setChangeReason);
+        Optional.ofNullable(getMultiArea()).ifPresent(tblPost::setMultiArea);
 
         return tblPost;
     }

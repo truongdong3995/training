@@ -2,21 +2,17 @@ package com.training.api.services;
 
 import com.training.api.entitys.City;
 import com.training.api.entitys.fixtures.CityFixtures;
-import com.training.api.models.SearchPrefectureCodeResponse;
-import com.training.api.models.fixtures.SearchPrefectureCodeResponseFixtures;
 import com.training.api.repositorys.AreaRepository;
 import com.training.api.repositorys.CityRepository;
 import com.training.api.utils.ApiMessage;
 import com.training.api.utils.exceptions.AlreadyExistsException;
 import com.training.api.utils.exceptions.InvalidModelException;
 import com.training.api.validators.ModelValidator;
-import javassist.NotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -44,16 +40,16 @@ public class CityServiceTest {
 	
 	@Mock
 	AreaRepository areaRepository;
-
+	
 	@Mock
 	ModelValidator modelValidator;
-
+	
 	ApiMessage apiMessage;
 	
 	
 	@Before
 	public void setUp() {
-		sut = new CityService(cityRepository, areaRepository, apiMessage,modelValidator);
+		sut = new CityService(cityRepository, areaRepository, apiMessage, modelValidator);
 	}
 	
 	/**
@@ -72,51 +68,6 @@ public class CityServiceTest {
 		// verify
 		verify(cityRepository, times(1)).findAll();
 		assertThat(actual).isEqualTo(cityList);
-	}
-	
-	/**
-	 * Test search address by prefecture code.
-	 *
-	 */
-	@Test
-	public void searchAddressByPrefectureCode() throws NotFoundException {
-		// setup
-		City city = CityFixtures.createCity();
-		SearchPrefectureCodeResponse searchPrefectureCodeResponse =
-				SearchPrefectureCodeResponseFixtures.createResponse(city);
-		List<City> cityList = new ArrayList<>();
-		cityList.add(city);
-		Mockito.when(cityRepository.findByPrefecture_PrefectureCode(anyString())).thenReturn(cityList);
-		// exercise
-		List<SearchPrefectureCodeResponse> actual =
-				sut.searchAddressByPrefectureCode(city.getPrefecture().getPrefectureCode());
-		// verify
-		assertThat(actual.size()).isEqualTo(1);
-		verify(cityRepository, times(1))
-			.findByPrefecture_PrefectureCode(city.getPrefecture().getPrefectureCode());
-	}
-	
-	/**
-	 * Test search address by prefecture code throws IllegalArgumentException.
-	 *
-	 */
-	@Test
-	public void searchCityByPrefectureCodeThrowIAE() {
-		// exercise
-		assertThatThrownBy(() -> sut.searchAddressByPrefectureCode(null))
-			.isInstanceOf(IllegalArgumentException.class);
-	}
-	
-	/**
-	 * Test search address by prefecture code throws NotFoundException.
-	 *
-	 */
-	@Test
-	public void searchCityByPrefectureCodeThrowNFE() {
-		Mockito.when(cityRepository.findByPrefecture_PrefectureCode(anyString())).thenReturn(new ArrayList<>());
-		// exercise
-		assertThatThrownBy(() -> sut.searchAddressByPrefectureCode(anyString()))
-			.isInstanceOf(NotFoundException.class);
 	}
 	
 	/**
@@ -188,7 +139,7 @@ public class CityServiceTest {
 		// exercise
 		assertThatThrownBy(() -> sut.create(city)).isInstanceOf(AlreadyExistsException.class);
 	}
-
+	
 	/**
 	 * Test creat new City throws InvalidModelException.
 	 *
@@ -240,7 +191,7 @@ public class CityServiceTest {
 		// exercise
 		assertThatThrownBy(() -> sut.update(city)).isInstanceOf(AlreadyExistsException.class);
 	}
-
+	
 	/**
 	 * Test update City if exist throws InvalidModelException.
 	 *

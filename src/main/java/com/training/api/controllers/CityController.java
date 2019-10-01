@@ -8,7 +8,6 @@ import com.training.api.models.RegisterCityRequest;
 import com.training.api.models.UpdateCityRequest;
 import com.training.api.services.CityService;
 import com.training.api.utils.exceptions.AlreadyExistsException;
-import com.training.api.models.SearchPrefectureCodeResponse;
 import com.training.api.utils.ApiMessage;
 import com.training.api.utils.RestData;
 import com.training.api.utils.exceptions.InvalidModelException;
@@ -17,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Transactional
 @Slf4j
 @RequiredArgsConstructor
+@RequestMapping(value = "/cities")
 public class CityController {
 	
 	private final CityService cityService;
@@ -38,32 +39,11 @@ public class CityController {
 	
 	
 	/**
-	 * Request processing when call url mapping search address by prefecture code
-	 *
-	 * @param prefectureCode prefecture code
-	 *
-	 * @return List of {@link SearchPrefectureCodeResponse} found
-	 */
-	@RequestMapping(value = "/post_offices/prefectures/{prefectureCode}", method = RequestMethod.GET)
-	public ResponseEntity searchAddressByPrefectureCode(@PathVariable("prefectureCode") String prefectureCode) {
-		try {
-			List<SearchPrefectureCodeResponse> prefectureCodeResponseList =
-					cityService.searchAddressByPrefectureCode(prefectureCode);
-			
-			return new ResponseEntity<>(new RestData(prefectureCodeResponseList), HttpStatus.OK);
-		} catch (IllegalArgumentException e) {
-			return new ResponseEntity<>(new HttpExceptionResponse("400", e.getMessage()), HttpStatus.BAD_REQUEST);
-		} catch (NotFoundException e) {
-			return new ResponseEntity<>(new HttpExceptionResponse("404", e.getMessage()), HttpStatus.NOT_FOUND);
-		}
-	}
-	
-	/**
 	 * Get all {@link City}
 	 *
 	 * @return List of {@link City}
 	 */
-	@RequestMapping(value = "/cities", method = RequestMethod.GET)
+	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public ResponseEntity getAll() {
 		List<City> newList = cityService.findAll();
 		
@@ -77,11 +57,12 @@ public class CityController {
 	 *
 	 * @return {@link City} found
 	 */
-	@RequestMapping(value = "/citys/{code}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{code}", method = RequestMethod.GET)
 	public ResponseEntity getCity(@PathVariable("code") String code) {
 		try {
 			City city = cityService.findCityByCode(code).orElseThrow(
-					() -> new NotFoundException(apiMessage.getMessageError("service.city.find.city_not_exist")));
+					() -> new NotFoundException(
+							apiMessage.getMessageError("controller.city.get.city_not_found", code)));
 			
 			return new ResponseEntity<>(city, HttpStatus.OK);
 		} catch (IllegalArgumentException e) {
@@ -98,7 +79,7 @@ public class CityController {
 	 *
 	 * @return register {@link City}
 	 */
-	@RequestMapping(value = "/citys", method = RequestMethod.POST)
+	@RequestMapping(value = "/", method = RequestMethod.POST)
 	public ResponseEntity registerCity(@Validated @RequestBody RegisterCityRequest request) {
 		try {
 			City cityToRegister = request.get();
@@ -120,7 +101,7 @@ public class CityController {
 	 * @param code City code
 	 * @return
 	 */
-	@RequestMapping(value = "/citys/{code}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{code}", method = RequestMethod.POST)
 	public ResponseEntity updateCity(@Validated @RequestBody UpdateCityRequest request,
 			@PathVariable("code") String code) {
 		try {
@@ -128,7 +109,8 @@ public class CityController {
 				.map(request)
 				.map(city -> cityService.update(city))
 				.orElseThrow(
-						() -> new NotFoundException(apiMessage.getMessageError("service.city.find.city_not_exist")));
+						() -> new NotFoundException(
+								apiMessage.getMessageError("controller.city.update.city_not_found", code)));
 			
 			return new ResponseEntity<>(updateCity, HttpStatus.OK);
 		} catch (IllegalArgumentException | InvalidModelException e) {
@@ -146,13 +128,14 @@ public class CityController {
 	 * @param code City code
 	 * @return deleted {@link City}
 	 */
-	@RequestMapping(value = "/citys/{code}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/{code}", method = RequestMethod.DELETE)
 	public ResponseEntity deleteCity(@PathVariable("code") String code) {
 		try {
 			City deleteCity = cityService.findCityByCode(code)
 				.map(city -> cityService.deleteCity(city))
 				.orElseThrow(
-						() -> new NotFoundException(apiMessage.getMessageError("service.city.delete.city_not_exist")));
+						() -> new NotFoundException(
+								apiMessage.getMessageError("controller.city.delete.city_not_found", code)));
 			
 			return new ResponseEntity<>(deleteCity, HttpStatus.OK);
 		} catch (NotFoundException e) {

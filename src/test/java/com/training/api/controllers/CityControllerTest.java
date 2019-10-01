@@ -55,70 +55,7 @@ public class CityControllerTest {
 
 	@MockBean
 	private ApiMessage apiMessage;
-	
-	
-	/**
-	 * Test GET "/post_offices/prefectures/{prefecturesCode}"
-	 *
-	 *
-	 */
-	@Test
-	public void testSearchAddressByPrefectureCode() throws Exception {
-		// setup
-		City city = CityFixtures.createCity();
-		SearchPrefectureCodeResponse searchPrefectureCodeResponse = new SearchPrefectureCodeResponse(city);
-		List<SearchPrefectureCodeResponse> searchPrefectureCodeResponseList = new ArrayList<>();
-		searchPrefectureCodeResponseList.add(searchPrefectureCodeResponse);
-		
-		when(cityService.searchAddressByPrefectureCode(anyString())).thenReturn(searchPrefectureCodeResponseList);
-		
-		// exercise
-		mvc.perform(get("/post_offices/prefectures/{prefecturesCode}",
-				city.getPrefecture().getPrefectureCode())
-					.contentType(MediaType.APPLICATION_JSON))
-			// verify
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.data[0].code", is(city.getCode())))
-			.andExpect(jsonPath("$.data[0].city", is(city.getCityName())))
-			.andExpect(jsonPath("$.data[0].city_kana", is(city.getCityKana())))
-			.andExpect(jsonPath("$.data[0].prefecture_code", is(city.getPrefecture().getPrefectureCode())));
-	}
-	
-	/**
-	 * Test GET "/post_offices/prefectures/{prefecturesCode}"
-	 *
-	 * @throws IllegalArgumentException exceptions
-	 */
-	@Test
-	public void testSearchAddressByPrefectureCodeThrowIAE() throws Exception {
-		// setup
-		City city = CityFixtures.createCity();
-		doThrow(IllegalArgumentException.class).when(cityService).searchAddressByPrefectureCode(anyString());
-		
-		// exercise
-		mvc.perform(get("/post_offices/prefectures/{prefectures_code}",
-				city.getPrefecture().getPrefectureCode()).contentType(MediaType.APPLICATION_JSON))
-			// verify
-			.andExpect(status().isBadRequest());
-	}
-	
-	/**
-	 * Test GET "/post_offices/prefectures/{prefecturesCode}"
-	 *
-	 * @throws NotFoundException exceptions
-	 */
-	@Test
-	public void searchByPrefectureCodeThrowNFE() throws Exception {
-		// setup
-		City city = CityFixtures.createCity();
-		doThrow(NotFoundException.class).when(cityService).searchAddressByPrefectureCode(anyString());
-		
-		// exercise
-		mvc.perform(get("/post_offices/prefectures/{prefectures_code}",
-				city.getPrefecture().getPrefectureCode()).contentType(MediaType.APPLICATION_JSON))
-			// verify
-			.andExpect(status().isNotFound());
-	}
+
 	
 	/**
 	 * Test GET "/citys/"
