@@ -26,7 +26,7 @@ public class AreaTest {
 	
 	private ObjectMapper mapper;
 	
-	final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+	private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 	
 	
 	@Before
@@ -83,7 +83,7 @@ public class AreaTest {
 	}
 	
 	@Test
-	public void testValueToTree() throws Exception {
+	public void testValueToTree() {
 		// setup
 		Area tblArea = AreaFixtures.createArea();
 		// exercise: Value to Tree

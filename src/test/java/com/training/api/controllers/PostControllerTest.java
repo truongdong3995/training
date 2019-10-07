@@ -1,22 +1,18 @@
 package com.training.api.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.training.api.entitys.Area;
 import com.training.api.entitys.City;
 import com.training.api.entitys.Post;
 
 import static org.hamcrest.CoreMatchers.is;
 
-import com.training.api.entitys.fixtures.AreaFixtures;
 import com.training.api.entitys.fixtures.CityFixtures;
 import com.training.api.entitys.fixtures.PostFixtures;
 import com.training.api.models.RegisterPostRequest;
-import com.training.api.models.SearchPostCodeResponse;
 import com.training.api.models.UpdateCityRequest;
 import com.training.api.models.fixtures.RegisterPostRequestFixtures;
 import com.training.api.models.fixtures.UpdateCityRequestFixtures;
 import com.training.api.services.PostService;
-import com.training.api.utils.ApiMessage;
 import com.training.api.utils.exceptions.AlreadyExistsException;
 import javassist.NotFoundException;
 import org.junit.Test;
@@ -29,8 +25,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -40,7 +34,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -58,13 +51,10 @@ public class PostControllerTest {
 	
 	@MockBean
 	private PostService postService;
-
-	@MockBean
-	private ApiMessage apiMessage;
-
+	
 	
 	/**
-	 * Test GET "/postss/{postCode}"
+	 * Test GET "/posts/{postCode}"
 	 *
 	 */
 	@Test
@@ -134,7 +124,7 @@ public class PostControllerTest {
 		String content = mapper.writeValueAsString(request);
 		
 		// exercise
-		mvc.perform(put("/posts/")
+		mvc.perform(post("/posts/")
 			.content(content)
 			.contentType(MediaType.APPLICATION_JSON))
 			.andDo(print())
@@ -163,7 +153,7 @@ public class PostControllerTest {
 		doThrow(AlreadyExistsException.class).when(postService).create(any(Post.class));
 		
 		// exercise
-		mvc.perform(MockMvcRequestBuilders.put("/posts/")
+		mvc.perform(MockMvcRequestBuilders.post("/posts/")
 			.content(content)
 			.contentType(MediaType.APPLICATION_JSON))
 			// verify
@@ -184,7 +174,7 @@ public class PostControllerTest {
 		doThrow(NullPointerException.class).when(postService).create(any(Post.class));
 		
 		// exercise
-		mvc.perform(MockMvcRequestBuilders.put("/posts/")
+		mvc.perform(MockMvcRequestBuilders.post("/posts/")
 			.content(content)
 			.contentType(MediaType.APPLICATION_JSON))
 			// verify

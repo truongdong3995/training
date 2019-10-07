@@ -13,33 +13,38 @@ import java.util.function.Supplier;
  * Request to Register {@link Post}.
  *
  */
-public class  RegisterPostRequest implements Supplier<Post> {
+@Getter
+@Setter
+public class RegisterPostRequest implements Supplier<Post> {
 	
+	/**
+	 * Post code
+	 */
 	@JsonProperty("post_code")
 	@NotNull
-	@Getter
-	@Setter
-	@NotNull(message = "{postCode.notnull}")
 	@Length(max = 7)
 	private String postCode;
 	
+	/**
+	 * Update show
+	 */
 	@NotNull
-	@Getter
-	@Setter
 	@NotNull
 	@JsonProperty("update_show")
 	private int updateShow;
 	
+	/**
+	 * Change reason
+	 */
 	@JsonProperty("change_reason")
 	@NotNull
-	@Getter
-	@Setter
 	private int changeReason;
 	
+	/**
+	 * Multi area
+	 */
 	@JsonProperty("multi_area")
 	@NotNull
-	@Getter
-	@Setter
 	private int multiArea;
 	
 	

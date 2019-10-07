@@ -2,6 +2,7 @@ package com.training.api.controllers;
 
 import java.util.List;
 
+import com.training.api.configs.JsonPatches;
 import com.training.api.entitys.City;
 import com.training.api.models.HttpExceptionResponse;
 import com.training.api.models.RegisterCityRequest;
@@ -16,8 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Validated
 @RestController
-@Transactional
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping(value = "/cities")
@@ -36,6 +34,8 @@ public class CityController {
 	private final CityService cityService;
 	
 	private final ApiMessage apiMessage;
+	
+	private final JsonPatches jsonPatches;
 	
 	
 	/**
@@ -99,7 +99,7 @@ public class CityController {
 	 * @param request The request to update {@link UpdateCityRequest}
 	 *
 	 * @param code City code
-	 * @return
+	 * @return updated {@link City}
 	 */
 	@RequestMapping(value = "/{code}", method = RequestMethod.POST)
 	public ResponseEntity updateCity(@Validated @RequestBody UpdateCityRequest request,
@@ -107,7 +107,7 @@ public class CityController {
 		try {
 			City updateCity = cityService.findCityByCode(code)
 				.map(request)
-				.map(city -> cityService.update(city))
+				.map(cityService::update)
 				.orElseThrow(
 						() -> new NotFoundException(
 								apiMessage.getMessageError("controller.city.update.city_not_found", code)));
@@ -132,7 +132,7 @@ public class CityController {
 	public ResponseEntity deleteCity(@PathVariable("code") String code) {
 		try {
 			City deleteCity = cityService.findCityByCode(code)
-				.map(city -> cityService.deleteCity(city))
+				.map(cityService::deleteCity)
 				.orElseThrow(
 						() -> new NotFoundException(
 								apiMessage.getMessageError("controller.city.delete.city_not_found", code)));

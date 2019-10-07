@@ -8,86 +8,108 @@ import com.training.api.entitys.Prefecture;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Search by post code response
+ * 
+ */
+@Getter
+@Setter
 public class SearchPostCodeResponse {
 	
+	/**
+	 * Code
+	 */
 	@JsonProperty("code")
-	@Getter
-	@Setter
 	private String code;
 	
+	/**
+	 * City
+	 */
 	@JsonProperty("city")
-	@Getter
-	@Setter
 	private String city;
 	
+	/**
+	 * City kana
+	 */
 	@JsonProperty("city_kana")
-	@Getter
-	@Setter
 	private String cityKana;
 	
+	/**
+	 * Prefecture
+	 */
 	@JsonProperty("prefecture")
-	@Getter
-	@Setter
 	private String prefecture;
 	
+	/**
+	 * Prefecture kana
+	 */
 	@JsonProperty("prefecture_kana")
-	@Getter
-	@Setter
 	private String prefectureKana;
 	
+	/**
+	 * Prefecture code
+	 */
 	@JsonProperty("prefecture_code")
-	@Getter
-	@Setter
 	private String prefectureCode;
 	
+	/**
+	 * Area
+	 */
 	@JsonProperty("area")
-	@Getter
-	@Setter
 	private String area;
 	
+	/**
+	 * Area kana
+	 */
 	@JsonProperty("area_kana")
-	@Getter
-	@Setter
 	private String areaKana;
 	
+	/**
+	 * Multi post area
+	 */
 	@JsonProperty("multi_post_area")
-	@Getter
-	@Setter
 	private int multiPostArea;
 	
+	/**
+	 * Koaza area
+	 */
 	@JsonProperty("koaza_area")
-	@Getter
-	@Setter
 	private int koazaArea;
 	
+	/**
+	 * Chome area
+	 */
 	@JsonProperty("chome_area")
-	@Getter
-	@Setter
 	private int chomeArea;
 	
+	/**
+	 * Old post code
+	 */
 	@JsonProperty("old_post_code")
-	@Getter
-	@Setter
 	private String oldPostCode;
 	
+	/**
+	 * Post code
+	 */
 	@JsonProperty("post_code")
-	@Getter
-	@Setter
 	private String postCode;
 	
+	/**
+	 * Multi area
+	 */
 	@JsonProperty("multi_area")
-	@Getter
-	@Setter
 	private int multiArea;
 	
+	/**
+	 * Update show
+	 */
 	@JsonProperty("update_show")
-	@Getter
-	@Setter
 	private int updateShow;
 	
+	/**
+	 * Change reason
+	 */
 	@JsonProperty("change_reason")
-	@Getter
-	@Setter
 	private int changeReason;
 	
 	

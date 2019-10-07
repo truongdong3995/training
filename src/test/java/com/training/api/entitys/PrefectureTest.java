@@ -26,7 +26,7 @@ public class PrefectureTest {
 	
 	private ObjectMapper mapper;
 	
-	final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+	private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 	
 	
 	@Before
@@ -70,7 +70,7 @@ public class PrefectureTest {
 	}
 	
 	@Test
-	public void testValueToTree() throws Exception {
+	public void testValueToTree() {
 		// setup
 		Prefecture tblPrefecture = PrefectureFixtures.createPrefecture();
 		// exercise: Value to Tree

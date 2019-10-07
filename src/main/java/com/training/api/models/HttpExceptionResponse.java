@@ -5,23 +5,31 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Response error
+ * Response http exception
  */
 public class HttpExceptionResponse {
-	
+
+	/**
+	 * Error
+	 */
 	@JsonProperty("error")
 	@Getter
 	@Setter
 	private String error;
 	
-	@JsonProperty("error_descreption")
+	@JsonProperty("error_description")
 	@Getter
 	@Setter
-	private String errorDescreption;
-	
-	
-	public HttpExceptionResponse(String error, String errorDescreption) {
+	private String errorDescription;
+
+	/**
+	 * Create instance
+	 *
+	 * @param error error
+	 * @param errorDescription error description
+	 */
+	public HttpExceptionResponse(String error, String errorDescription) {
 		this.error = error;
-		this.errorDescreption = errorDescreption;
+		this.errorDescription = errorDescription;
 	}
 }

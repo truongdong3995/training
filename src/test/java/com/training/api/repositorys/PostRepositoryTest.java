@@ -21,10 +21,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 public class PostRepositoryTest {
-
+	
 	@Autowired
 	TestEntityManager entityManager;
-
+	
 	@Autowired
 	PostRepository sut;
 	

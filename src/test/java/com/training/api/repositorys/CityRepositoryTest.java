@@ -105,9 +105,9 @@ public class CityRepositoryTest {
 	@Test
 	public void testDelete() {
 		// setup
-		City city = CityFixtures.createCity();
+		String cityCode = "01103";
 		// exercise
-		Optional<City> actual = sut.findByCode(city.getCode());
+		Optional<City> actual = sut.findByCode(cityCode);
 		sut.delete(actual.get());
 		//verify
 		assertThat(sut.findByCode(actual.get().getCode())).isEmpty();

@@ -19,8 +19,8 @@ public class CommonTest {
 	
 	@Test
 	public void checkValidNumberTest() {
-		String dataActucal = "aa_bb";
-		Assert.assertEquals(false, Common.checkValidNumber(dataActucal));
+		String dataActual = "aa_bb";
+		Assert.assertEquals(false, Common.checkValidNumber(dataActual));
 		
 	}
 }

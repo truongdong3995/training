@@ -24,7 +24,6 @@ import java.util.Optional;
  *
  */
 @Service
-@Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
 @Slf4j
 @RequiredArgsConstructor
 public class CityService {
@@ -71,7 +70,7 @@ public class CityService {
 	 * @throws AlreadyExistsException if create failed
 	 * @throws NullPointerException if argument is null
 	 */
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public City create(City createCity) {
 		Common.checkNotNull(createCity, "City must not be null");
 		City createdCity;
@@ -94,7 +93,6 @@ public class CityService {
 	 * @throws NullPointerException if cityId is null
 	 * @throws AlreadyExistsException if update failed
 	 */
-	@Transactional
 	public City update(City updateCity) {
 		Common.checkNotNull(updateCity, "City must not be null");
 		
@@ -115,12 +113,10 @@ public class CityService {
 	 *
 	 * @param deleteCity {@link City} delete
 	 * @return deleted {@link City}
-	 * @throws NullPointerException if cityId is null
-	 * @throws NotFoundException if city is not found
 	 */
 	@Transactional
 	public City deleteCity(City deleteCity) {
-		List<Area> tblAreaList = areaRepository.findByCity_CityId(Integer.valueOf(deleteCity.getCityId()));
+		List<Area> tblAreaList = areaRepository.findByCity_CityId(deleteCity.getCityId());
 		if (tblAreaList.size() > 0) {
 			areaRepository.deleteAll(tblAreaList);
 		}

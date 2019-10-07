@@ -8,6 +8,7 @@ import com.training.api.utils.ApiMessage;
 import com.training.api.utils.Common;
 import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional(readOnly = true)
+@Slf4j
 @RequiredArgsConstructor
 public class PostOfficeService {
 	
@@ -38,14 +39,16 @@ public class PostOfficeService {
 	public List<SearchPrefectureCodeResponse> searchAddressByPrefectureCode(String prefectureCode)
 			throws NotFoundException {
 		if (Common.checkValidNumber(prefectureCode) == false) {
-			throw new IllegalArgumentException(apiMessage.getMessageError("service.city.search.prefecture_code_invalid", prefectureCode));
+			throw new IllegalArgumentException(
+					apiMessage.getMessageError("service.city.search.prefecture_code_invalid", prefectureCode));
 		}
 		
 		List<SearchPrefectureCodeResponse> searchPrefectureCodeResponseList =
 				cityRepository.findByPrefecture_PrefectureCode(prefectureCode)
 					.stream().map(SearchPrefectureCodeResponse::new).collect(Collectors.toList());
 		if (searchPrefectureCodeResponseList.size() == 0) {
-			throw new NotFoundException(apiMessage.getMessageError("service.city.search.prefecture_code_not_found", prefectureCode));
+			throw new NotFoundException(
+					apiMessage.getMessageError("service.city.search.prefecture_code_not_found", prefectureCode));
 		}
 		
 		return searchPrefectureCodeResponseList;
@@ -60,7 +63,8 @@ public class PostOfficeService {
 	 */
 	public List<SearchPostCodeResponse> searchAddressByPostCode(String postCode) throws NotFoundException {
 		if (Common.checkValidNumber(postCode) == false) {
-			throw new IllegalArgumentException(apiMessage.getMessageError("service.city.search.post_code_invalid", postCode));
+			throw new IllegalArgumentException(
+					apiMessage.getMessageError("service.city.search.post_code_invalid", postCode));
 		}
 		
 		List<SearchPostCodeResponse> searchPostCodeResponseList =
@@ -68,7 +72,8 @@ public class PostOfficeService {
 					.map(SearchPostCodeResponse::new).collect(Collectors.toList());
 		
 		if (searchPostCodeResponseList.size() == 0) {
-			throw new NotFoundException(apiMessage.getMessageError("service.city.search.post_code_not_found", postCode));
+			throw new NotFoundException(
+					apiMessage.getMessageError("service.city.search.post_code_not_found", postCode));
 		}
 		return searchPostCodeResponseList;
 	}

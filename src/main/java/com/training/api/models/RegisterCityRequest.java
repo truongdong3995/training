@@ -14,31 +14,37 @@ import java.util.function.Supplier;
  * Request to Register {@link City}.
  *
  */
+@Getter
+@Setter
 public class RegisterCityRequest implements Supplier<City> {
 	
-	@Getter
-	@Setter
+	/**
+	 * City code.
+	 */
 	@Length(max = 5)
 	@NotNull
 	@JsonProperty("code")
 	private String code;
-	
-	@Getter
-	@Setter
+
+	/**
+	 * City kana.
+	 */
 	@Length(max = 100)
 	@NotNull
 	@JsonProperty("city_kana")
 	private String cityKana;
-	
-	@Getter
-	@Setter
+
+	/**
+	 * City name
+	 */
 	@Length(max = 100)
 	@NotNull
 	@JsonProperty("city")
 	private String city;
-	
-	@Getter
-	@Setter
+
+	/**
+	 * Prefecture
+	 */
 	@NotNull
 	@JsonProperty("prefecture")
 	private Prefecture prefecture;

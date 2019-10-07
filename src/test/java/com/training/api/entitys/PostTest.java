@@ -26,7 +26,7 @@ public class PostTest {
 	
 	private ObjectMapper mapper;
 	
-	final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+	private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 	
 	
 	@Before
@@ -71,7 +71,7 @@ public class PostTest {
 	}
 	
 	@Test
-	public void testValueToTree() throws Exception {
+	public void testValueToTree() {
 		// setup
 		Post tblPost = PostFixtures.createPost();
 		// exercise: Value to Tree

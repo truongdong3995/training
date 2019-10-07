@@ -6,36 +6,48 @@ import com.training.api.entitys.Prefecture;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Search by prefecture code Response
+ * 
+ */
+@Getter
+@Setter
 public class SearchPrefectureCodeResponse {
 	
+	/**
+	 * Code
+	 */
 	@JsonProperty("code")
-	@Getter
-	@Setter
 	private String code;
 	
+	/**
+	 * City
+	 */
 	@JsonProperty("city")
-	@Getter
-	@Setter
 	private String city;
 	
+	/**
+	 * City kana
+	 */
 	@JsonProperty("city_kana")
-	@Getter
-	@Setter
 	private String cityKana;
 	
+	/**
+	 * Prefecture
+	 */
 	@JsonProperty("prefecture")
-	@Getter
-	@Setter
 	private String prefecture;
 	
+	/**
+	 * Prefecture_kana kana
+	 */
 	@JsonProperty("prefecture_kana")
-	@Getter
-	@Setter
 	private String prefectureKana;
 	
+	/**
+	 * Prefecture code
+	 */
 	@JsonProperty("prefecture_code")
-	@Getter
-	@Setter
 	private String prefectureCode;
 	
 	

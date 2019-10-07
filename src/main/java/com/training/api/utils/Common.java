@@ -10,7 +10,6 @@ public class Common {
 	 *
 	 * @param input string requires processing
 	 * @return True input is number halfsize
-	 * @return False input is not number halfsize
 	 */
 	public static boolean checkValidNumber(String input) {
 		return replaceData(input).matches("^[0-9]+$");
@@ -34,10 +33,9 @@ public class Common {
 	/**
 	 * Ensures that an object reference passed as a parameter to the calling method is not null.
 	 *
-	 * @param reference
-	 * @param errorMessage error message
-	 * @param <T>
-	 * @return
+	 * @param reference Reference
+	 * @param errorMessage Error message
+	 * @return reference
 	 */
 	public static <T> T checkNotNull(T reference, Object errorMessage) {
 		if (reference == null) {

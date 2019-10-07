@@ -2,9 +2,10 @@ package com.training.api.controllers;
 
 import java.util.List;
 
+import com.training.api.configs.JsonPatches;
+import com.training.api.configs.UpdateRequest;
 import com.training.api.entitys.Post;
 import com.training.api.models.HttpExceptionResponse;
-import com.training.api.models.SearchPostCodeResponse;
 import com.training.api.models.RegisterPostRequest;
 import com.training.api.models.UpdatePostRequest;
 import com.training.api.services.PostService;
@@ -37,6 +38,8 @@ public class PostController {
 	
 	private final ApiMessage apiMessage;
 	
+	private final JsonPatches jsonPatches;
+	
 	
 	/**
 	 * Get all {@link Post}
@@ -46,14 +49,15 @@ public class PostController {
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public ResponseEntity getAll() {
 		List<Post> tblPostList = postService.findAllPost();
-		
-		return new ResponseEntity(new RestData(tblPostList), HttpStatus.OK);
+		RestData response = new RestData(tblPostList);
+		return new ResponseEntity(response, HttpStatus.OK);
 	}
 	
 	/**
 	 * Get city {@link Post}.
 	 *
 	 * @param postCode Post code
+	 *
 	 * @return {@link Post} found
 	 */
 	@RequestMapping(value = "/{postCode}", method = RequestMethod.GET)
@@ -61,7 +65,7 @@ public class PostController {
 		try {
 			Post tblPost = postService.findPostByPostCode(postCode).orElseThrow(
 					() -> new NotFoundException(
-							apiMessage.getMessageError("controller.post.get.city_not_found", postCode)));
+							apiMessage.getMessageError("controller.post.get.post_not_found", postCode)));
 			
 			return new ResponseEntity<>(tblPost, HttpStatus.OK);
 		} catch (IllegalArgumentException e) {
@@ -93,12 +97,43 @@ public class PostController {
 	}
 	
 	/**
+	 *Update existing {@link Post}.
+	 *
+	 * @param request The Post request to update
+	 * @param postCode City code
+	 * @return
+	 */
+	@RequestMapping(value = "/{postCode}", method = RequestMethod.PATCH, consumes = {
+		"application/json",
+		"application/json-patch+json"
+	})
+	public ResponseEntity updatePost(@Validated @RequestBody String request,
+			@PathVariable("postCode") String postCode) {
+		try {
+			Post updatePost = postService.findPostByPostCode(postCode).orElseThrow(
+					() -> new NotFoundException(
+							apiMessage.getMessageError("controller.post.update.post_not_found", postCode)));
+			Post patches = (Post) jsonPatches.patch(request, updatePost).get();
+			patches.setPostId(updatePost.getPostId());
+			Post updatedPost = postService.update(patches);
+			
+			return new ResponseEntity<>(updatedPost, HttpStatus.OK);
+		} catch (NotFoundException e) {
+			return new ResponseEntity<>(new HttpExceptionResponse("404", e.getMessage()), HttpStatus.NOT_FOUND);
+		} catch (IllegalArgumentException | InvalidModelException e) {
+			return new ResponseEntity<>(new HttpExceptionResponse("400", e.getMessage()), HttpStatus.BAD_REQUEST);
+		} catch (AlreadyExistsException e) {
+			return new ResponseEntity<>(new HttpExceptionResponse("409", e.getMessage()), HttpStatus.CONFLICT);
+		}
+	}
+	
+	/**
 	 * Update a existing {@link Post}
 	 *
 	 * @param request The request to update {@link UpdatePostRequest}
 	 *
 	 * @param postCode Post code
-	 * @return
+	 * @return updated {@link Post}
 	 */
 	@RequestMapping(value = "/{postCode}", method = RequestMethod.POST)
 	public ResponseEntity updatePost(@Validated @RequestBody UpdatePostRequest request,
@@ -106,9 +141,9 @@ public class PostController {
 		try {
 			Post updateTblPost = postService.findPostByPostCode(postCode)
 				.map(request)
-				.map(post -> postService.update(post)).orElseThrow(
+				.map(postService::update).orElseThrow(
 						() -> new NotFoundException(
-								apiMessage.getMessageError("controller.post.update.city_not_found", postCode)));
+								apiMessage.getMessageError("controller.post.update.post_not_found", postCode)));
 			
 			return new ResponseEntity<>(updateTblPost, HttpStatus.OK);
 		} catch (IllegalArgumentException | InvalidModelException e) {
@@ -130,9 +165,9 @@ public class PostController {
 	public ResponseEntity deletePost(@PathVariable("postCode") String postCode) {
 		try {
 			Post deletePost = postService.findPostByPostCode(postCode)
-				.map(post -> postService.deletePost(post)).orElseThrow(
+				.map(postService::deletePost).orElseThrow(
 						() -> new NotFoundException(
-								apiMessage.getMessageError("controller.post.delete.city_not_found", postCode)));
+								apiMessage.getMessageError("controller.post.delete.post_not_found", postCode)));
 			
 			return new ResponseEntity<>(deletePost, HttpStatus.OK);
 		} catch (IllegalArgumentException e) {

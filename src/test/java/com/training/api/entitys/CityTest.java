@@ -26,7 +26,7 @@ public class CityTest {
 	
 	private ObjectMapper mapper;
 	
-	final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+	private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 	
 	
 	@Before
@@ -73,7 +73,7 @@ public class CityTest {
 	}
 	
 	@Test
-	public void testValueToTree() throws Exception {
+	public void testValueToTree() {
 		// setup
 		City tblCity = CityFixtures.createCity();
 		// exercise: Value to Tree

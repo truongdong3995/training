@@ -2,8 +2,11 @@ package com.training.api.entitys;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -23,7 +26,10 @@ import javax.validation.constraints.NotNull;
  * Area model.
  *
  */
+@ToString
+@EqualsAndHashCode
 @Entity
+@NoArgsConstructor
 @Table(name = "tbl_area")
 public class Area implements Serializable {
 	
@@ -88,13 +94,6 @@ public class Area implements Serializable {
 	@Getter
 	@Setter
 	private OldPost oldPost;
-	
-	
-	/**
-	 * Create instance.
-	 */
-	public Area() {
-	}
 	
 	/**
 	 * Create instance.

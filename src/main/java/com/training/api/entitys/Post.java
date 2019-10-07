@@ -3,8 +3,11 @@ package com.training.api.entitys;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.Column;
@@ -19,7 +22,10 @@ import javax.validation.constraints.NotNull;
  * Post model
  *
  */
+@ToString
+@EqualsAndHashCode
 @Entity
+@NoArgsConstructor
 @Table(name = "tbl_post")
 public class Post {
 	
@@ -59,14 +65,7 @@ public class Post {
 	@Getter
 	@Setter
 	private int multiArea;
-	
-	
-	/**
-	 * Create instance
-	 *
-	 */
-	public Post() {
-	}
+
 	
 	/**
 	 * Create instance

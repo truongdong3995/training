@@ -1,8 +1,11 @@
 package com.training.api.entitys;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.Column;
@@ -18,7 +21,10 @@ import javax.validation.constraints.NotNull;
  * Prefecture model
  *
  */
+@ToString
+@EqualsAndHashCode
 @Entity
+@NoArgsConstructor
 @Table(name = "tbl_prefecture", uniqueConstraints = @UniqueConstraint(columnNames = {
 	"prefecture_kana",
 	"prefecture"
@@ -56,14 +62,7 @@ public class Prefecture {
 	@Getter
 	@Setter
 	private String prefectureCode;
-	
-	
-	/**
-	 * Create instance
-	 *
-	 */
-	public Prefecture() {
-	}
+
 	
 	/**
 	 * Create instance

@@ -14,8 +14,7 @@ public class RegisterCityRequestFixtures {
 		request.setCode(code);
 		request.setCityKana("ｱﾏｸﾞﾝｶﾆｴﾁｮｳnew");
 		request.setCity("海部郡蟹江町new");
-		request.setPrefecture(new Prefecture(2288, "ｵｷﾅﾜｹﾝ", "沖縄県", "47"));
-		
+		request.setPrefecture(new Prefecture(2288, "ﾎｯｶｲﾄﾞｳ", "北海道", "01"));
 		return request;
 	}
 }

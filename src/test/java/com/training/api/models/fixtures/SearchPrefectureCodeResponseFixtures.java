@@ -6,8 +6,6 @@ import com.training.api.models.SearchPrefectureCodeResponse;
 public class SearchPrefectureCodeResponseFixtures {
 	
 	public static SearchPrefectureCodeResponse createResponse(City tblCity) {
-		SearchPrefectureCodeResponse response = new SearchPrefectureCodeResponse(tblCity);
-		
-		return response;
+		return new SearchPrefectureCodeResponse(tblCity);
 	}
 }

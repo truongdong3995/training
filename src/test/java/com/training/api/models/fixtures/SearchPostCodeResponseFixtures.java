@@ -10,8 +10,6 @@ import com.training.api.models.SearchPostCodeResponse;
 public class SearchPostCodeResponseFixtures {
 	
 	public static SearchPostCodeResponse createResponse(Area tblArea) {
-		SearchPostCodeResponse response = new SearchPostCodeResponse(tblArea);
-		
-		return response;
+		return new SearchPostCodeResponse(tblArea);
 	}
 }

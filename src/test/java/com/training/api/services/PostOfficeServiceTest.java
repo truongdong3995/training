@@ -12,6 +12,7 @@ import com.training.api.repositorys.AreaRepository;
 import com.training.api.repositorys.CityRepository;
 import com.training.api.utils.ApiMessage;
 import javassist.NotFoundException;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -43,7 +44,11 @@ public class PostOfficeServiceTest {
 	
 	@Mock
 	CityRepository cityRepository;
-	
+
+	@Before
+	public void setUp() {
+		sut = new PostOfficeService(areaRepository, apiMessage, cityRepository);
+	}
 	
 	/**
 	 * Test search address by prefecture code.
@@ -53,8 +58,6 @@ public class PostOfficeServiceTest {
 	public void searchAddressByPrefectureCode() throws NotFoundException {
 		// setup
 		City city = CityFixtures.createCity();
-		SearchPrefectureCodeResponse searchPrefectureCodeResponse =
-				SearchPrefectureCodeResponseFixtures.createResponse(city);
 		List<City> cityList = new ArrayList<>();
 		cityList.add(city);
 		Mockito.when(cityRepository.findByPrefecture_PrefectureCode(anyString())).thenReturn(cityList);
@@ -73,8 +76,10 @@ public class PostOfficeServiceTest {
 	 */
 	@Test
 	public void searchCityByPrefectureCodeThrowIAE() {
+		// setup
+		String prefectureCode = "TEST";
 		// exercise
-		assertThatThrownBy(() -> sut.searchAddressByPrefectureCode(null))
+		assertThatThrownBy(() -> sut.searchAddressByPrefectureCode(prefectureCode))
 			.isInstanceOf(IllegalArgumentException.class);
 	}
 	
@@ -84,9 +89,11 @@ public class PostOfficeServiceTest {
 	 */
 	@Test
 	public void searchCityByPrefectureCodeThrowNFE() {
+		// setup
+		City city = CityFixtures.createCity();
 		Mockito.when(cityRepository.findByPrefecture_PrefectureCode(anyString())).thenReturn(new ArrayList<>());
 		// exercise
-		assertThatThrownBy(() -> sut.searchAddressByPrefectureCode(anyString()))
+		assertThatThrownBy(() -> sut.searchAddressByPrefectureCode(city.getPrefecture().getPrefectureCode()))
 			.isInstanceOf(NotFoundException.class);
 	}
 	
@@ -98,8 +105,6 @@ public class PostOfficeServiceTest {
 	public void searchAddressByPostCode() throws NotFoundException {
 		// setup
 		Area tblArea = AreaFixtures.createArea();
-		SearchPostCodeResponse searchPostCodeResponse =
-				SearchPostCodeResponseFixtures.createResponse(tblArea);
 		List<Area> tblAreaList = new ArrayList<>();
 		tblAreaList.add(tblArea);
 		Mockito.when(areaRepository.findByPost_PostCode(anyString())).thenReturn(tblAreaList);

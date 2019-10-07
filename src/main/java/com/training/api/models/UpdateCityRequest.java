@@ -15,24 +15,29 @@ import java.util.function.UnaryOperator;
  * Request to Update {@link City}.
  *
  */
+@Getter
+@Setter
 public class UpdateCityRequest implements UnaryOperator<City> {
 	
-	@Getter
-	@Setter
+	/**
+	 * City kana
+	 */
 	@Length(max = 100)
 	@NotNull
 	@JsonProperty("city_kana")
 	private String cityKana;
 	
-	@Getter
-	@Setter
+	/**
+	 * City
+	 */
 	@Length(max = 100)
 	@NotNull
 	@JsonProperty("city")
 	private String city;
 	
-	@Getter
-	@Setter
+	/**
+	 * Prefecture
+	 */
 	@NotNull
 	@JsonProperty("prefecture")
 	private Prefecture prefecture;

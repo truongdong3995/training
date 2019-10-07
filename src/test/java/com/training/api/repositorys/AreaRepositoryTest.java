@@ -20,9 +20,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 public class AreaRepositoryTest {
+	
 	@Autowired
 	TestEntityManager entityManager;
-
+	
 	@Autowired
 	AreaRepository sut;
 	
@@ -40,7 +41,7 @@ public class AreaRepositoryTest {
 		// verify
 		assertThat(actual.size()).isEqualTo(1);
 		Area areaActual = actual.get(0);
-
+		
 		assertThat(areaActual.getCity().getCityId()).isEqualTo(cityId);
 	}
 	

@@ -1,6 +1,7 @@
 package com.training.api.services;
 
 import com.training.api.entitys.Area;
+import com.training.api.entitys.City;
 import com.training.api.entitys.Post;
 import com.training.api.entitys.fixtures.AreaFixtures;
 import com.training.api.entitys.fixtures.PostFixtures;
@@ -114,6 +115,7 @@ public class PostServiceTest {
 	public void create() {
 		// setup
 		Post tblPost = PostFixtures.createPost();
+		doNothing().when(modelValidator).validate(any(Post.class));
 		when(postRepository.save(any(Post.class))).thenReturn(tblPost);
 		
 		// exercise
@@ -140,6 +142,7 @@ public class PostServiceTest {
 	public void createThrowsCE() {
 		// setup
 		Post tblPost = PostFixtures.createPost();
+		doNothing().when(modelValidator).validate(any(Post.class));
 		doThrow(DataIntegrityViolationException.class).when(postRepository).save(any(Post.class));
 		// exercise
 		assertThatThrownBy(() -> sut.create(tblPost)).isInstanceOf(AlreadyExistsException.class);
@@ -166,7 +169,8 @@ public class PostServiceTest {
 	public void update() {
 		// setup
 		Post tblPost = PostFixtures.createPost();
-		Mockito.when(postRepository.save(any(Post.class))).thenReturn(tblPost);
+		doNothing().when(modelValidator).validate(any(Post.class));
+		when(postRepository.save(any(Post.class))).thenReturn(tblPost);
 		// exercise
 		Post actual = sut.update(tblPost);
 		// verify
@@ -181,6 +185,7 @@ public class PostServiceTest {
 	public void updateThrowsCE() {
 		// setup
 		Post tblPost = PostFixtures.createPost();
+		doNothing().when(modelValidator).validate(any(Post.class));
 		doThrow(DataIntegrityViolationException.class).when(postRepository).save(any(Post.class));
 		// exercise
 		assertThatThrownBy(() -> sut.update(tblPost))
@@ -209,7 +214,7 @@ public class PostServiceTest {
 	public void deletePost() {
 		// setup
 		Post tblPost = PostFixtures.createPost();
-		Mockito.when(areaRepository.findByCity_CityId(anyInt())).thenReturn(new ArrayList<>());
+		when(areaRepository.findByCity_CityId(anyInt())).thenReturn(new ArrayList<>());
 		// exercise
 		Post actual = sut.deletePost(tblPost);
 		// verify

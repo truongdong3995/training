@@ -1,19 +1,13 @@
 package com.training.api.utils;
 
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@AllArgsConstructor
 public class RestData<T> {
 	
+	@Getter
+	@JsonUnwrapped
 	private T data;
-	
-	
-	public RestData(T data) {
-		this.data = data;
-	}
-	
-	public T getData() {
-		return data;
-	}
-	
-	public void setData(T data) {
-		this.data = data;
-	}
 }

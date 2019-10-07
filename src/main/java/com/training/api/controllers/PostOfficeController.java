@@ -3,17 +3,13 @@ package com.training.api.controllers;
 import com.training.api.models.HttpExceptionResponse;
 import com.training.api.models.SearchPostCodeResponse;
 import com.training.api.models.SearchPrefectureCodeResponse;
-import com.training.api.services.CityService;
 import com.training.api.services.PostOfficeService;
-import com.training.api.services.PostService;
-import com.training.api.utils.ApiMessage;
 import com.training.api.utils.RestData;
 import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +20,6 @@ import java.util.List;
 
 @Validated
 @RestController
-@Transactional
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping(value = "/post_offices")
@@ -61,7 +56,7 @@ public class PostOfficeController {
 	 *
 	 * @return List of {@link SearchPostCodeResponse} found
 	 */
-	@RequestMapping(value = "/post/{postCode}", method = RequestMethod.GET)
+	@RequestMapping(value = "/posts/{postCode}", method = RequestMethod.GET)
 	public ResponseEntity searchAddressByPostCode(@PathVariable("postCode") String postCode) {
 		try {
 			List<SearchPostCodeResponse> postCodeResponseList = postOfficeService.searchAddressByPostCode(postCode);

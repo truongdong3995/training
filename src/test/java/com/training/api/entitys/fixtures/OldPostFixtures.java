@@ -9,8 +9,6 @@ import com.training.api.entitys.OldPost;
 public class OldPostFixtures {
 	
 	public static OldPost createOldPost() {
-		OldPost tblOldPost = new OldPost("001");
-		
-		return tblOldPost;
+		return new OldPost("001");
 	}
 }

@@ -1,6 +1,5 @@
 package com.training.api.models;
 
-import org.hibernate.internal.util.StringHelper;
 import org.junit.Test;
 
 import javax.validation.ConstraintViolation;
@@ -17,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class UpdateCityRequestConstraintTest {
 	
-	final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+	private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 	
 	
 	@Test

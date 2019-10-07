@@ -14,6 +14,10 @@ import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Abstract implementation for integration test.
+ *
+ */
 public class AbstractIntegrationTest {
 	
 	@Autowired
@@ -23,8 +27,20 @@ public class AbstractIntegrationTest {
 	
 	private static final Random RAND = new Random();
 	
-	private static final RandomStringGenerator RANDOM_STRING_GENERATOR = new RandomStringGenerator();
 	
+	/**
+	 * Generate random numeric code with max given length.
+	 *
+	 * @param maxLen max length
+	 * @return code
+	 */
+	protected static String randomCode(int maxLen) {
+		String randomCode = randomCode();
+		if (randomCode.length() > maxLen) {
+			randomCode = randomCode.substring(randomCode.length() - maxLen);
+		}
+		return randomCode;
+	}
 	
 	/**
 	 * Create credentials header for API requests.
@@ -48,7 +64,7 @@ public class AbstractIntegrationTest {
 		HttpEntity<RegisterCityRequest> entity = new HttpEntity<>(request, headers);
 		// exercise
 		ResponseEntity<String> actual =
-				restTemplate.exchange("/cities", HttpMethod.POST, entity, String.class);
+				restTemplate.exchange("/cities/", HttpMethod.POST, entity, String.class);
 		// verify
 		assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.OK);
 		return request.getCode();
@@ -61,11 +77,11 @@ public class AbstractIntegrationTest {
 	 */
 	protected String createPost(HttpHeaders headers, String postCode) {
 		// setup
-		RegisterPostRequest request = RegisterPostRequestFixtures.createRequest("0010000");
+		RegisterPostRequest request = RegisterPostRequestFixtures.createRequest(postCode);
 		HttpEntity<RegisterPostRequest> entity = new HttpEntity<>(request, headers);
 		// exercise
 		ResponseEntity<String> actual =
-				restTemplate.exchange("/posts", HttpMethod.POST, entity, String.class);
+				restTemplate.exchange("/posts/", HttpMethod.POST, entity, String.class);
 		// verify
 		assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.OK);
 		return request.getPostCode();
@@ -77,6 +93,6 @@ public class AbstractIntegrationTest {
 	 * @return code
 	 */
 	protected static String randomCode() {
-		return String.format(FORMAT, new BigInteger(64, RAND).longValue());
+		return String.format(FORMAT, new BigInteger(64, RAND).intValue());
 	}
 }

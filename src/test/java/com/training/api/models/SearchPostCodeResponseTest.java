@@ -11,9 +11,6 @@ import org.junit.Test;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.json.JsonContent;
 
-import javax.validation.Validation;
-import javax.validation.Validator;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -25,8 +22,6 @@ public class SearchPostCodeResponseTest {
 	JacksonTester<SearchPostCodeResponse> json;
 	
 	private ObjectMapper mapper;
-	
-	final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 	
 	
 	@Before

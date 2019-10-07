@@ -9,8 +9,6 @@ import com.training.api.entitys.Post;
 public class PostFixtures {
 	
 	public static Post createPost() {
-		Post tblPost = new Post("0010000", 0, 0, 0);
-		
-		return tblPost;
+		return new Post("0010000", 0, 0, 0);
 	}
 }

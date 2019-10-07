@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 @RequiredArgsConstructor
 public class PostService {
 	
@@ -65,7 +65,7 @@ public class PostService {
 	 * @throws AlreadyExistsException if create failed
 	 * @throws NullPointerException if argument is null
 	 */
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public Post create(Post createPost) {
 		Common.checkNotNull(createPost, "Post must not be null");
 		Post createdPost;
@@ -88,7 +88,7 @@ public class PostService {
 	 */
 	@Transactional
 	public Post deletePost(Post deletePost) {
-		List<Area> tblAreaList = areaRepository.findByPost_PostId(Integer.valueOf(deletePost.getPostId()));
+		List<Area> tblAreaList = areaRepository.findByPost_PostId(deletePost.getPostId());
 		if (tblAreaList.size() > 0) {
 			areaRepository.deleteAll(tblAreaList);
 		}

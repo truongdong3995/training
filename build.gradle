@@ -32,11 +32,24 @@ dependencies {
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testCompile "com.jayway.jsonpath:json-path-assert:2.4.0"
     testCompile "org.junit.jupiter:junit-jupiter:5.5.1"
     runtime "com.h2database:h2:1.4.196"
     testCompile "net.moznion:random-string:1.1.0"
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('org.junit.jupiter:junit-jupiter-engine:5.2.0')
-    classpath "org.hibernate.build.gradle:version-injection-plugin:1.0.0"
+    compile "org.springframework.boot:spring-boot-starter"
+    testCompile "com.jayway.jsonpath:json-path-assert:2.4.0"
+    compile(group: "com.github.fge", name: "json-patch", version: "1.9")
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.8'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.8'
+    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-cbor', version: '2.9.8'
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr353', version: '2.9.8'
+    compile group: 'io.swagger', name: 'swagger-jersey2-jaxrs', version: '1.5.0'
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+    maven { url "http://dl.bintray.com/dai0304/spar-wings" } // for spar-wings
+
 }

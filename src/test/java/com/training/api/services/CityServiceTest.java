@@ -44,7 +44,7 @@ public class CityServiceTest {
 	@Mock
 	ModelValidator modelValidator;
 	
-	ApiMessage apiMessage;
+	private ApiMessage apiMessage;
 	
 	
 	@Before
@@ -85,7 +85,7 @@ public class CityServiceTest {
 		
 		//verify
 		assertThat(actual).isPresent();
-		assertThat(actual.get()).isEqualTo(city);
+		assertThat(actual.isPresent()).isEqualTo(city);
 		verify(cityRepository, times(1)).findByCode(city.getCode());
 	}
 	
@@ -110,7 +110,7 @@ public class CityServiceTest {
 		// setup
 		City city = CityFixtures.createCity();
 		when(cityRepository.save(any(City.class))).thenReturn(city);
-		
+		doNothing().when(modelValidator).validate(any(City.class));
 		// exercise
 		City actual = sut.create(city);
 		// verify
@@ -135,6 +135,7 @@ public class CityServiceTest {
 	public void createThrowsCE() {
 		// setup
 		City city = CityFixtures.createCity();
+		doNothing().when(modelValidator).validate(any(City.class));
 		doThrow(DataIntegrityViolationException.class).when(cityRepository).save(any(City.class));
 		// exercise
 		assertThatThrownBy(() -> sut.create(city)).isInstanceOf(AlreadyExistsException.class);
@@ -161,7 +162,8 @@ public class CityServiceTest {
 	public void update() {
 		// setup
 		City city = CityFixtures.createCity();
-		Mockito.when(cityRepository.save(any(City.class))).thenReturn(city);
+		doNothing().when(modelValidator).validate(any(City.class));
+		when(cityRepository.save(any(City.class))).thenReturn(city);
 		// exercise
 		City actual = sut.update(city);
 		// verify
@@ -187,6 +189,7 @@ public class CityServiceTest {
 	public void updateThrowsCE() {
 		// setup
 		City city = CityFixtures.createCity();
+		doNothing().when(modelValidator).validate(any(City.class));
 		doThrow(DataIntegrityViolationException.class).when(cityRepository).save(any(City.class));
 		// exercise
 		assertThatThrownBy(() -> sut.update(city)).isInstanceOf(AlreadyExistsException.class);

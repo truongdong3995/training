@@ -1,10 +1,10 @@
 package com.training.api.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.training.api.configs.JsonPatches;
 import com.training.api.entitys.City;
 import com.training.api.entitys.fixtures.CityFixtures;
 import com.training.api.models.RegisterCityRequest;
-import com.training.api.models.SearchPrefectureCodeResponse;
 import com.training.api.models.UpdateCityRequest;
 import com.training.api.models.fixtures.RegisterCityRequestFixtures;
 import com.training.api.models.fixtures.UpdateCityRequestFixtures;
@@ -12,7 +12,6 @@ import com.training.api.services.CityService;
 import com.training.api.utils.ApiMessage;
 import com.training.api.utils.exceptions.AlreadyExistsException;
 import com.training.api.utils.exceptions.InvalidModelException;
-import javassist.NotFoundException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +33,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -52,13 +52,16 @@ public class CityControllerTest {
 	
 	@MockBean
 	private CityService cityService;
-
+	
 	@MockBean
 	private ApiMessage apiMessage;
 
-	
+
+	@MockBean
+	private JsonPatches jsonPatches;
+
 	/**
-	 * Test GET "/citys/"
+	 * Test GET "/cities/"
 	 *
 	 *
 	 */
@@ -68,20 +71,20 @@ public class CityControllerTest {
 		City city = CityFixtures.createCity();
 		List<City> cityList = new ArrayList<>();
 		cityList.add(city);
-
+		
 		when(cityService.findAll()).thenReturn(cityList);
-
+		
 		// exercise
-		mvc.perform(get("/citys").contentType(MediaType.APPLICATION_JSON))
+		mvc.perform(get("/cities/").contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.data[0].code", is(city.getCode())))
 			.andExpect(jsonPath("$.data[0].city_kana", is(city.getCityKana())))
 			.andExpect(jsonPath("$.data[0].city", is(city.getCityName())));
 	}
-
+	
 	/**
-	 * Test GET "/citys/{code}"
+	 * Test GET "/cities/{code}"
 	 *
 	 *
 	 */
@@ -90,18 +93,18 @@ public class CityControllerTest {
 		// setup
 		City city = CityFixtures.createCity();
 		when(cityService.findCityByCode(anyString())).thenReturn(Optional.of(city));
-
+		
 		// exercise
-		mvc.perform(get("/citys/{code}", city.getCityId()).contentType(MediaType.APPLICATION_JSON))
+		mvc.perform(get("/cities/{code}", city.getCityId()).contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code", is(city.getCode())))
 			.andExpect(jsonPath("$.city_kana", is(city.getCityKana())))
 			.andExpect(jsonPath("$.city", is(city.getCityName())));
 	}
-
+	
 	/**
-	 * Test GET "/citys/{code}"
+	 * Test GET "/cities/{code}"
 	 *
 	 * @throws IllegalArgumentException exceptions
 	 */
@@ -110,15 +113,15 @@ public class CityControllerTest {
 		// setup
 		City city = CityFixtures.createCity();
 		doThrow(IllegalArgumentException.class).when(cityService).findCityByCode(anyString());
-
+		
 		// exercise
-		mvc.perform(get("/citys/{code}", city.getCityId()).contentType(MediaType.APPLICATION_JSON))
+		mvc.perform(get("/cities/{code}", city.getCityId()).contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isBadRequest());
 	}
-
+	
 	/**
-	 * Test GET "/citys/{code}"
+	 * Test GET "/cities/{code}"
 	 *
 	 *
 	 */
@@ -127,15 +130,15 @@ public class CityControllerTest {
 		// setup
 		City city = CityFixtures.createCity();
 		when(cityService.findCityByCode(anyString())).thenReturn(Optional.empty());
-
+		
 		// exercise
-		mvc.perform(get("/citys/{code}", city.getCode()).contentType(MediaType.APPLICATION_JSON))
+		mvc.perform(get("/cities/{code}", city.getCode()).contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isNotFound());
 	}
-
+	
 	/**
-	 * Test PUT "/citys/"
+	 * Test PUT "/cities/"
 	 *
 	 *
 	 */
@@ -144,49 +147,49 @@ public class CityControllerTest {
 		// setup
 		String code = "25562";
 		RegisterCityRequest request = RegisterCityRequestFixtures.creatRequest(code);
-
+		
 		City city = request.get();
 		when(cityService.create(any(City.class))).thenReturn(city);
-
+		
 		ObjectMapper mapper = new ObjectMapper();
 		String content = mapper.writeValueAsString(request);
-
+		
 		// exercise
-		mvc.perform(put("/citys/")
+		mvc.perform(post("/cities/")
 			.content(content)
 			.contentType(MediaType.APPLICATION_JSON))
 			.andDo(print())
 			// verify
 			.andExpect(status().isOk());
 	}
-
+	
 	/**
-	 * Test PUT "/citys/"
+	 * Test PUT "/cities/"
 	 *
-	 * @throws AlreadyExistsException
+	 * @throws AlreadyExistsException If City existed
 	 */
 	@Test
-	public void testRegisterCityThrowCE() throws Exception {
+	public void testRegisterCityThrowAEE() throws Exception {
 		// setup
 		String code = "25562";
 		RegisterCityRequest request = RegisterCityRequestFixtures.creatRequest(code);
 		ObjectMapper mapper = new ObjectMapper();
 		String content = mapper.writeValueAsString(request);
-
+		
 		doThrow(AlreadyExistsException.class).when(cityService).create(any(City.class));
-
+		
 		// exercise
-		mvc.perform(MockMvcRequestBuilders.post("/citys/")
+		mvc.perform(MockMvcRequestBuilders.post("/cities/")
 			.content(content)
 			.contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isConflict());
 	}
-
+	
 	/**
-	 * Test POST "/citys/"
+	 * Test POST "/cities/"
 	 *
-	 * @throws InvalidModelException
+	 * @throws InvalidModelException If city error
 	 */
 	@Test
 	public void testRegisterCityThrowIME() throws Exception {
@@ -195,20 +198,19 @@ public class CityControllerTest {
 		RegisterCityRequest request = RegisterCityRequestFixtures.creatRequest(code);
 		ObjectMapper mapper = new ObjectMapper();
 		String content = mapper.writeValueAsString(request);
-
+		
 		doThrow(InvalidModelException.class).when(cityService).create(any(City.class));
-
+		
 		// exercise
-		mvc.perform(MockMvcRequestBuilders.post("/citys")
-				.content(content)
-				.contentType(MediaType.APPLICATION_JSON))
-				// verify
-				.andExpect(status().isBadRequest());
+		mvc.perform(MockMvcRequestBuilders.post("/cities/")
+			.content(content)
+			.contentType(MediaType.APPLICATION_JSON))
+			// verify
+			.andExpect(status().isBadRequest());
 	}
-
+	
 	/**
-	 * Test PUT "/city/{cityId}"
-	 *
+	 * Test PUT "/cities/{cityId}"
 	 *
 	 */
 	@Test
@@ -218,95 +220,112 @@ public class CityControllerTest {
 		City city = CityFixtures.createCity();
 		when(cityService.findCityByCode(anyString())).thenReturn(Optional.of(city));
 		when(cityService.update(any(City.class))).thenReturn(city);
-
+		
 		ObjectMapper mapper = new ObjectMapper();
 		String content = mapper.writeValueAsString(request);
-
+		
 		// exercise
-		mvc.perform(MockMvcRequestBuilders.post("/citys/{code}", city.getCode())
+		mvc.perform(MockMvcRequestBuilders.post("/cities/{code}", city.getCode())
 			.content(content)
 			.contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isOk());
 	}
-
+	
 	/**
-	 * Test PUT "/citys/{code}"
+	 * Test PUT "/cities/{code}"
 	 *
-	 * @throws IllegalArgumentException
+	 * @throws IllegalArgumentException If code must not half size number
 	 */
 	@Test
 	public void testUpdateCityThrowIAE() throws Exception {
 		// setup
 		UpdateCityRequest request = UpdateCityRequestFixtures.creatRequest();
 		City city = CityFixtures.createCity();
-
+		
 		when(cityService.findCityByCode(anyString())).thenReturn(Optional.of(city));
 		doThrow(IllegalArgumentException.class).when(cityService).update(any(City.class));
-
+		
 		ObjectMapper mapper = new ObjectMapper();
 		String content = mapper.writeValueAsString(request);
-
+		
 		// exercise
-		mvc.perform(MockMvcRequestBuilders.post("/citys/{code}", city.getCode())
+		mvc.perform(MockMvcRequestBuilders.post("/cities/{code}", city.getCode())
 			.content(content)
 			.contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isBadRequest());
 	}
-
+	
 	/**
-	 * Test PUT "/citys/{code}"
+	 * Test PUT "/cities/{code}"
 	 *
-	 * @throws AlreadyExistsException
+	 * @throws AlreadyExistsException If city existed
 	 */
 	@Test
-	public void testUpdateCityThrowCE() throws Exception {
+	public void testUpdateCityThrowAEE() throws Exception {
 		// setup
 		UpdateCityRequest request = UpdateCityRequestFixtures.creatRequest();
 		City city = CityFixtures.createCity();
-
+		
 		when(cityService.findCityByCode(anyString())).thenReturn(Optional.of(city));
 		doThrow(AlreadyExistsException.class).when(cityService).update(any(City.class));
-
+		
 		ObjectMapper mapper = new ObjectMapper();
 		String content = mapper.writeValueAsString(request);
-
+		
 		// exercise
-		mvc.perform(MockMvcRequestBuilders.post("/citys/{code}", city.getCode())
+		mvc.perform(MockMvcRequestBuilders.post("/cities/{code}", city.getCode())
 			.content(content)
 			.contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isConflict());
 	}
-
+	
 	/**
-	 * Test PUT "/citys/{code}"
+	 * Test PUT "/cities/{code}"
 	 *
-	 * @throws AlreadyExistsException
+	 * @throws InvalidModelException If city validate error
 	 */
 	@Test
 	public void testUpdateCityThrowIME() throws Exception {
 		// setup
 		UpdateCityRequest request = UpdateCityRequestFixtures.creatRequest();
 		City city = CityFixtures.createCity();
-
+		
 		when(cityService.findCityByCode(anyString())).thenReturn(Optional.of(city));
 		doThrow(InvalidModelException.class).when(cityService).update(any(City.class));
-
+		
 		ObjectMapper mapper = new ObjectMapper();
 		String content = mapper.writeValueAsString(request);
-
+		
 		// exercise
-		mvc.perform(MockMvcRequestBuilders.post("/citys/{code}", city.getCode())
-				.content(content)
-				.contentType(MediaType.APPLICATION_JSON))
-				// verify
-				.andExpect(status().isBadRequest());
+		mvc.perform(MockMvcRequestBuilders.post("/cities/{code}", city.getCode())
+			.content(content)
+			.contentType(MediaType.APPLICATION_JSON))
+			// verify
+			.andExpect(status().isBadRequest());
 	}
-
+	
+	@Test
+	public void testUpdateCityPatch() throws Exception {
+		// setup
+		City city = CityFixtures.createCity();
+		when(cityService.findCityByCode(anyString()))
+			.thenReturn(Optional.of(city));
+		when(cityService.update(any(City.class))).thenReturn(city);
+		when(jsonPatches.patch(anyString(), any(City.class))).thenReturn(Optional.of(city));
+		// exercise
+		mvc.perform(patch("/cities/{code}", city.getCode())
+			.contentType("application/json-patch+json")
+			.content("[{\"op\":\"replace\",\"path\":\"/city_kana\",\"value\":\"test\"}]"))
+			.andDo(print())
+			// verify
+			.andExpect(status().isOk());
+	}
+	
 	/**
-	 * Test DELETE "/citys/{code}"
+	 * Test DELETE "/cities/{code}"
 	 *
 	 */
 	@Test
@@ -315,16 +334,16 @@ public class CityControllerTest {
 		City city = CityFixtures.createCity();
 		when(cityService.findCityByCode(anyString())).thenReturn(Optional.of(city));
 		when(cityService.deleteCity(any(City.class))).thenReturn(city);
-
+		
 		// exercise
-		mvc.perform(delete("/citys/{code}", city.getCityId()))
+		mvc.perform(delete("/cities/{code}", city.getCityId()))
 			.andDo(print())
 			// verify
 			.andExpect(status().isOk());
 	}
-
+	
 	/**
-	 * Test DELETE "/citys/{code}" throws NotFoundException
+	 * Test DELETE "/cities/{code}" throws NotFoundException
 	 *
 	 */
 	@Test
@@ -333,7 +352,7 @@ public class CityControllerTest {
 		City city = CityFixtures.createCity();
 		when(cityService.findCityByCode(anyString())).thenReturn(Optional.empty());
 		// exercise
-		mvc.perform(delete("/citys/{code}", city.getCityId()))
+		mvc.perform(delete("/cities/{code}", city.getCityId()))
 			.andDo(print())
 			// verify
 			.andExpect(status().isNotFound());

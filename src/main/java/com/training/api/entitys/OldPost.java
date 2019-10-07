@@ -2,8 +2,11 @@ package com.training.api.entitys;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.Column;
@@ -18,7 +21,10 @@ import javax.validation.constraints.NotNull;
  * OldPost model
  *
  */
+@ToString
+@EqualsAndHashCode
 @Entity
+@NoArgsConstructor
 @Table(name = "tbl_old_post")
 public class OldPost {
 	
@@ -37,14 +43,7 @@ public class OldPost {
 	@Getter
 	@Setter
 	private String oldPostCode;
-	
-	
-	/**
-	 * Create instance
-	 *
-	 */
-	public OldPost() {
-	}
+
 	
 	/**
 	 * Create instance

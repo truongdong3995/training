@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  */
 @RunWith(SpringRunner.class)
-@WebMvcTest(PostController.class)
+@WebMvcTest(PostOfficeController.class)
 public class PostOfficeControllerTest {
 	
 	@Autowired
@@ -121,7 +121,7 @@ public class PostOfficeControllerTest {
 		when(postOfficeService.searchAddressByPostCode(anyString())).thenReturn(responseList);
 		
 		// exercise
-		mvc.perform(get("/posts_offices/posts/{postCode}",
+		mvc.perform(get("/post_offices/posts/{postCode}",
 				tblArea.getPost().getPostCode())
 					.contentType(MediaType.APPLICATION_JSON))
 			// verify
@@ -144,7 +144,7 @@ public class PostOfficeControllerTest {
 		doThrow(IllegalArgumentException.class).when(postOfficeService).searchAddressByPostCode(anyString());
 		
 		// exercise
-		mvc.perform(get("/posts_offices/posts/{postCode}",
+		mvc.perform(get("/post_offices/posts/{postCode}",
 				tblArea.getPost().getPostCode())
 					.contentType(MediaType.APPLICATION_JSON))
 			// verify
