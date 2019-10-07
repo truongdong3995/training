@@ -2,7 +2,6 @@ package com.training.api.controllers;
 
 import java.util.List;
 
-import com.training.api.configs.JsonPatches;
 import com.training.api.entitys.City;
 import com.training.api.models.HttpExceptionResponse;
 import com.training.api.models.RegisterCityRequest;
@@ -34,8 +33,6 @@ public class CityController {
 	private final CityService cityService;
 	
 	private final ApiMessage apiMessage;
-	
-	private final JsonPatches jsonPatches;
 	
 	
 	/**

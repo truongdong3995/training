@@ -2,8 +2,6 @@ package com.training.api.controllers;
 
 import java.util.List;
 
-import com.training.api.configs.JsonPatches;
-import com.training.api.configs.UpdateRequest;
 import com.training.api.entitys.Post;
 import com.training.api.models.HttpExceptionResponse;
 import com.training.api.models.RegisterPostRequest;
@@ -37,8 +35,6 @@ public class PostController {
 	private final PostService postService;
 	
 	private final ApiMessage apiMessage;
-	
-	private final JsonPatches jsonPatches;
 	
 	
 	/**
@@ -93,37 +89,6 @@ public class PostController {
 			return new ResponseEntity<>(new HttpExceptionResponse("409", e.getMessage()), HttpStatus.CONFLICT);
 		} catch (InvalidModelException e) {
 			return new ResponseEntity<>(new HttpExceptionResponse("400", e.getMessage()), HttpStatus.BAD_REQUEST);
-		}
-	}
-	
-	/**
-	 *Update existing {@link Post}.
-	 *
-	 * @param request The Post request to update
-	 * @param postCode City code
-	 * @return
-	 */
-	@RequestMapping(value = "/{postCode}", method = RequestMethod.PATCH, consumes = {
-		"application/json",
-		"application/json-patch+json"
-	})
-	public ResponseEntity updatePost(@Validated @RequestBody String request,
-			@PathVariable("postCode") String postCode) {
-		try {
-			Post updatePost = postService.findPostByPostCode(postCode).orElseThrow(
-					() -> new NotFoundException(
-							apiMessage.getMessageError("controller.post.update.post_not_found", postCode)));
-			Post patches = (Post) jsonPatches.patch(request, updatePost).get();
-			patches.setPostId(updatePost.getPostId());
-			Post updatedPost = postService.update(patches);
-			
-			return new ResponseEntity<>(updatedPost, HttpStatus.OK);
-		} catch (NotFoundException e) {
-			return new ResponseEntity<>(new HttpExceptionResponse("404", e.getMessage()), HttpStatus.NOT_FOUND);
-		} catch (IllegalArgumentException | InvalidModelException e) {
-			return new ResponseEntity<>(new HttpExceptionResponse("400", e.getMessage()), HttpStatus.BAD_REQUEST);
-		} catch (AlreadyExistsException e) {
-			return new ResponseEntity<>(new HttpExceptionResponse("409", e.getMessage()), HttpStatus.CONFLICT);
 		}
 	}
 	

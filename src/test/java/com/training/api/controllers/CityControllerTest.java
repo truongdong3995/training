@@ -1,7 +1,6 @@
 package com.training.api.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.training.api.configs.JsonPatches;
 import com.training.api.entitys.City;
 import com.training.api.entitys.fixtures.CityFixtures;
 import com.training.api.models.RegisterCityRequest;
@@ -55,11 +54,8 @@ public class CityControllerTest {
 	
 	@MockBean
 	private ApiMessage apiMessage;
-
-
-	@MockBean
-	private JsonPatches jsonPatches;
-
+	
+	
 	/**
 	 * Test GET "/cities/"
 	 *
@@ -305,23 +301,6 @@ public class CityControllerTest {
 			.contentType(MediaType.APPLICATION_JSON))
 			// verify
 			.andExpect(status().isBadRequest());
-	}
-	
-	@Test
-	public void testUpdateCityPatch() throws Exception {
-		// setup
-		City city = CityFixtures.createCity();
-		when(cityService.findCityByCode(anyString()))
-			.thenReturn(Optional.of(city));
-		when(cityService.update(any(City.class))).thenReturn(city);
-		when(jsonPatches.patch(anyString(), any(City.class))).thenReturn(Optional.of(city));
-		// exercise
-		mvc.perform(patch("/cities/{code}", city.getCode())
-			.contentType("application/json-patch+json")
-			.content("[{\"op\":\"replace\",\"path\":\"/city_kana\",\"value\":\"test\"}]"))
-			.andDo(print())
-			// verify
-			.andExpect(status().isOk());
 	}
 	
 	/**
