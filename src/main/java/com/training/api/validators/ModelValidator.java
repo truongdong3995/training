@@ -1,9 +1,9 @@
 package com.training.api.validators;
 
-import com.training.api.utils.exceptions.InvalidModelException;
+import com.training.api.model.InvalidModelException;
 
 /**
- * Model Validator Interface
+ * Model Validator Interface.
  *
  */
 public interface ModelValidator {

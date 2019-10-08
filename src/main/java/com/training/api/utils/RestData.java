@@ -4,6 +4,10 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * TODO
+ *
+ */
 @AllArgsConstructor
 public class RestData<T> {
 	

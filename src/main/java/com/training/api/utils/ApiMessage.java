@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 
 /**
- * Class handle message of API
+ * Class handle message of API.
  *
  */
 @AllArgsConstructor
@@ -16,7 +16,7 @@ public class ApiMessage {
 	private final MessageSource messageSource;
 
 	/**
-	 * Get message from message properties
+	 * Get message from message properties.
 	 *
 	 * @param code message code
 	 *

@@ -1,18 +1,3 @@
-/*
-Navicat MySQL Data Transfer
-
-Source Server         : localhost
-Source Server Version : 50643
-Source Host           : localhost:3306
-Source Database       : metropolis
-
-Target Server Type    : MYSQL
-Target Server Version : 50643
-File Encoding         : 65001
-
-Date: 2019-09-30 08:37:03
-*/
-
 SET FOREIGN_KEY_CHECKS=0;
 
 -- ----------------------------
@@ -36,4 +21,4 @@ CREATE TABLE `tbl_area` (
   CONSTRAINT `city_id` FOREIGN KEY (`city_id`) REFERENCES `tbl_city` (`city_id`),
   CONSTRAINT `tbl_area_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `tbl_post` (`post_id`),
   CONSTRAINT `tbl_area_ibfk_2` FOREIGN KEY (`old_post_id`) REFERENCES `tbl_old_post` (`old_post_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=131071 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;

@@ -1,6 +1,6 @@
 package com.training.api.validators;
 
-import com.training.api.utils.exceptions.InvalidModelException;
+import com.training.api.model.InvalidModelException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Model Validator Implementation
+ * Model Validator Implementation.
  *
  */
 @RequiredArgsConstructor

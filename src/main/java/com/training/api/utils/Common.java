@@ -1,12 +1,12 @@
 package com.training.api.utils;
 
 /**
- * Class common
+ * Class common.
  */
 public class Common {
 	
 	/**
-	 * Check the number is halfsize
+	 * Check the number is half size.
 	 *
 	 * @param input string requires processing
 	 * @return True input is number halfsize
@@ -16,7 +16,7 @@ public class Common {
 	}
 	
 	/**
-	 * Remove space and "-" from input
+	 * Remove space and "-" from input.
 	 *
 	 * @param input string requires processing
 	 * @return string after processing
