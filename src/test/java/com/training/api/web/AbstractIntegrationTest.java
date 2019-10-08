@@ -4,7 +4,6 @@ import com.training.api.web.cities.RegisterCityRequest;
 import com.training.api.web.posts.RegisterPostRequest;
 import com.training.api.web.cities.RegisterCityRequestFixtures;
 import com.training.api.web.posts.RegisterPostRequestFixtures;
-import net.moznion.random.string.RandomStringGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;

@@ -3,7 +3,7 @@ package com.training.api.web.postoffices;
 import com.training.api.model.areas.Area;
 
 /**
- * Fixtures for {@link SearchPostCodeResponse}
+ * Fixtures for search by post code
  *
  */
 class SearchPostCodeResponseFixtures {
