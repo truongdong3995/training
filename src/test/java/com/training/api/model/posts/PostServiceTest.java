@@ -47,38 +47,6 @@ public class PostServiceTest {
 	}
 	
 	/**
-	 * Test find Post by
-	 *
-	 */
-	@Test
-	public void find() {
-		// setup
-		Post tblPost = PostFixtures.createPost();
-		when(postRepository.findByPostCode(anyString())).thenReturn(Optional.of(tblPost));
-		
-		// exercise
-		Optional<Post> actual = sut.find(tblPost.getPostCode());
-		
-		//verify
-		assertThat(actual).isPresent();
-		assertThat(actual.get()).isEqualTo(tblPost);
-		verify(postRepository, times(1)).findByPostCode(tblPost.getPostCode());
-	}
-	
-	/**
-	 * Test find Post by post code throws IllegalArgumentException.
-	 *
-	 */
-	@Test
-	public void findPostByIdThrowIAE() {
-		// setup
-		String postCode = "TEST";
-		// exercise
-		assertThatThrownBy(() -> sut.find(postCode))
-			.isInstanceOf(IllegalArgumentException.class);
-	}
-	
-	/**
 	 * Test create new Post.
 	 *
 	 */
@@ -133,6 +101,38 @@ public class PostServiceTest {
 	}
 	
 	/**
+	 * Test find Post by
+	 *
+	 */
+	@Test
+	public void find() {
+		// setup
+		Post tblPost = PostFixtures.createPost();
+		when(postRepository.findByPostCode(anyString())).thenReturn(Optional.of(tblPost));
+		
+		// exercise
+		Optional<Post> actual = sut.find(tblPost.getPostCode());
+		
+		//verify
+		assertThat(actual).isPresent();
+		assertThat(actual.get()).isEqualTo(tblPost);
+		verify(postRepository, times(1)).findByPostCode(tblPost.getPostCode());
+	}
+	
+	/**
+	 * Test find Post by post code throws IllegalArgumentException.
+	 *
+	 */
+	@Test
+	public void findPostByIdThrowIAE() {
+		// setup
+		String postCode = "TEST";
+		// exercise
+		assertThatThrownBy(() -> sut.find(postCode))
+			.isInstanceOf(IllegalArgumentException.class);
+	}
+	
+	/**
 	 * Test update Post if exist.
 	 *
 	 */
@@ -146,6 +146,17 @@ public class PostServiceTest {
 		Post actual = sut.update(tblPost);
 		// verify
 		assertThat(actual).isEqualTo(tblPost);
+	}
+	
+	/**
+	 * Test update Post if exist throws NullPointerException.
+	 *
+	 */
+	@Test
+	public void updateThrowsNPE() {
+		// exercise
+		assertThatThrownBy(() -> sut.update(null))
+			.isInstanceOf(NullPointerException.class);
 	}
 	
 	/**
@@ -191,5 +202,16 @@ public class PostServiceTest {
 		// verify
 		verify(postRepository, times(1)).delete(tblPost);
 		assertThat(actual).isEqualTo(tblPost);
+	}
+	
+	/**
+	 * Test delete Post if exist throws NullPointerException.
+	 *
+	 */
+	@Test
+	public void deleteThrowsNPE() {
+		// exercise
+		assertThatThrownBy(() -> sut.delete(null))
+			.isInstanceOf(NullPointerException.class);
 	}
 }

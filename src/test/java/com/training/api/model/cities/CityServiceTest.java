@@ -39,45 +39,14 @@ public class CityServiceTest {
 	
 	@Mock
 	ModelValidator modelValidator;
-
+	
 	@Mock
 	private ApiMessage apiMessage;
-
-
+	
+	
 	@Before
 	public void setUp() {
 		sut = new CityService(cityRepository, areaRepository, apiMessage, modelValidator);
-	}
-	
-	/**
-	 * Test find City by id.
-	 *
-	 */
-	@Test
-	public void find() {
-		// setup
-		City city = CityFixtures.createCity();
-		Mockito.when(cityRepository.findByCityCode(anyString())).thenReturn(Optional.of(city));
-		
-		// exercise
-		Optional<City> actual = sut.find(city.getCityCode());
-		
-		//verify
-		assertThat(actual).isPresent();
-		assertThat(actual.get()).isEqualTo(city);
-		verify(cityRepository, times(1)).findByCityCode(city.getCityCode());
-	}
-	
-	/**
-	 * Test find City by code throws IllegalArgumentException.
-	 *
-	 */
-	@Test
-	public void findThrowIAE() {
-		String code = "TEST";
-		// exercise
-		assertThatThrownBy(() -> sut.find(code))
-			.isInstanceOf(IllegalArgumentException.class);
 	}
 	
 	/**
@@ -131,6 +100,37 @@ public class CityServiceTest {
 		doThrow(InvalidModelException.class).when(modelValidator).validate(any(City.class));
 		// exercise
 		assertThatThrownBy(() -> sut.create(city)).isInstanceOf(InvalidModelException.class);
+	}
+	
+	/**
+	 * Test find City by id.
+	 *
+	 */
+	@Test
+	public void find() {
+		// setup
+		City city = CityFixtures.createCity();
+		Mockito.when(cityRepository.findByCityCode(anyString())).thenReturn(Optional.of(city));
+		
+		// exercise
+		Optional<City> actual = sut.find(city.getCityCode());
+		
+		//verify
+		assertThat(actual).isPresent();
+		assertThat(actual.get()).isEqualTo(city);
+		verify(cityRepository, times(1)).findByCityCode(city.getCityCode());
+	}
+	
+	/**
+	 * Test find City by code throws IllegalArgumentException.
+	 *
+	 */
+	@Test
+	public void findThrowIAE() {
+		String code = "TEST";
+		// exercise
+		assertThatThrownBy(() -> sut.find(code))
+			.isInstanceOf(IllegalArgumentException.class);
 	}
 	
 	/**
@@ -201,5 +201,16 @@ public class CityServiceTest {
 		// verify
 		verify(cityRepository, times(1)).delete(city);
 		assertThat(actual).isEqualTo(city);
+	}
+	
+	/**
+	 * Test delete City if exist throws NullPointerException.
+	 *
+	 */
+	@Test
+	public void deleteCityThrowNPE() {
+		// exercise
+		assertThatThrownBy(() -> sut.delete(null))
+			.isInstanceOf(NullPointerException.class);
 	}
 }
